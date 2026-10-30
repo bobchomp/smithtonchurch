@@ -1,0 +1,14 @@
+{% comment %} Shows a list of people from _data/team.yml. Pass people= and optionally compact=true. {% endcomment %}
+<ul class="team-grid{% if include.compact %} team-grid-compact{% endif %}">
+  {% for person in include.people %}
+  <li class="team-member">
+    <img src="{{ '/assets/images/team/' | append: person.photo | relative_url }}" alt="" width="400" height="400" loading="lazy">
+    <div class="team-member-body">
+      <h3>{{ person.name }}</h3>
+      {% if person.role %}<p class="team-role">{{ person.role }}</p>{% endif %}
+      {% if person.bio %}<p>{{ person.bio }}</p>{% endif %}
+      {% if person.email %}<p class="team-email"><a href="mailto:{{ person.email }}">{{ person.email }}</a>{% if person.email_note %} ({{ person.email_note }}){% endif %}</p>{% endif %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>

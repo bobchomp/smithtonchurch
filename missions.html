@@ -1,0 +1,69 @@
+---
+title: Missions
+heading: Missions Outreach
+permalink: /missions/
+description: The mission partners supported by Smithton Church, Inverness, at home and around the world, and how to pray for them.
+---
+<section class="section">
+  <div class="container mission-intro">
+    <div class="prose">
+      <h2>A message from our Missions Committee</h2>
+      <p>At Smithton Church, we are privileged to support various individuals, couples, and organisations involved in mission work both locally and globally. Our committee meets regularly to distribute funds, update the congregation, and foster prayerful interest in our mission partners.</p>
+      <p>For more information on how you can show your support, please view the full list of our partners’ prayer points below or speak to any committee member.</p>
+      <p>Blessings,<br>The Missions Committee</p>
+    </div>
+    <figure>
+      <img src="{{ '/assets/images/missions/committee.jpg' | relative_url }}" alt="The Smithton Church Mission Committee" loading="lazy">
+      <figcaption><strong>Smithton Church Mission Committee (February 2026).</strong> Left to right: David Williams, Elaine McRury, Geoff Hulks, Catherine Graham, Elizabeth Barnie, Ewen Macdonald, Iain Meredith, George Gray.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section section-alt section-tight">
+  <div class="container">
+    <h2 class="section-title">Our mission partners</h2>
+    <nav class="partner-links" aria-label="Mission partners">
+      {% for partner in site.data.missions %}
+      <a href="#{{ partner.name | slugify }}">{{ partner.name | split: ':' | first }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+</section>
+
+{% for partner in site.data.missions %}
+<section class="section partner{% cycle '', ' section-alt' %}" id="{{ partner.name | slugify }}">
+  <div class="container partner-inner">
+    {% if partner.image %}
+    <img class="partner-image" src="{{ '/assets/images/missions/' | append: partner.image | relative_url }}" alt="" loading="lazy">
+    {% endif %}
+    <div class="prose">
+      <h2>{{ partner.name }}</h2>
+      {% if partner.location %}<p class="eyebrow">{{ partner.location }}</p>{% endif %}
+      {{ partner.description | markdownify }}
+      {% if partner.prayer %}
+      <div class="prayer">
+        <h3>Please pray</h3>
+        <ul>
+          {% for point in partner.prayer %}<li>{{ point }}</li>{% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      {% if partner.links %}
+      <ul class="link-list">
+        {% for link in partner.links %}
+        {% assign external = link.url | slice: 0, 4 %}
+        <li><a href="{% if external == 'http' %}{{ link.url }}{% else %}{{ link.url | relative_url }}{% endif %}">{{ link.title }}</a></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endfor %}
+
+<section class="section section-tight">
+  <div class="container narrow center prose">
+    <h2>We’d love to hear from you</h2>
+    <p>Please contact any of the members of the committee or the <a href="mailto:{{ site.church.email }}">church office</a> if you would like any further information about any of our mission partners.</p>
+  </div>
+</section>

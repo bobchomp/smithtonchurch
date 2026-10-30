@@ -1,0 +1,5 @@
+# To publish a new weekly bulletin:
+#   1. Upload the PDF into the assets/docs/bulletins folder.
+#   2. Change "file" and "date" below to match.
+date: Sunday 1 November 2026
+file: 20261101-Bulletin-web.pdf

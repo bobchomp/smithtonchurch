@@ -1,0 +1,23 @@
+# The main menu. "url" starting with / is a page on this site; anything else is an external link.
+# Add "children" to make a drop-down.
+- title: About Us
+  url: /about-us/
+  children:
+    - title: About Us
+      url: /about-us/
+    - title: Our Vision
+      url: /our-vision/
+- title: Meet The Team
+  url: /team/
+- title: Sermons
+  url: https://www.youtube.com/@SmithtonChurchVideo/streams
+- title: Weekly Bulletin
+  url: /weekly-devotional/
+- title: What's On
+  url: /community/
+- title: Missions
+  url: /missions/
+- title: Conferencing Venue
+  url: /conferencing-venue-inverness/
+- title: Giving
+  url: /giving/

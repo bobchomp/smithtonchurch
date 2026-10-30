@@ -1,0 +1,19 @@
+---
+title: Weekly Bulletin
+permalink: /weekly-devotional/
+description: Read this week's Smithton Church bulletin.
+---
+{% assign bulletin = site.data.bulletin %}
+<section class="section">
+  <div class="container narrow bulletin">
+    <a class="bulletin-cover" href="{{ '/assets/docs/bulletins/' | append: bulletin.file | relative_url }}">
+      <img src="{{ '/assets/images/bulletin.jpg' | relative_url }}" alt="" width="353" height="479">
+    </a>
+    <div>
+      <p class="eyebrow">This week’s bulletin</p>
+      <h2>{{ bulletin.date }}</h2>
+      <p>Catch up on the news, notices and prayer points for the week ahead.</p>
+      <p><a class="button" href="{{ '/assets/docs/bulletins/' | append: bulletin.file | relative_url }}">Read the bulletin (PDF)</a></p>
+    </div>
+  </div>
+</section>

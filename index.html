@@ -1,0 +1,75 @@
+---
+title: Home
+---
+<section class="hero">
+  <img src="{{ '/assets/images/hero.jpg' | relative_url }}" alt="The congregation gathered for a Sunday service in the Smithton Church auditorium" width="1536" height="852" fetchpriority="high">
+</section>
+
+<section class="section welcome">
+  <div class="container narrow">
+    <h1>Welcome to Smithton Church</h1>
+    <p class="lead">You found us! We are delighted that you did.</p>
+    <p>Whether you are looking for a spiritual home to learn more about Jesus and what it means to live for him, or for a place to worship while on holiday in the Highland capital, we hope you will find the information you need on this site.</p>
+    <p>If you don’t find what you are looking for, please do <a href="#contact">get in touch</a>.</p>
+    <p>We look forward to welcoming you to Smithton Church.</p>
+  </div>
+</section>
+
+<section class="section section-tight">
+  <div class="container services-row">
+    <div class="service-times">
+      <h2>Service Times</h2>
+      <dl>
+        <div><dt>Morning Service</dt><dd>10:30am</dd></div>
+        <div><dt>Evening Service</dt><dd>5:30pm</dd></div>
+      </dl>
+      <hr>
+      <dl>
+        <div><dt>1st &amp; 3rd Wednesday<br>Church Night</dt><dd>7:30pm</dd></div>
+        <div><dt>2nd &amp; 4th Wednesday<br>Community Groups</dt><dd>7:30pm</dd></div>
+      </dl>
+    </div>
+    <div class="livestream">
+      <iframe src="{{ site.church.livestream_embed }}" title="Smithton Church live stream" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>
+      <p>Can’t make it in person? Watch the service live here, or catch up on past <a href="{{ site.social.sermons }}">sermons on YouTube</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tight">
+  <div class="container info-cards">
+    <a class="info-card" href="#contact" style="--accent: #00bc87">
+      <span class="info-num">1</span>
+      <h3>Drop us a line</h3>
+      <p>Fill out the contact form below or call {{ site.church.phone }}</p>
+    </a>
+    <a class="info-card" href="{{ site.church.maps_link }}" style="--accent: #00bca9">
+      <span class="info-num">2</span>
+      <h3>Find us</h3>
+      <p>{{ site.church.address_lines | join: "<br>" }}</p>
+    </a>
+    <div class="info-card" style="--accent: #9956a0">
+      <span class="info-num">3</span>
+      <h3>Office hours</h3>
+      <p>Monday–Friday<br>9am–5pm</p>
+    </div>
+    <a class="info-card" href="{{ '/team/' | relative_url }}" style="--accent: #dd972e">
+      <span class="info-num">4</span>
+      <h3>Meet us</h3>
+      <p>Ministry Team<br>Support Team</p>
+    </a>
+  </div>
+</section>
+
+{% include contact-form.html %}
+
+<section class="section section-tight follow">
+  <div class="container">
+    <h2 class="section-title">Follow us</h2>
+    {% include social-links.html %}
+  </div>
+</section>
+
+<section class="map">
+  <iframe src="{{ site.church.maps_embed }}" title="Map showing Smithton Church, Murray Road, Inverness" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+</section>

@@ -1,0 +1,33 @@
+---
+title: Meet The Team
+heading: Smithton Church Team
+permalink: /team/
+description: Meet the ministry team, support team, elders and deacons of Smithton Church, Inverness.
+---
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Ministry Team</h2>
+    {% include team-grid.html people=site.data.team.ministry %}
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <h2 class="section-title">Support Team</h2>
+    {% include team-grid.html people=site.data.team.support %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Elders</h2>
+    {% include team-grid.html people=site.data.team.elders compact=true %}
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <h2 class="section-title">Deacons</h2>
+    {% include team-grid.html people=site.data.team.deacons compact=true %}
+  </div>
+</section>

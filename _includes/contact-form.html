@@ -1,0 +1,28 @@
+{% comment %}
+  The contact form. Pass heading= and intro= to change the text above it.
+  It only appears once formspree_id is set in _config.yml; until then visitors see the phone and email.
+{% endcomment %}
+<section class="section contact-section" id="contact">
+  <div class="container narrow">
+    <h2 class="section-title">{{ include.heading | default: "Contact Form" }}</h2>
+    <p class="section-intro">{{ include.intro | default: "Please fill in this form and it will be sent to the church office. We will get back to you as soon as we can." }}</p>
+    {% if site.formspree_id != "" %}
+    <form class="contact-form" action="https://formspree.io/f/{{ site.formspree_id }}" method="post">
+      <input type="hidden" name="_subject" value="Website enquiry: {{ page.title | default: 'Home' }}">
+      <div class="form-row">
+        <label>Name <input type="text" name="name" autocomplete="name" required maxlength="400"></label>
+        <label>Email <input type="email" name="email" autocomplete="email" required maxlength="400"></label>
+      </div>
+      <label>Subject <input type="text" name="subject" maxlength="400"></label>
+      <label>Message <textarea name="message" rows="7" required maxlength="2000"></textarea></label>
+      <input type="text" name="_gotcha" class="visually-hidden" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <button class="button" type="submit">Send</button>
+    </form>
+    {% else %}
+    <div class="contact-fallback">
+      <p>Call the church office on <a href="tel:{{ site.church.phone_link }}">{{ site.church.phone }}</a>
+        or email <a href="mailto:{{ site.church.email }}">{{ site.church.email }}</a>.</p>
+    </div>
+    {% endif %}
+  </div>
+</section>

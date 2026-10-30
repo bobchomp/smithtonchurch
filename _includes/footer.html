@@ -1,0 +1,28 @@
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div class="footer-brand">
+      <img src="{{ '/assets/images/logo-white.png' | relative_url }}" alt="Smithton Church" width="600" height="123" loading="lazy">
+      {% include social-links.html %}
+    </div>
+    <div>
+      <h2>Visit us</h2>
+      <p>
+        {% for line in site.church.address_lines %}{{ line }}<br>{% endfor %}
+        <a href="{{ site.church.maps_link }}">Get directions</a>
+      </p>
+      <p>Sundays at 10:30am &amp; 5:30pm</p>
+    </div>
+    <div>
+      <h2>Get in touch</h2>
+      <p>
+        <a href="tel:{{ site.church.phone_link }}">{{ site.church.phone }}</a><br>
+        <a href="mailto:{{ site.church.email }}">{{ site.church.email }}</a>
+      </p>
+      <p>Office hours: {{ site.church.office_hours }}</p>
+    </div>
+  </div>
+  <div class="container footer-bottom">
+    <p>&copy; {{ site.time | date: "%Y" }} Smithton Church. All rights reserved.</p>
+    <p class="footer-tagline">{{ site.tagline }}</p>
+  </div>
+</footer>

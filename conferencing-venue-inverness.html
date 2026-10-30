@@ -1,0 +1,61 @@
+---
+title: Conferencing Venue
+permalink: /conferencing-venue-inverness/
+description: Hire Smithton Church in Inverness for conferences, meetings and events – an auditorium with live streaming, meeting rooms, café, kitchen, free wifi and parking for around 200 cars.
+---
+<section class="section">
+  <div class="container venue-intro">
+    <div class="prose">
+      <h2>A church at the heart of the community</h2>
+      <p>As a church at the heart of the community, we welcome community use of our conferencing facilities. Smithton Church is a modern building with a variety of rooms also available for hire by external organisations.</p>
+      <p>There are additional meeting rooms of various sizes with free wifi throughout the building. We offer a complete solution for your event, using the very latest in digital technologies, modern catering facilities, and a large car park with spaces for around 200 vehicles.</p>
+      <p>Costs on application from the church office. Call <a href="tel:{{ site.church.phone_link }}">{{ site.church.phone }}</a> or <a href="#contact">send us a message</a>.</p>
+    </div>
+    <img src="{{ '/assets/images/venue/church.jpg' | relative_url }}" alt="Smithton Church building" loading="lazy">
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="feature-row">
+      <div>
+        <h2>Audio, visual and live stream facilities</h2>
+        <div class="photo-strip">
+          <img src="{{ '/assets/images/venue/mixing-desk.jpg' | relative_url }}" alt="The sound mixing desk" loading="lazy">
+          <img src="{{ '/assets/images/venue/av.jpg' | relative_url }}" alt="The audio-visual desk" loading="lazy">
+          <img src="{{ '/assets/images/venue/stream.jpg' | relative_url }}" alt="Live streaming equipment" loading="lazy">
+        </div>
+      </div>
+      <div>
+        <h2>Car parking</h2>
+        <p>Spaces available for around 200 vehicles.</p>
+        <div class="photo-strip">
+          <img src="{{ '/assets/images/venue/parking-1.jpg' | relative_url }}" alt="The church car park" loading="lazy">
+          <img src="{{ '/assets/images/venue/parking-2.jpg' | relative_url }}" alt="The church car park" loading="lazy">
+          <img src="{{ '/assets/images/venue/parking-3.jpg' | relative_url }}" alt="The church car park" loading="lazy">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">Conference rooms</h2>
+    <div class="card-grid">
+      {% for room in site.data.venue_rooms %}
+      <article class="card">
+        <img src="{{ '/assets/images/venue/' | append: room.image | relative_url }}" alt="" loading="lazy">
+        <div class="card-body">
+          <h3>{{ room.name }}</h3>
+          {% if room.details %}<p>{{ room.details }}</p>{% endif %}
+          {% if room.capacity %}<p><strong>Capacity:</strong> {{ room.capacity }}</p>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% capture venue_intro %}Send us a message using the form below, or call the church office on {{ site.church.phone }}.{% endcapture %}
+{% include contact-form.html heading="Enquire about availability" intro=venue_intro %}
