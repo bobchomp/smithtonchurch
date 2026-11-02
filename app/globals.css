@@ -76,10 +76,10 @@ p { margin: 0 0 1em; }
 .header-inner {
   max-width: 1300px;
   display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
-  min-height: 88px;
+  min-height: 72px;
 }
-.logo { flex-shrink: 0; }
-.logo img { width: 260px; }
+.logo { flex-shrink: 0; display: flex; align-items: center; }
+.logo img { width: 190px; height: auto; }
 
 .main-nav ul { list-style: none; margin: 0; padding: 0; }
 .main-nav > ul { display: flex; align-items: center; gap: 0.25rem; }
@@ -123,8 +123,8 @@ p { margin: 0 0 1em; }
 .menu-toggle-bars::after { top: 6px; }
 
 @media (max-width: 1250px) {
-  .logo img { width: 220px; }
-  .header-inner { min-height: 72px; }
+  .logo img { width: 170px; }
+  .header-inner { min-height: 64px; }
   .menu-toggle { display: inline-flex; }
   .main-nav {
     display: none;
