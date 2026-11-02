@@ -203,7 +203,7 @@ p { margin: 0 0 1em; }
   display: block;
   height: clamp(240px, 42vw, 560px);
   object-fit: cover;
-  object-position: 67% 17%;
+  object-position: 55% 60%;
 }
 
 .welcome { text-align: center; padding-bottom: 2rem; }

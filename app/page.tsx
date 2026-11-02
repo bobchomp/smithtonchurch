@@ -16,10 +16,10 @@ export default function Home() {
     <>
       <section className="hero">
         <Image
-          src="/images/hero.jpg"
-          alt="The congregation gathered for a Sunday service in the Smithton Church auditorium"
-          width={1536}
-          height={852}
+          src="/images/hero-aerial.jpg"
+          alt="Aerial view of Smithton Church and the surrounding area"
+          width={2400}
+          height={1350}
           sizes="100vw"
           priority
         />

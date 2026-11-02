@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     siteName: site.title,
     type: "website",
     locale: "en_GB",
-    images: ["/images/hero.jpg"],
+    images: ["/images/hero-aerial.jpg"],
   },
 };
 
