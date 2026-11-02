@@ -12,7 +12,7 @@ within a minute or two.
 
 | To change… | Edit this file |
 | --- | --- |
-| This week's bulletin | Upload the PDF to `public/docs/bulletins/`, then update `content/bulletin.yml` |
+| This week's bulletin | Upload it in the admin panel: **Dashboard → Weekly Bulletin** |
 | Team members, elders, deacons | `content/team.yml` (photos go in `public/images/team/`) |
 | What's On groups | `content/whats-on.yml` (images go in `public/images/whats-on/`) |
 | Mission partners and prayer points | `content/missions.yml` (images go in `public/images/missions/`) |
@@ -54,6 +54,24 @@ To set it up:
    at the domain registrar.
 
 Signing in lasts 12 hours. Changing `ADMIN_PIN` signs everyone out.
+
+### File storage (Supabase)
+
+Files uploaded in the admin panel, such as the weekly bulletin, are stored in
+[Supabase](https://supabase.com) Storage. To connect it:
+
+1. Create a free project at supabase.com.
+2. In the Supabase project, open **Project Settings → API Keys** and copy the **secret** key, and
+   from **Project Settings → Data API** copy the **Project URL**.
+3. In Vercel, add them as environment variables `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, then
+   redeploy. (Installing the Supabase integration from Vercel's marketplace also works.)
+
+A public storage bucket called `website` is created automatically on the first upload. Keep the
+secret key private: it gives full access to the Supabase project.
+
+Supabase pauses free projects after a week without activity. If that happens, uploads stop
+working and the website shows the bulletin built into the site (`content/bulletin.yml`) until the
+project is restored from the Supabase dashboard.
 
 ## Going live on Vercel
 

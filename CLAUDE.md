@@ -13,3 +13,8 @@
 - Admin auth: a single `ADMIN_PIN` env var (`lib/admin-auth.ts`). Pages inside `app/admin/(panel)/`
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` itself.
 - Add each new admin tool as a card on `app/admin/(panel)/page.tsx`.
+- Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
+  public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
+  Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.
+- Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
+  with a type it matches route files, and the `(site)` group means it won't match.
