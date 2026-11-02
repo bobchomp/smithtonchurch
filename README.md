@@ -19,8 +19,8 @@ within a minute or two.
 | Conference rooms | `content/venue-rooms.yml` (images go in `public/images/venue/`) |
 | Menu items | `content/navigation.yml` |
 | Phone, email, address, social links, live stream | `content/site.yml` |
-| Service times and welcome text | `app/page.tsx` |
-| About Us, Giving and other page text | `app/<page-name>/page.tsx` |
+| Service times and welcome text | `app/(site)/page.tsx` |
+| About Us, Giving and other page text | `app/(site)/<page-name>/page.tsx` |
 
 The `content` files are YAML: keep the indentation exactly as it is, and start each new person or
 item with `- name:` like the ones around it. If a change breaks the build, Vercel keeps the
