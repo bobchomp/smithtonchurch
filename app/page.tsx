@@ -52,7 +52,7 @@ export default function Home() {
             <hr />
             <dl>
               <div><dt>1st &amp; 3rd Wednesday<br />Church Night</dt><dd>7:30pm</dd></div>
-              <div><dt>2nd &amp; 4th Wednesday<br />Community Groups</dt><dd>7:30pm</dd></div>
+              <div><dt>2nd &amp; 4th Wednesday<br />Community Groups</dt></div>
             </dl>
           </div>
           <div className="livestream">
