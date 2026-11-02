@@ -41,6 +41,20 @@ The contact form uses [Formspree](https://formspree.io) (free for up to 50 messa
 
 Until that's done, the site shows the office phone number and email address where the form would be.
 
+## Admin panel
+
+The admin panel lives at **admin.smithtonchurch.com** (or `/admin/` on a Vercel preview address)
+and is protected by a PIN. It's a starting point; tools for managing the site will be added to it.
+
+To set it up:
+
+1. In Vercel, open the project's **Settings → Environment Variables** and add `ADMIN_PIN` with
+   the PIN you want. Use at least 8 digits; a short PIN is easy to guess. Then redeploy.
+2. In **Settings → Domains**, add `admin.smithtonchurch.com` and add the DNS record Vercel shows
+   at the domain registrar.
+
+Signing in lasts 12 hours. Changing `ADMIN_PIN` signs everyone out.
+
 ## Going live on Vercel
 
 1. Sign in at [vercel.com](https://vercel.com) with GitHub, click **Add New → Project**, and import

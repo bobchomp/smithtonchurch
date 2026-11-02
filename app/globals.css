@@ -428,3 +428,58 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 @media (max-width: 800px) {
   .footer-grid { grid-template-columns: 1fr; gap: 1.75rem; }
 }
+
+/* ---------- Admin panel ---------- */
+
+.admin { min-height: 100vh; background: var(--bg-alt); }
+
+.admin-login { min-height: 100vh; display: grid; place-items: center; padding: 1.25rem; }
+.admin-login-card {
+  width: 100%; max-width: 380px; background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 2rem; text-align: center;
+}
+.admin-login-card img { width: 200px; margin: 0 auto 1.25rem; }
+.admin-login-card h1 { font-size: 1.4rem; }
+.admin-login-form { display: grid; gap: 1rem; text-align: left; }
+.admin-login-form label { display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.95rem; }
+.admin-login-form input {
+  font: inherit; font-size: 1.2rem; letter-spacing: 0.2em; padding: 0.7rem 0.85rem;
+  border: 1px solid #c4ccd6; border-radius: 6px;
+}
+.admin-login-form input:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
+.admin-login-form .button { width: 100%; }
+.admin-login-form .button:disabled { opacity: 0.7; cursor: wait; }
+.admin-error { margin: 0; color: #b42318; font-size: 0.95rem; }
+
+.admin-bar { background: var(--blue); color: #fff; }
+.admin-bar-inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; }
+.admin-brand { display: flex; align-items: center; gap: 0.75rem; color: #fff; text-decoration: none; }
+.admin-brand img { width: 150px; }
+.admin-brand span {
+  font: 600 0.8rem var(--font-head); letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 0.2rem 0.5rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px;
+}
+.admin-brand:hover { color: #fff; }
+.admin-bar-actions { display: flex; align-items: center; gap: 1.25rem; font-size: 0.95rem; }
+.admin-bar-actions a { color: #fff; }
+.admin-bar-actions button {
+  font: inherit; color: var(--blue); background: #fff; border: 0; border-radius: 6px;
+  padding: 0.45rem 0.9rem; cursor: pointer; font-weight: 600;
+}
+
+.admin-main { padding: 2.5rem 0 4rem; }
+.admin-main h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+.admin-intro { color: var(--muted); margin-bottom: 2rem; }
+.admin-tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; }
+.admin-tool {
+  background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 1.5rem;
+}
+.admin-tool h2 { font-size: 1.1rem; }
+.admin-tool p { margin: 0; color: var(--muted); }
+.admin-tool-empty { border-style: dashed; box-shadow: none; background: transparent; }
+
+@media (max-width: 520px) {
+  .admin-brand img { width: 120px; }
+  .admin-bar-actions { gap: 0.75rem; font-size: 0.9rem; }
+}

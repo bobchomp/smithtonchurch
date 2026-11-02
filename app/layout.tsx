@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Open_Sans, Poppins } from "next/font/google";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import { navigation, site } from "@/lib/content";
+import { site } from "@/lib/content";
 import "./globals.css";
 
 const openSans = Open_Sans({ subsets: ["latin"], variable: "--font-open-sans" });
@@ -24,15 +22,11 @@ export const metadata: Metadata = {
   },
 };
 
+// Shared by the public website and the admin panel. Each has its own layout inside this one.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en-GB" className={`${openSans.variable} ${poppins.variable}`}>
-      <body>
-        <a className="skip-link" href="#main">Skip to content</a>
-        <Header navigation={navigation} />
-        <main id="main">{children}</main>
-        <Footer />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
