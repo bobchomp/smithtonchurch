@@ -201,7 +201,9 @@ p { margin: 0 0 1em; }
 .hero img {
   width: 100%;
   display: block;
-  height: clamp(240px, 42vw, 560px);
+  /* Take up just over half the screen height, so the welcome text below is always visible. */
+  height: clamp(200px, min(42vw, 55vh), 560px);
+  height: clamp(200px, min(42vw, 55svh), 560px);
   object-fit: cover;
   object-position: 55% 60%;
 }
