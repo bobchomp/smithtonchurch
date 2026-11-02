@@ -332,7 +332,8 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .team-role { font-family: var(--font-head); font-weight: 500; color: var(--muted); margin-bottom: 0.6rem; }
 .team-member-body p { font-size: 0.95rem; }
 .team-member-body > :last-child { margin-bottom: 0; }
-.team-email { overflow-wrap: anywhere; }
+.team-email { margin-top: 0.9rem; }
+.team-email .button { padding: 0.5rem 1.1rem; font-size: 0.95rem; }
 .team-grid-compact { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1.25rem; }
 .team-grid-compact .team-member { text-align: center; }
 .team-grid-compact .team-member-body { padding: 0.75rem 0.75rem 0.9rem; }
