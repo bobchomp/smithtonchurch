@@ -8,7 +8,7 @@ import { signOut } from "../actions";
 // Everything inside (panel) needs the admin PIN. Server actions must call requireAdmin() too.
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const onAdminHost = ((await headers()).get("host") ?? "").startsWith("admin.");
+  const onAdminHost = ((await headers()).get("host") ?? "").split(":")[0] === "admin.rossmdev.co.uk";
   return (
     <>
       <header className="admin-bar">

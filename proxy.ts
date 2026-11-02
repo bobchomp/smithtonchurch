@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-// Keeps the admin panel on its own subdomain:
-//   admin.smithtonchurch.com/            -> admin.smithtonchurch.com/admin/
-//   admin.smithtonchurch.com/<website>   -> smithtonchurch.com/<website>
-//   smithtonchurch.com/admin/...         -> admin.smithtonchurch.com/admin/...
+// Keeps the admin panel on its own address:
+//   admin.rossmdev.co.uk/            -> admin.rossmdev.co.uk/admin/
+//   admin.rossmdev.co.uk/<website>   -> smithtonchurch.com/<website>
+//   smithtonchurch.com/admin/...     -> admin.rossmdev.co.uk/admin/...
 // On any other address (Vercel previews, localhost) the admin panel is simply at /admin/.
 
 const SITE_HOST = "smithtonchurch.com";
-const ADMIN_HOST = `admin.${SITE_HOST}`;
+const ADMIN_HOST = "admin.rossmdev.co.uk";
 const MAIN_HOSTS = [SITE_HOST, `www.${SITE_HOST}`];
 
 export function proxy(request: NextRequest) {

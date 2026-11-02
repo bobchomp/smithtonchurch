@@ -8,7 +8,7 @@
 ## Layout
 
 - `app/(site)/` holds the public pages (header/footer in its layout). They are statically pre-rendered.
-- `app/admin/` is the admin panel. `proxy.ts` keeps it on admin.smithtonchurch.com and redirects
+- `app/admin/` is the admin panel. `proxy.ts` keeps it on admin.rossmdev.co.uk and redirects
   `/admin` on the main domain there. Addresses keep the `/admin/` prefix on the subdomain too.
 - Admin auth: a single `ADMIN_PIN` env var (`lib/admin-auth.ts`). Pages inside `app/admin/(panel)/`
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` itself.
