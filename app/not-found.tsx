@@ -2,14 +2,14 @@ import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PageBanner from "@/components/PageBanner";
-import { navigation } from "@/lib/content";
+import { navigation, site } from "@/lib/content";
 
 // Shown for any address that doesn't exist. It sits outside the (site) layout,
 // so it adds the header and footer itself.
 export default function NotFound() {
   return (
     <>
-      <Header navigation={navigation} />
+      <Header navigation={navigation} churchsuiteLink={site.churchsuite_link} />
       <main id="main">
         <PageBanner title="Page not found" />
         <section className="section">

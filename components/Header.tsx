@@ -15,7 +15,7 @@ function NavLink({ item, current }: { item: NavItem; current: string }) {
   );
 }
 
-export default function Header({ navigation }: { navigation: NavItem[] }) {
+export default function Header({ navigation, churchsuiteLink }: { navigation: NavItem[]; churchsuiteLink: string }) {
   const pathname = usePathname();
   const current = pathname.endsWith("/") ? pathname : `${pathname}/`;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -82,6 +82,11 @@ export default function Header({ navigation }: { navigation: NavItem[] }) {
                 </li>
               );
             })}
+            <li className="nav-cta">
+              <a href={churchsuiteLink} target="_blank" rel="noopener noreferrer">
+                My ChurchSuite<span className="visually-hidden"> (opens in a new tab)</span>
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
