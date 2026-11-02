@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { requireAdmin } from "@/lib/admin-auth";
-import { site } from "@/lib/content";
+import { ADMIN_HOST, SITE_HOST } from "@/lib/domains";
 import { signOut } from "../actions";
 
 // Everything inside (panel) needs the admin PIN. Server actions must call requireAdmin() too.
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
-  const onAdminHost = ((await headers()).get("host") ?? "").split(":")[0] === "admin.rossmdev.co.uk";
+  const onAdminHost = ((await headers()).get("host") ?? "").split(":")[0] === ADMIN_HOST;
   return (
     <>
       <header className="admin-bar">
@@ -18,7 +18,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
             <span>Admin</span>
           </Link>
           <div className="admin-bar-actions">
-            <a href={onAdminHost ? site.url : "/"}>View website</a>
+            <a href={onAdminHost ? `https://${SITE_HOST}/` : "/"}>View website</a>
             <form action={signOut}>
               <button type="submit">Sign out</button>
             </form>

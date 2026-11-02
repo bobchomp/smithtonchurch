@@ -1,14 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { ADMIN_HOST, MAIN_HOSTS, SITE_HOST } from "./lib/domains";
 
 // Keeps the admin panel on its own address:
 //   admin.rossmdev.co.uk/            -> admin.rossmdev.co.uk/admin/
-//   admin.rossmdev.co.uk/<website>   -> smithtonchurch.com/<website>
-//   smithtonchurch.com/admin/...     -> admin.rossmdev.co.uk/admin/...
+//   admin.rossmdev.co.uk/<website>   -> rossmdev.co.uk/<website>
+//   rossmdev.co.uk/admin/...         -> admin.rossmdev.co.uk/admin/...
+// The addresses are set in lib/domains.ts.
 // On any other address (Vercel previews, localhost) the admin panel is simply at /admin/.
-
-const SITE_HOST = "smithtonchurch.com";
-const ADMIN_HOST = "admin.rossmdev.co.uk";
-const MAIN_HOSTS = [SITE_HOST, `www.${SITE_HOST}`];
 
 export function proxy(request: NextRequest) {
   const host = (request.headers.get("host") ?? "").split(":")[0].toLowerCase();
