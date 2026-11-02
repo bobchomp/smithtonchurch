@@ -1,71 +1,72 @@
 # Smithton Church website
 
-The website for [Smithton Church, Inverness](https://smithtonchurch.com). It's a simple static site
-built with [Jekyll](https://jekyllrb.com) and hosted free on GitHub Pages: no WordPress, no plugins,
-no hosting bills.
+The website for [Smithton Church, Inverness](https://smithtonchurch.com), built with
+[Next.js](https://nextjs.org) and hosted on [Vercel](https://vercel.com). No WordPress and no
+plugins to keep updated. Every page is pre-built, so the site is fast and has very little that can go wrong.
 
 Most updates are a matter of editing a text file on GitHub. Open the file, click the pencil
-icon, make the change, then click **Commit changes**. The live site updates a minute or two later.
+icon, make the change, then click **Commit changes**. Vercel rebuilds the live site automatically
+within a minute or two.
 
 ## Common updates
 
 | To change… | Edit this file |
 | --- | --- |
-| This week's bulletin | Upload the PDF to `assets/docs/bulletins/`, then update `_data/bulletin.yml` |
-| Team members, elders, deacons | `_data/team.yml` (photos go in `assets/images/team/`) |
-| What's On groups | `_data/whats_on.yml` (images go in `assets/images/whats-on/`) |
-| Mission partners and prayer points | `_data/missions.yml` (images go in `assets/images/missions/`) |
-| Conference rooms | `_data/venue_rooms.yml` (images go in `assets/images/venue/`) |
-| Menu items | `_data/navigation.yml` |
-| Phone, email, address, social links, live stream | `_config.yml` |
-| Service times and welcome text | `index.html` |
-| About Us, Giving and other page text | the matching `.html` file in the top folder |
+| This week's bulletin | Upload the PDF to `public/docs/bulletins/`, then update `content/bulletin.yml` |
+| Team members, elders, deacons | `content/team.yml` (photos go in `public/images/team/`) |
+| What's On groups | `content/whats-on.yml` (images go in `public/images/whats-on/`) |
+| Mission partners and prayer points | `content/missions.yml` (images go in `public/images/missions/`) |
+| Conference rooms | `content/venue-rooms.yml` (images go in `public/images/venue/`) |
+| Menu items | `content/navigation.yml` |
+| Phone, email, address, social links, live stream | `content/site.yml` |
+| Service times and welcome text | `app/page.tsx` |
+| About Us, Giving and other page text | `app/<page-name>/page.tsx` |
 
-The `_data` files are YAML: keep the indentation exactly as it is, and start each new person or
-item with `- name:` like the ones around it.
+The `content` files are YAML: keep the indentation exactly as it is, and start each new person or
+item with `- name:` like the ones around it. If a change breaks the build, Vercel keeps the
+previous version live and shows the error on the deployment, so the site never goes down.
 
 ### Uploading a file on GitHub
 
-Open the folder (for example `assets/docs/bulletins`), then click **Add file → Upload files**.
+Open the folder (for example `public/docs/bulletins`), then click **Add file → Upload files**.
 Keep file names lowercase with hyphens and no spaces, e.g. `20261108-Bulletin-web.pdf`.
 
 ## Contact form
 
-GitHub Pages can't send email by itself, so the contact form uses [Formspree](https://formspree.io)
-(free for up to 50 messages a month):
+The contact form uses [Formspree](https://formspree.io) (free for up to 50 messages a month):
 
 1. Sign up at formspree.io with the church office email address and create a new form.
 2. Copy the form's ID (the part after `/f/` in its URL, e.g. `xyzabcd`).
-3. Paste it into `formspree_id` in `_config.yml`.
+3. Paste it into `formspree_id` in `content/site.yml`.
 
 Until that's done, the site shows the office phone number and email address where the form would be.
 
-## Going live
+## Going live on Vercel
 
-1. **Turn on GitHub Pages:** in this repository go to **Settings → Pages**, set *Source* to
-   **Deploy from a branch**, choose the `main` branch and the `/ (root)` folder, and save.
-   The site appears at `https://bobchomp.github.io/smithtonchurch/` so it can be checked first.
-2. **Point the domain at it** when everyone is happy. In **Settings → Pages → Custom domain**
-   enter `smithtonchurch.com`, then at the domain registrar replace the website records with
-   GitHub's (see [GitHub's guide](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain)).
-   Only change the `A`/`AAAA`/`CNAME` records for the website. Leave any `MX` (email) records alone
-   so church email keeps working.
-3. Change `baseurl` in `_config.yml` to `""` once the custom domain is working.
-4. Tick **Enforce HTTPS** in Settings → Pages.
+1. Sign in at [vercel.com](https://vercel.com) with GitHub, click **Add New → Project**, and import
+   the `smithtonchurch` repository. Vercel detects Next.js; leave the settings as they are and click
+   **Deploy**. The site appears at a `….vercel.app` address so it can be checked first.
+2. When everyone is happy, go to the project's **Settings → Domains**, add `smithtonchurch.com`
+   (and `www.smithtonchurch.com`), and update the DNS records at the domain registrar as Vercel
+   shows. Only change the records for the website. Leave any `MX` (email) records alone so church
+   email keeps working.
+
+Vercel's free Hobby plan is for non-commercial use. If in doubt, check
+[Vercel's fair use guidelines](https://vercel.com/docs/limits/fair-use-guidelines) or ask Vercel.
 
 The page addresses match the old WordPress site (`/about-us/`, `/team/`, `/community/` and so on),
 so existing links and Google results keep working.
 
-## Previewing changes on your own computer (optional)
+## Working on the code (optional)
 
-You need Ruby installed. Then, in this folder:
+You need [Node.js](https://nodejs.org) 20 or newer. In this folder:
 
 ```bash
-bundle install
+npm install
 ```
 
 ```bash
-bundle exec jekyll serve --baseurl ""
+npm run dev
 ```
 
-Then open http://localhost:4000.
+Then open http://localhost:3000. Run `npm run build` to check everything builds before pushing.

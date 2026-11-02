@@ -1,0 +1,26 @@
+# Rooms shown on the "Conferencing Venue" page. Images live in public/images/venue/.
+- name: Auditorium
+  image: auditorium.jpg
+  details: >-
+    Our auditorium is fully equipped for live events and conferences, featuring 3 HD broadcast
+    cameras, vision mixing, a 12-channel audio mixer, radio microphones, 2 large 16×9 screens, and
+    HD projectors. Live streaming lets you reach a larger audience, connecting more people to your event.
+- name: Café
+  image: cafe.jpg
+  capacity: >-
+    Up to 70 people (10 tables of 7), or a more comfortable 56 people (8 tables of 7).
+- name: Small Hall
+  image: small-hall.jpg
+  capacity: 20 with tables, 40 without.
+- name: Small Creche
+  image: creche.jpg
+  capacity: 10–12 adults.
+- name: Quiet Room
+  image: quiet-room.jpg
+  capacity: >-
+    Seating for 7 adults, though 4 is more comfortable. Perfect for one-to-one meetings.
+- name: Games Hall
+  image: games-hall.jpg
+  capacity: Varies depending on purpose.
+- name: Kitchen
+  image: kitchen.jpg

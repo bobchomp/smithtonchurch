@@ -1,0 +1,33 @@
+# Church details used across the whole website.
+
+title: Smithton Church
+description: >-
+  Smithton Church, Inverness. Sunday services at 10:30am and 5:30pm, live services,
+  and a church at the heart of the community.
+tagline: knowing Jesus - making Jesus known
+url: https://smithtonchurch.com
+
+phone: "01463 793191"
+phone_link: "+441463793191"
+email: office@smithtonchurch.com
+treasurer_email: treasurer@smithtonchurch.com
+address_lines:
+  - Murray Road, Smithton
+  - Inverness, IV2 7YU
+office_hours: Monday–Friday, 9am–5pm
+
+maps_link: "https://www.google.com/maps/search/?api=1&query=Smithton+Church+Murray+Road+Inverness+IV2+7YU"
+maps_embed: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2175.523484532445!2d-4.145166223176257!3d57.48168005752188!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x488f70b5b08173c1%3A0xddace8a94c0646a!2sSmithton%20Church!5e1!3m2!1sen!2suk!4v1772118354966!5m2!1sen!2suk"
+livestream_embed: "https://stream.rossmackenzie.co.uk/embed/468127c7-2fa6-44ef-b93a-d7d3b3aea613"
+donate_link: "https://donate.mydona.com/smithton-church"
+
+social:
+  facebook: "https://www.facebook.com/smithtonchurch/"
+  youtube: "https://www.youtube.com/@SmithtonChurchVideo"
+  sermons: "https://www.youtube.com/@SmithtonChurchVideo/streams"
+  instagram: "https://www.instagram.com/smithton.church/"
+
+# Contact form: create a free form at https://formspree.io that sends to the church office
+# email, then paste its ID here (the part after /f/ in the form's URL, e.g. "xyzabcd").
+# Until this is filled in, the site shows the office phone and email instead of the form.
+formspree_id: ""
