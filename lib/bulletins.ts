@@ -60,15 +60,26 @@ export async function listBulletins(): Promise<UploadedBulletin[]> {
     .sort((a, b) => b.date.localeCompare(a.date) || b.uploadedAt.getTime() - a.uploadedAt.getTime());
 }
 
-export async function getCurrentBulletin(): Promise<CurrentBulletin> {
+// What the public site needs to know about each bulletin.
+export type PublicBulletin = { date: string; label: string; url: string; coverUrl?: string };
+
+// Every uploaded bulletin, newest first (one per Sunday), plus the one to show as current.
+export async function getPublicBulletins(): Promise<{ current: CurrentBulletin; archive: PublicBulletin[] }> {
   try {
-    const [latest] = await listBulletins();
-    if (latest) return { label: formatBulletinDate(latest.date), url: latest.url, coverUrl: latest.coverUrl };
+    const seen = new Set<string>();
+    const archive = (await listBulletins())
+      .filter((b) => !seen.has(b.date) && seen.add(b.date))
+      .map((b) => ({ date: b.date, label: formatBulletinDate(b.date), url: b.url, coverUrl: b.coverUrl }));
+    if (archive.length) return { current: archive[0], archive };
   } catch (error) {
     // Storage unreachable: fall back rather than break the page.
     console.error("Could not list bulletins", error);
   }
-  return { label: fallbackBulletin.date, url: `/docs/bulletins/${fallbackBulletin.file}` };
+  return { current: { label: fallbackBulletin.date, url: `/docs/bulletins/${fallbackBulletin.file}` }, archive: [] };
+}
+
+export async function getCurrentBulletin(): Promise<CurrentBulletin> {
+  return (await getPublicBulletins()).current;
 }
 
 // One-off addresses the admin's browser uploads the PDF and its cover picture to directly

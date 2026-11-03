@@ -1,18 +1,23 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import BulletinCard from "@/components/BulletinCard";
+import BulletinFinder from "@/components/BulletinFinder";
 import PageBanner from "@/components/PageBanner";
-import { getCurrentBulletin } from "@/lib/bulletins";
+import { getPublicBulletins } from "@/lib/bulletins";
 
 export const metadata: Metadata = {
   title: "Weekly Bulletin",
-  description: "Read this week's Smithton Church bulletin.",
+  description: "Read this week's Smithton Church bulletin, and past bulletins.",
 };
 
 // Refreshed straight away when a bulletin is uploaded in the admin panel, and hourly as a fallback.
 export const revalidate = 3600;
 
+const PREVIOUS_COUNT = 3;
+
 export default async function WeeklyBulletin() {
-  const bulletin = await getCurrentBulletin();
+  const { current: bulletin, archive } = await getPublicBulletins();
+  const previous = archive.slice(1, 1 + PREVIOUS_COUNT);
   return (
     <>
       <PageBanner title="Weekly Bulletin" />
@@ -36,6 +41,22 @@ export default async function WeeklyBulletin() {
           </div>
         </div>
       </section>
+
+      {previous.length > 0 && (
+        <section className="section section-alt">
+          <div className="container narrow">
+            <h2 className="section-title">Previous bulletins</h2>
+            <div className="bulletin-grid">
+              {previous.map((b) => (
+                <BulletinCard key={b.date} bulletin={b} />
+              ))}
+            </div>
+
+            <h2 className="section-title bulletin-finder-title">Looking for an older bulletin?</h2>
+            <BulletinFinder archive={archive} />
+          </div>
+        </section>
+      )}
     </>
   );
 }

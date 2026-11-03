@@ -362,6 +362,35 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
   .bulletin-cover img { max-width: 220px; margin: 0 auto; }
 }
 
+.bulletin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+.bulletin-grid-single { grid-template-columns: minmax(0, 220px); justify-content: center; }
+.bulletin-card {
+  display: flex; flex-direction: column; align-items: center; gap: 0.35rem;
+  text-decoration: none; color: var(--text); text-align: center;
+}
+.bulletin-card-cover { display: block; width: 100%; max-width: 220px; }
+.bulletin-card-cover img {
+  width: 100%; height: auto; aspect-ratio: 700 / 990; object-fit: cover; border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(30, 45, 70, 0.16); transition: transform 0.15s, box-shadow 0.15s;
+}
+.bulletin-card:hover .bulletin-card-cover img { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(30, 45, 70, 0.22); }
+.bulletin-card-date { font: 600 1rem var(--font-head); color: var(--blue); margin-top: 0.5rem; }
+.bulletin-card-link { font-size: 0.9rem; color: var(--blue); text-decoration: underline; }
+.bulletin-finder-title { margin-top: 3rem; font-size: 1.35rem; }
+.bulletin-finder { display: grid; justify-items: center; gap: 1.25rem; }
+.bulletin-finder label { display: grid; gap: 0.35rem; font-weight: 600; text-align: center; }
+.bulletin-finder input {
+  font: inherit; padding: 0.6rem 0.85rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff; min-width: 220px;
+}
+.bulletin-finder-result { width: 100%; text-align: center; }
+.bulletin-finder-result p { margin: 0; color: var(--muted); }
+.link-button { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); text-decoration: underline; cursor: pointer; }
+@media (max-width: 640px) {
+  .bulletin-grid { gap: 0.75rem; }
+  .bulletin-card-date { font-size: 0.85rem; }
+  .bulletin-card-link { font-size: 0.8rem; }
+}
+
 .vision-image { width: 100%; max-width: 500px; border-radius: var(--radius); }
 
 .giving { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; }
