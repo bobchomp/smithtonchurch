@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
     if (!HIDE_FROM_SEARCH_ENGINES) return [];
     return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
   },
+  // Old addresses that have moved, so existing links and search results still work.
+  async redirects() {
+    return [{ source: "/conferencing-venue-inverness", destination: "/conferencing-venue/", permanent: true }];
+  },
   images: {
     formats: ["image/avif", "image/webp"],
   },
