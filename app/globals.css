@@ -515,6 +515,14 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   padding: 0.7rem 0; border-bottom: 1px solid var(--border);
 }
 .admin-list li:last-child { border-bottom: 0; }
+.admin-stack { display: grid; gap: 1.5rem; }
+.admin-find { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+.admin-find label { display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.95rem; flex: 1; min-width: 180px; }
+.admin-find input {
+  font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
+}
+.admin-find .button { padding: 0.6rem 1.25rem; }
+.admin-find-result { margin: 1rem 0 0; }
 .admin-list-item { display: flex; align-items: center; flex-wrap: wrap; gap: 0 0.5rem; }
 .admin-thumb { width: 36px; height: auto; border: 1px solid var(--border); border-radius: 2px; }
 .admin-badge {
