@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { formatBulletinDate, getCurrentBulletin, listBulletins } from "@/lib/bulletins";
-import { supabaseIsConfigured } from "@/lib/supabase";
+import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import { deleteBulletin } from "./actions";
 import DeleteButton from "./DeleteButton";
 import UploadForm from "./UploadForm";
@@ -57,7 +57,7 @@ export default async function BulletinAdmin() {
         <section className="admin-panel">
           <h2>Recent bulletins</h2>
           {uploads instanceof Error ? (
-            <p className="admin-error">Couldn’t load the list of bulletins from storage. {uploads.message}</p>
+            <p className="admin-error">Couldn’t load the list of bulletins from storage. {describeStorageError(uploads)}</p>
           ) : uploads.length === 0 ? (
             <p className="admin-muted">No bulletins have been uploaded here yet.</p>
           ) : (

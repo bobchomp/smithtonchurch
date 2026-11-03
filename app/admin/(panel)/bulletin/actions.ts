@@ -9,6 +9,7 @@ import {
   listBulletins,
   removeReplacedBulletins,
 } from "@/lib/bulletins";
+import { describeStorageError } from "@/lib/supabase";
 
 function refreshPages() {
   revalidatePath("/weekly-devotional");
@@ -23,7 +24,7 @@ export async function startBulletinUpload(date: string): Promise<{ uploadUrl?: s
     return { uploadUrl: await createBulletinUploadUrl(date) };
   } catch (error) {
     console.error("Could not start bulletin upload", error);
-    return { error: `Couldn’t connect to file storage. ${(error as Error).message}` };
+    return { error: `Couldn’t connect to file storage. ${describeStorageError(error)}` };
   }
 }
 

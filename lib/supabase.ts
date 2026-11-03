@@ -40,6 +40,19 @@ function settings() {
   };
 }
 
+// Explains a storage error for the admin panel, naming the address when it couldn't be reached.
+export function describeStorageError(error: unknown): string {
+  const message = (error as Error)?.message ?? String(error);
+  const host = settings().url ? new URL(settings().url!).host : undefined;
+  if (/fetch failed|timed out/i.test(message) && host) {
+    const hint = host.endsWith(".supabase.co")
+      ? "The Supabase project may be paused; restore it from the Supabase dashboard."
+      : "SUPABASE_URL in Vercel should be your project URL, like https://abcd1234.supabase.co";
+    return `Couldn’t reach ${host}. ${hint}`;
+  }
+  return message;
+}
+
 export function supabaseIsConfigured(): boolean {
   const { rawUrl, key } = settings();
   return Boolean(clean(rawUrl) && key);
