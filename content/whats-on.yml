@@ -1,11 +1,11 @@
 # Groups and activities on the "What's On" page, by day.
 # Images live in public/images/whats-on/ — landscape images (16:9) look best.
-# "details" is optional.
+# "details" is optional. Instead of an image, "graphic: service-times" shows the service times in the site's blue.
 
 - day: Sunday
   items:
     - name: Services
-      image: services.jpg
+      graphic: service-times
       details: Morning service at 10:30am and evening service at 5:30pm.
     - name: Creche
       image: creche.jpg

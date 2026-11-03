@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import CardImage from "@/components/CardImage";
+import ServiceTimesGraphic from "@/components/ServiceTimesGraphic";
 import PageBanner from "@/components/PageBanner";
 import { slugify, whatsOn } from "@/lib/content";
 
@@ -30,7 +31,11 @@ export default function WhatsOn() {
             <div className="card-grid">
               {day.items.map((item) => (
                 <article className="card" key={item.name}>
-                  <CardImage src={`/images/whats-on/${item.image}`} />
+                  {item.graphic === "service-times" ? (
+                    <ServiceTimesGraphic />
+                  ) : (
+                    item.image && <CardImage src={`/images/whats-on/${item.image}`} />
+                  )}
                   <div className="card-body">
                     <h3>{item.name}</h3>
                     {item.details && <p>{item.details}</p>}

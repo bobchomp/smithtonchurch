@@ -43,7 +43,7 @@ export type Team = { ministry: Person[]; support: Person[]; elders: Person[]; de
 
 export type WhatsOnDay = {
   day: string;
-  items: { name: string; image: string; details?: string }[];
+  items: { name: string; image?: string; graphic?: "service-times"; details?: string }[];
 };
 
 export type MissionPartner = {

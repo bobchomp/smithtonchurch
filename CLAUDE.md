@@ -18,3 +18,8 @@
   Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
+
+## Images
+
+- Never use the AI-generated photo of a congregation seated in the auditorium (the old WordPress homepage
+  image, `6A81AACC-…jpeg`, later `public/images/hero.jpg`). The owner has asked for it not to be used anywhere.

@@ -315,6 +315,16 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 }
 .card-image { position: relative; aspect-ratio: 16 / 9; background: var(--bg-alt); }
 .card-image img { object-fit: cover; }
+.service-times-graphic {
+  aspect-ratio: 16 / 9; background: var(--blue); color: #fff;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.4rem;
+  font-family: var(--font-head); text-align: center; padding: 0.5rem;
+}
+.service-times-graphic-title { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.85; }
+.service-times-graphic dl { display: flex; gap: 1.25rem; margin: 0; }
+.service-times-graphic dl > div { display: flex; flex-direction: column-reverse; }
+.service-times-graphic dd { margin: 0; font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+.service-times-graphic dt { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
 .card-body { padding: 1.1rem 1.25rem 1.25rem; }
 .card-body p { color: var(--muted); font-size: 0.97rem; }
 .card-body > :last-child, .card-text > :last-child { margin-bottom: 0; }
