@@ -64,7 +64,11 @@ export default async function BulletinAdmin() {
             <ul className="admin-list">
               {uploads.slice(0, 12).map((b, i) => (
                 <li key={b.path}>
-                  <div>
+                  <div className="admin-list-item">
+                    {b.coverUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img className="admin-thumb" src={b.coverUrl} alt="" width={36} height={51} />
+                    )}
                     <a href={b.url}>{formatBulletinDate(b.date)}</a>
                     {i === 0 && <span className="admin-badge">On website</span>}
                     <span className="admin-muted"> · {(b.size / 1024 / 1024).toFixed(1)} MB</span>

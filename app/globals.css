@@ -515,8 +515,10 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   padding: 0.7rem 0; border-bottom: 1px solid var(--border);
 }
 .admin-list li:last-child { border-bottom: 0; }
+.admin-list-item { display: flex; align-items: center; flex-wrap: wrap; gap: 0 0.5rem; }
+.admin-thumb { width: 36px; height: auto; border: 1px solid var(--border); border-radius: 2px; }
 .admin-badge {
-  display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 999px;
+  display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px;
   background: var(--blue-light); color: var(--blue); font-size: 0.8rem; font-weight: 600;
 }
 .admin-link-button {

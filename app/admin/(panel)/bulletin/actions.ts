@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import {
-  createBulletinUploadUrl,
+  createBulletinUploadUrls,
   deleteBulletins,
   isBulletinDate,
   listBulletins,
@@ -16,12 +16,14 @@ function refreshPages() {
   revalidatePath("/admin/bulletin");
 }
 
-// Step 1 of an upload: get a one-off address for the browser to send the PDF to.
-export async function startBulletinUpload(date: string): Promise<{ uploadUrl?: string; error?: string }> {
+// Step 1 of an upload: get one-off addresses for the browser to send the PDF and cover to.
+export async function startBulletinUpload(
+  date: string,
+): Promise<{ uploadUrls?: { pdf: string; cover: string }; error?: string }> {
   await requireAdmin();
   if (!isBulletinDate(date)) return { error: "Please choose a valid date." };
   try {
-    return { uploadUrl: await createBulletinUploadUrl(date) };
+    return { uploadUrls: await createBulletinUploadUrls(date) };
   } catch (error) {
     console.error("Could not start bulletin upload", error);
     return { error: `Couldn’t connect to file storage. ${describeStorageError(error)}` };
@@ -40,6 +42,6 @@ export async function deleteBulletin(formData: FormData): Promise<void> {
   const path = String(formData.get("path") ?? "");
   // Only delete files that really are bulletins.
   const bulletin = (await listBulletins()).find((b) => b.path === path);
-  if (bulletin) await deleteBulletins([bulletin.path]);
+  if (bulletin) await deleteBulletins([bulletin]);
   refreshPages();
 }

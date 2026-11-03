@@ -2,16 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { renderPdfCover } from "@/lib/pdf-cover";
 import { finishBulletinUpload, startBulletinUpload } from "./actions";
 
 const MAX_MEGABYTES = 25;
 
-// Sends the file straight from the browser to Supabase, reporting progress as it goes.
-function uploadFile(url: string, file: File, onProgress: (percent: number) => void): Promise<void> {
+// Sends a file straight from the browser to Supabase, reporting progress as it goes.
+function uploadFile(url: string, file: Blob, onProgress: (percent: number) => void = () => {}): Promise<void> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open("PUT", url);
-    request.setRequestHeader("content-type", "application/pdf");
+    request.setRequestHeader("content-type", file.type);
     request.setRequestHeader("x-upsert", "false");
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
@@ -46,9 +47,15 @@ export default function UploadForm({ defaultDate }: { defaultDate: string }) {
 
     setProgress(0);
     try {
-      const { uploadUrl, error } = await startBulletinUpload(date);
-      if (!uploadUrl) throw new Error(error);
-      await uploadFile(uploadUrl, file, setProgress);
+      // Picture of the first page for the website. Not essential: without it the standard image is shown.
+      const cover = await renderPdfCover(file).catch((error) => {
+        console.warn("Couldn’t make a cover picture from the PDF", error);
+        return null;
+      });
+      const { uploadUrls, error } = await startBulletinUpload(date);
+      if (!uploadUrls) throw new Error(error);
+      await uploadFile(uploadUrls.pdf, file, setProgress);
+      if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
       await finishBulletinUpload();
       form.reset();
       setMessage({ kind: "success", text: "Bulletin uploaded. It’s now live on the website." });

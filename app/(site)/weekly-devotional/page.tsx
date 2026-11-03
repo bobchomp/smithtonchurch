@@ -19,7 +19,12 @@ export default async function WeeklyBulletin() {
       <section className="section">
         <div className="container narrow bulletin">
           <a className="bulletin-cover" href={bulletin.url}>
-            <Image src="/images/bulletin.jpg" alt="" width={353} height={479} />
+            {bulletin.coverUrl ? (
+              // A picture of the bulletin's first page, made when it was uploaded.
+              <Image src={bulletin.coverUrl} alt={`Front page of the bulletin for ${bulletin.label}`} width={700} height={990} unoptimized />
+            ) : (
+              <Image src="/images/bulletin.jpg" alt="" width={353} height={479} />
+            )}
           </a>
           <div>
             <p className="eyebrow">This week’s bulletin</p>
