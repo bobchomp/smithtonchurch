@@ -23,7 +23,7 @@ export async function startBulletinUpload(date: string): Promise<{ uploadUrl?: s
     return { uploadUrl: await createBulletinUploadUrl(date) };
   } catch (error) {
     console.error("Could not start bulletin upload", error);
-    return { error: "Couldn’t connect to file storage. Please try again shortly." };
+    return { error: `Couldn’t connect to file storage. ${(error as Error).message}` };
   }
 }
 

@@ -22,7 +22,7 @@ export default async function BulletinAdmin() {
   const configured = supabaseIsConfigured();
   const [current, uploads] = await Promise.all([
     getCurrentBulletin(),
-    configured ? listBulletins().catch(() => null) : [],
+    configured ? listBulletins().catch((error: Error) => error) : [],
   ]);
 
   return (
@@ -56,8 +56,8 @@ export default async function BulletinAdmin() {
 
         <section className="admin-panel">
           <h2>Recent bulletins</h2>
-          {uploads === null ? (
-            <p className="admin-error">Couldn’t load the list of bulletins from storage. Please try again shortly.</p>
+          {uploads instanceof Error ? (
+            <p className="admin-error">Couldn’t load the list of bulletins from storage. {uploads.message}</p>
           ) : uploads.length === 0 ? (
             <p className="admin-muted">No bulletins have been uploaded here yet.</p>
           ) : (

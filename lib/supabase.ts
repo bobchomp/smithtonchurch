@@ -11,22 +11,47 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export const STORAGE_BUCKET = "website";
 
+function clean(value: string | undefined): string | undefined {
+  const trimmed = value?.trim().replace(/^["']|["']$/g, "").trim();
+  return trimmed || undefined;
+}
+
+// Accepts the project URL however it was pasted: with or without https://, with a trailing
+// path such as /rest/v1/, the dashboard link, or just the 20-character project ID.
+export function normaliseSupabaseUrl(raw: string | undefined): string | undefined {
+  let value = clean(raw);
+  if (!value) return undefined;
+  const ref = value.match(/dashboard\/project\/([a-z0-9]{20})/i)?.[1] ?? value.match(/^([a-z0-9]{20})$/i)?.[1];
+  if (ref) value = `https://${ref.toLowerCase()}.supabase.co`;
+  if (!/^https?:\/\//i.test(value)) value = `https://${value}`;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
+}
+
 function settings() {
+  const rawUrl = process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   return {
-    url: process.env.SUPABASE_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL,
-    key: process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY,
+    rawUrl,
+    url: normaliseSupabaseUrl(rawUrl),
+    key: clean(process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY),
   };
 }
 
 export function supabaseIsConfigured(): boolean {
-  const { url, key } = settings();
-  return Boolean(url && key);
+  const { rawUrl, key } = settings();
+  return Boolean(clean(rawUrl) && key);
 }
 
 let client: SupabaseClient | undefined;
 
 export function supabaseAdmin(): SupabaseClient {
-  const { url, key } = settings();
+  const { rawUrl, url, key } = settings();
+  if (clean(rawUrl) && !url) {
+    throw new Error("SUPABASE_URL in Vercel isn’t a web address. It should look like https://abcd1234.supabase.co");
+  }
   if (!url || !key) throw new Error("Supabase isn’t set up: add SUPABASE_URL and SUPABASE_SECRET_KEY in Vercel.");
   client ??= createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   return client;
