@@ -35,11 +35,14 @@
       image: ladies-bible-study.jpg
       details: Meets fortnightly on Mondays.
 
-- day: Tuesday / Wednesday
+- day: Tuesday
   items:
     - name: Bible Study Fellowship
       image: bsf.jpg
       details: Bible Study Fellowship for ladies.
+
+- day: Wednesday
+  items:
     - name: Church Night
       image: church-night.jpg
       details: 1st, 3rd and 5th Wednesdays, meetings held at church.
