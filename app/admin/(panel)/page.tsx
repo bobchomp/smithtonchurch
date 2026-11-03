@@ -14,10 +14,6 @@ export default function AdminDashboard() {
           <h2>Weekly Bulletin</h2>
           <p>Upload this week’s bulletin PDF to the website.</p>
         </Link>
-        <div className="admin-tool admin-tool-empty">
-          <h2>More tools coming soon</h2>
-          <p>Features for managing the website will appear here.</p>
-        </div>
       </div>
     </>
   );
