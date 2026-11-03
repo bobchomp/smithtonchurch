@@ -30,7 +30,11 @@ export default function Footer() {
             <br />
             <a href={`mailto:${site.email}`}>{site.email}</a>
           </p>
-          <p>Office hours: {site.office_hours}</p>
+          <p>
+            Office hours:
+            <br />
+            {site.office_hours}
+          </p>
         </div>
       </div>
       <div className="container footer-bottom">
