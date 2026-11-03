@@ -11,7 +11,10 @@ const nextConfig: NextConfig = {
   },
   // Old addresses that have moved, so existing links and search results still work.
   async redirects() {
-    return [{ source: "/conferencing-venue-inverness", destination: "/conferencing-venue/", permanent: true }];
+    return [
+      { source: "/conferencing-venue-inverness", destination: "/conferencing-venue/", permanent: true },
+      { source: "/weekly-devotional", destination: "/weekly-bulletin/", permanent: true },
+    ];
   },
   images: {
     formats: ["image/avif", "image/webp"],

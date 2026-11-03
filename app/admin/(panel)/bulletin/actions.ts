@@ -12,7 +12,7 @@ import {
 import { describeStorageError } from "@/lib/supabase";
 
 function refreshPages() {
-  revalidatePath("/weekly-devotional");
+  revalidatePath("/weekly-bulletin");
   revalidatePath("/admin/bulletin");
 }
 
