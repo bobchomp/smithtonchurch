@@ -7,7 +7,15 @@ import { useEffect, useState } from "react";
 import type { NavItem } from "@/lib/content";
 
 function NavLink({ item, current }: { item: NavItem; current: string }) {
-  if (/^https?:\/\//.test(item.url)) return <a href={item.url}>{item.title}</a>;
+  // Links to other websites (e.g. Sermons on YouTube) open in a new tab.
+  if (/^https?:\/\//.test(item.url)) {
+    return (
+      <a href={item.url} target="_blank" rel="noopener noreferrer">
+        {item.title}
+        <span className="visually-hidden"> (opens in a new tab)</span>
+      </a>
+    );
+  }
   return (
     <Link href={item.url} aria-current={current === item.url ? "page" : undefined}>
       {item.title}
