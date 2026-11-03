@@ -24,7 +24,7 @@ export type Site = {
   livestream_embed: string;
   donate_link: string;
   churchsuite_link: string;
-  social: { facebook: string; youtube: string; sermons: string; instagram: string };
+  social: { facebook: string; youtube: string; sermons: string; instagram: string; x: string };
   formspree_id: string;
 };
 

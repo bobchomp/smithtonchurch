@@ -285,6 +285,7 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .social-links svg { width: 26px; height: 26px; fill: currentColor; }
 .social-facebook { background: #1877f2; }
 .social-youtube { background: #ff0000; }
+.social-x { background: #000; }
 .social-instagram { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
 
 /* ---------- Contact form ---------- */
