@@ -40,6 +40,10 @@ export default function Footer() {
       <div className="container footer-bottom">
         <p>&copy; {new Date().getFullYear()} Smithton Church. All rights reserved.</p>
         <p className="footer-tagline">{site.tagline}</p>
+        <p className="footer-charity">
+          Smithton &amp; Culloden Free Church (known as Smithton Church) is a Scottish Charity (SC012271) regulated by
+          the Scottish Charity Regulator (OSCR).
+        </p>
       </div>
     </footer>
   );

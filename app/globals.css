@@ -482,6 +482,7 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 }
 .footer-bottom p { margin: 0; }
 .footer-tagline { font-family: var(--font-head); font-style: italic; }
+.footer-charity { flex-basis: 100%; font-size: 0.8rem; opacity: 0.8; }
 @media (max-width: 800px) {
   .footer-grid { grid-template-columns: 1fr; gap: 1.75rem; }
 }
