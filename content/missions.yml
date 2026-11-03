@@ -1,8 +1,11 @@
 # Mission partners on the "Missions" page, in the order shown.
+# "name" is the heading (just the people or organisation); "subtitle" is the line under it
+# (their organisation and/or where they are).
 # Images live in public/images/missions/. Everything except "name" is optional.
 # "links" can point to websites, videos or newsletters (PDFs go in public/docs/missions/).
 
 - name: Marsali Campbell
+  subtitle: Pioneers UK
   image: marsali.jpg
   description: |-
     Marsali Campbell, known as ‘Smithton’s missionary,’ served as a nurse missionary in Uganda from 2001 to 2021. From September 2023 to March 2026 Marsali served in Bolivia with Pioneers UK. This was predominantly for immersive Spanish language acquisition, which she successfully achieved. She also helped with a children’s mission, local indigenous community clinic and attended the local church.
@@ -19,8 +22,8 @@
     - title: Marsali’s Musings – July 2026 (PDF)
       url: /docs/missions/marsalis-musings-july-2026.pdf
 
-- name: Argyris and Dina Petrou, Community House Damaris
-  location: Athens, Greece
+- name: Argyris and Dina Petrou
+  subtitle: Community House Damaris, Athens, Greece
   image: petrou.jpg
   description: |-
     Argyris was previously the Principal of the Greek Bible College in Athens (the only Bible college in Greece). He still lectures extensively, but has now stepped down from leadership to help provide the ever-increasing logistical support required by the work of Damaris House.
@@ -36,7 +39,7 @@
       url: https://vimeo.com/753326927
 
 - name: Manuel and Alba Franco
-  location: Almuñécar, Spain
+  subtitle: Almuñécar, Spain
   image: franco.jpg
   description: |-
     Meet Manuel and Alba Franco, our mission partners in Almuñécar, located in the south of Spain. Together with their son Teo, aged 7, they serve their community fervently.
@@ -54,15 +57,15 @@
       url: http://www.europeanmission.org/missionary/manuel-and-alba-lopez-franco
 
 - name: ‘Adam’
-  location: Central Asia
+  subtitle: Central Asia
   image: adam.jpg
   description: |-
     Adam’s work is particularly sensitive and it would not be appropriate to provide too many details on a public display.
 
     ‘Adam’ works with Christians from Central Asia and other refugee groups in the US, Europe and Central Asia. He travels widely to those areas encouraging, teaching, training and bringing practical support to those he meets.
 
-- name: Dan Sempungu and Kisozi Community Church
-  location: Uganda
+- name: Dan Sempungu
+  subtitle: Kisozi Community Church, near Kampala, Uganda
   image: dan.jpg
   description: |-
     Born in 1990 into a Muslim household, Dan faced hardship from a young age, living in Kampala’s slums and streets after his father’s death when he was just 3.
@@ -78,7 +81,7 @@
       url: https://vimeo.com/702854370
 
 - name: Merkinch Free Church
-  location: Inverness
+  subtitle: Merkinch & South Kessock, Inverness
   image: merkinch.jpg
   description: |-
     Merkinch Free Church is a church plant serving the communities of Merkinch and South Kessock in Inverness. Despite the strong sense of community, this area is now classified by the government as the 8th most deprived area in Scotland.
@@ -92,7 +95,8 @@
     - title: Watch the Merkinch video update
       url: https://vimeo.com/753281396
 
-- name: "Release International: Voice of Persecuted Christians"
+- name: Release International
+  subtitle: Voice of Persecuted Christians, in over 25 countries
   image: release.jpg
   description: |-
     Release International is an inter-denominational Christian ministry working through local church partners in more than 25 countries, helping persecuted Christians prayerfully, pastorally and practically. Their ministry is based on Hebrews 13v3: ‘Continue to remember those in prison as if you were together with them in prison, and those who are mistreated as if you yourselves were suffering.’
@@ -107,7 +111,7 @@
       url: http://www.releaseinternational.org
 
 - name: Suraj Kasula
-  location: Bhaktapur, Nepal
+  subtitle: Shekinah Evangelical Church, Bhaktapur, Nepal
   image: suraj.jpg
   description: |-
     Suraj Kasula is the pastor of Shekinah Evangelical Church in Bhaktapur, Nepal, and a lecturer at Bhaktapur Theological Seminary. He is dedicated to making the seminary a centre for reformed theology in Nepal and is involved in constructing a multi-storey building for the church and seminary. Suraj is also active in supporting church plants in Eastern Nepal, providing essential aid and fostering inclusive worship communities. Alongside his wife Roshani and their two daughters, Hadassah and Esther, he works tirelessly to spread the gospel and support his community amidst challenging conditions.
@@ -124,7 +128,7 @@
       url: http://www.facebook.com/MilanChurch
 
 - name: Wakisa Ministries
-  location: Uganda
+  subtitle: Uganda
   image: wakisa.jpg
   description: |-
     Wakisa is a pregnancy crisis centre focused on love, faith, and hope in the heart of Uganda. At its core, Wakisa stands for “The promotion of dignity and self esteem of young girls in Uganda with crisis pregnancy while addressing their emotional, physical and spiritual well being. This is achieved by providing temporary shelter, counselling and care services, providing opportunities for Christian growth and discipleship and equipping them with life and vocational skills, thus transforming lives of this vulnerable group.”
@@ -140,7 +144,7 @@
       url: http://www.wakisaministries.com
 
 - name: Dwelling Places
-  location: Uganda
+  subtitle: Uganda
   image: dwelling-places.jpg
   description: |-
     Dwelling Places began in 2002 and is a Christian NGO dedicated to the rescue and rehabilitation of street children, abandoned babies and high-risk slum families in Uganda.
@@ -157,6 +161,7 @@
       url: http://www.dwellingplaces.org/
 
 - name: Christian Solidarity Worldwide (CSW)
+  subtitle: Africa, Asia, Latin America & the Middle East
   image: csw.jpg
   description: |-
     CSW’s team of specialist advocates operates in over 20 countries across Africa, Asia, Latin America, and the Middle East, dedicated to upholding and safeguarding the right to freedom of religion or belief. Their vision is a world free from religious persecution, where everyone can freely practise their chosen religion or belief. Embracing CSW’s Christian heritage, identity, and values, which underpin all their endeavours, CSW firmly believes in the transformative power of prayer.
@@ -171,7 +176,7 @@
       url: http://www.csw.org.uk
 
 - name: Cheptebo Rural Development Centre
-  location: Kenya
+  subtitle: Kerio Valley, Kenya
   image: cheptebo.jpg
   description: |-
     Set in the beautiful Kerio Valley of Western Kenya, the Cheptebo Rural Development Centre stands as a testimony to God’s faithfulness. Started in 1986 under the auspices of Africa Inland Mission to promote the spiritual and physical welfare of the community, it now features a demonstration farm and animal husbandry skills to aid sustainable agriculture. The centre also includes a conference facility for 100 guests and a new residential.
@@ -186,6 +191,7 @@
       url: http://www.cheptebo.org
 
 - name: Invergordon Seafarers Centre
+  subtitle: Port of Invergordon
   image: seafarers.jpg
   description: |-
     The Invergordon Seafarers Centre, led by Port Chaplain Drew Anderson and his wife Liz, assisted by volunteers, welcomes thousands of crew members annually. The centre provides tea, coffee, shortbread, woollen hats, internet access, pastoral care, and warm clothing, while gifting Bibles and booklets in multiple languages. Crew members on incoming vessels also receive parcels with essential items and a New Testament in their native language, which are gratefully received.

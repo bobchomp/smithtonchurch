@@ -55,7 +55,7 @@ export default function Missions() {
           <h2 className="section-title">Our mission partners</h2>
           <nav className="partner-links" aria-label="Mission partners">
             {missions.map((partner) => (
-              <a key={partner.name} href={`#${slugify(partner.name)}`}>{partner.name.split(":")[0]}</a>
+              <a key={partner.name} href={`#${slugify(partner.name)}`}>{partner.name}</a>
             ))}
           </nav>
         </div>
@@ -77,7 +77,7 @@ export default function Missions() {
             )}
             <div className="prose">
               <h2>{partner.name}</h2>
-              {partner.location && <p className="eyebrow">{partner.location}</p>}
+              {partner.subtitle && <p className="eyebrow">{partner.subtitle}</p>}
               {partner.description && <Markdown text={partner.description} />}
               {partner.prayer && (
                 <div className="prayer">

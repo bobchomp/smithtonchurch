@@ -48,7 +48,7 @@ export type WhatsOnDay = {
 
 export type MissionPartner = {
   name: string;
-  location?: string;
+  subtitle?: string;
   image?: string;
   description?: string;
   prayer?: string[];
