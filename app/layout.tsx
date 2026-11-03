@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 // Shared by the public website and the admin panel. Each has its own layout inside this one.
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${openSans.variable} ${poppins.variable}`}>
+    <html lang="en-GB" className={`${openSans.variable} ${poppins.variable}`} data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );
