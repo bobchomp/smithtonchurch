@@ -402,7 +402,14 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
   .bulletin-card-link { font-size: 0.8rem; }
 }
 
-.vision-image { width: 100%; max-width: 500px; border-radius: var(--radius); }
+.vision h2 { margin-top: 2.25rem; }
+.vision h2:first-child { margin-top: 0; }
+.vision-strapline {
+  font: 600 1.35rem var(--font-head); color: var(--blue); text-align: center;
+  border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 1rem 0; margin: 1.5rem 0;
+}
+.vision-strapline::before { content: "‘"; }
+.vision-strapline::after { content: "’"; }
 
 .giving { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center; }
 .giving-image { width: 100%; max-width: 420px; justify-self: center; }
