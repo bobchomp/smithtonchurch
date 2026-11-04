@@ -132,6 +132,15 @@ sermon yet. A sermon's video can be changed or switched off on its admin page.
 3. In Vercel, add the environment variables `YOUTUBE_API_KEY` (the key) and `CRON_SECRET` (any long
    random text, e.g. from a password generator; it stops anyone else triggering the daily check).
    Then redeploy.
+4. Set up the daily check at [cron-job.org](https://cron-job.org) (free): **Create cronjob** with
+   - **URL:** `https://rossmdev.co.uk/api/cron/sync-livestreams/` (change to `smithtonchurch.com`
+     at launch; keep the slash at the end)
+   - **Schedule:** every day, e.g. at 06:00
+   - under **Advanced → Headers**, add a header with key `Authorization` and value
+     `Bearer ` followed by your `CRON_SECRET` (e.g. `Bearer abc123…`)
+
+   Use **Test run** to check it: the response should look like `{"livestreams":123,...}`. A
+   `401` means the header doesn't match `CRON_SECRET`.
 
 The channel is taken from the YouTube link in `content/site.yml`. A full check uses about
 1 unit for every 50 videos of YouTube's free allowance of 10,000 units a day.

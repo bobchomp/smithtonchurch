@@ -1,15 +1,23 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { syncLivestreams } from "@/lib/livestreams";
 import { youtubeIsConfigured } from "@/lib/youtube";
 
-// Called once a day by Vercel (see vercel.json) to refresh the list of past YouTube livestreams.
-// Vercel sends "Authorization: Bearer <CRON_SECRET>"; anything else is refused.
+// Refreshes the list of past YouTube livestreams. Called once a day by cron-job.org, which sends
+// the header "Authorization: Bearer <CRON_SECRET>"; anything else is refused. See README.md.
+
+function authorised(request: Request): boolean {
+  const secret = process.env.CRON_SECRET?.trim();
+  const header = request.headers.get("authorization")?.trim() ?? "";
+  if (!secret) return false;
+  // Compare hashes so the check takes the same time whatever is sent.
+  const hash = (text: string) => createHash("sha256").update(text).digest();
+  return timingSafeEqual(hash(header), hash(`Bearer ${secret}`));
+}
+
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Not allowed" }, { status: 401 });
-  }
+  if (!authorised(request)) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
   if (!youtubeIsConfigured()) return NextResponse.json({ skipped: "YOUTUBE_API_KEY isn’t set" });
   try {
     const { count, changedPaths } = await syncLivestreams();
@@ -21,3 +29,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
+
+// cron-job.org can also be set to POST.
+export const POST = GET;
