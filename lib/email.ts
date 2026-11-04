@@ -5,9 +5,20 @@ import type { ContactMessage } from "./messages";
 //
 // Environment variables (set in Vercel):
 //   RESEND_API_KEY  an API key from resend.com, for a domain verified there
-//   CONTACT_FROM    optional; who the emails come from. Defaults to the address below.
+//   CONTACT_FROM    optional; the address the emails come from. Defaults to the address below.
+//
+// The sender's name is shown as the person who filled in the form, e.g. "Mary Smith (Website)",
+// but the email is still sent from the address below; replying goes to the person who wrote in.
 
-const DEFAULT_FROM = "Smithton Church website <info@rossmackenzie.co.uk>";
+const DEFAULT_FROM_ADDRESS = "info@rossmackenzie.co.uk";
+
+function fromHeader(name: string): string {
+  const configured = process.env.CONTACT_FROM?.trim();
+  const address = configured?.match(/<([^>]+)>/)?.[1] ?? (configured || DEFAULT_FROM_ADDRESS);
+  // Keep the display name to plain characters so it can't break the email header.
+  const display = `${name.replace(/[\r\n"<>\\,;:@]/g, "").replace(/\s+/g, " ").trim().slice(0, 60) || "Someone"} (Website)`;
+  return `"${display}" <${address}>`;
+}
 
 export function emailIsConfigured(): boolean {
   return Boolean(process.env.RESEND_API_KEY?.trim());
@@ -47,7 +58,7 @@ export async function sendMessageNotification(message: ContactMessage, to: strin
     method: "POST",
     headers: { authorization: `Bearer ${process.env.RESEND_API_KEY!.trim()}`, "content-type": "application/json" },
     body: JSON.stringify({
-      from: process.env.CONTACT_FROM?.trim() || DEFAULT_FROM,
+      from: fromHeader(message.name),
       to,
       reply_to: `${message.name.replace(/[<>",]/g, "")} <${message.email}>`,
       subject,

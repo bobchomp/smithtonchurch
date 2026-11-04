@@ -25,12 +25,15 @@ export default function ContactFormFields({ source }: { source: string }) {
       <input type="hidden" name="startedAt" value={startedAt} />
       <div className="form-row">
         <label>
-          Name <input type="text" name="name" autoComplete="name" required maxLength={100} defaultValue={value("name")} />
+          First name <input type="text" name="firstName" autoComplete="given-name" required maxLength={50} defaultValue={value("firstName")} />
         </label>
         <label>
-          Email <input type="email" name="email" autoComplete="email" required maxLength={254} defaultValue={value("email")} />
+          Last name <input type="text" name="lastName" autoComplete="family-name" required maxLength={50} defaultValue={value("lastName")} />
         </label>
       </div>
+      <label>
+        Email <input type="email" name="email" autoComplete="email" required maxLength={254} defaultValue={value("email")} />
+      </label>
       <label>
         Subject <input type="text" name="subject" maxLength={200} defaultValue={value("subject")} />
       </label>

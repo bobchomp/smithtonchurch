@@ -31,8 +31,8 @@
   a stream's description is just the preacher's name, used when creating sermons from streams;
   the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
 - Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as its own
-  JSON file in the private Supabase bucket `private/messages/` (`lib/messages.ts`), then emails it via Resend
-  (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk) to the recipients in `private/settings/contact.json`
+  JSON file in the private Supabase bucket `private/messages/` (`lib/messages.ts`), (first + last name, stored as `name`), then emails it via Resend
+  (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk with display name "<Name> (Website)") to the recipients in `private/settings/contact.json`
   (managed in Admin → Messages). Spam: honeypot field + minimum 3s to submit.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to

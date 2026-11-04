@@ -13,13 +13,20 @@ const SOURCES: Record<string, string> = { home: "Home page", venue: "Conferencin
 // the admin panel, so nothing is lost if the email fails.
 export async function sendContactMessage(_state: ContactState, formData: FormData): Promise<ContactState> {
   const field = (name: string) => String(formData.get(name) ?? "").trim();
-  const fields = { name: field("name"), email: field("email"), subject: field("subject"), message: field("message") };
+  const fields = {
+    firstName: field("firstName"),
+    lastName: field("lastName"),
+    email: field("email"),
+    subject: field("subject"),
+    message: field("message"),
+  };
 
   // Spam: a hidden field people never see, and forms filled in faster than a person could.
   const startedAt = Number(field("startedAt"));
   if (field("website") || !startedAt || Date.now() - startedAt < 3000) return { ok: true };
 
-  if (!fields.name || fields.name.length > 100) return { error: "Please enter your name.", fields };
+  if (!fields.firstName || fields.firstName.length > 50) return { error: "Please enter your first name.", fields };
+  if (!fields.lastName || fields.lastName.length > 50) return { error: "Please enter your last name.", fields };
   if (!isEmailAddress(fields.email)) return { error: "Please enter a valid email address.", fields };
   if (fields.subject.length > 200) return { error: "Please shorten the subject.", fields };
   if (!fields.message) return { error: "Please write a message.", fields };
@@ -28,7 +35,8 @@ export async function sendContactMessage(_state: ContactState, formData: FormDat
 
   let saved;
   try {
-    saved = await saveNewMessage({ ...fields, source: SOURCES[field("source")] ?? "Website" });
+    const { firstName, lastName, ...rest } = fields;
+    saved = await saveNewMessage({ ...rest, name: `${firstName} ${lastName}`, source: SOURCES[field("source")] ?? "Website" });
   } catch (error) {
     console.error("Could not save contact message", error);
     return { error: "Sorry, your message couldn’t be sent. Please try again, or call or email the office.", fields };

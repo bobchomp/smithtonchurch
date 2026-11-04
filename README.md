@@ -35,8 +35,9 @@ Keep file names lowercase with hyphens and no spaces, e.g. `20261108-Bulletin-we
 
 The contact forms (home page and Conferencing Venue page) save every message in the admin panel
 (**Dashboard → Messages**) and email it, through [Resend](https://resend.com), to the addresses
-listed there under **Notification emails**. Emails come from `info@rossmackenzie.co.uk`; replying
-to one replies to the person who sent the message. If an email can't be sent, the message is still
+listed there under **Notification emails**. Emails come from `info@rossmackenzie.co.uk`, with the
+sender's name shown as e.g. "Jane Smith (Website)"; replying to one replies to the person who sent
+the message. If an email can't be sent, the message is still
 saved and the admin panel says why.
 
 To set up the emails:
