@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { DOCUMENT_TYPES, type DocumentKind } from "@/lib/document-types";
 import { renderPdfCover } from "@/lib/pdf-cover";
-import { finishBulletinUpload, startBulletinUpload } from "./actions";
+import { finishDocumentUpload, startDocumentUpload } from "./actions";
+import MonthYearSelect from "./MonthYearSelect";
 
 const MAX_MEGABYTES = 25;
 
@@ -26,7 +28,8 @@ function uploadFile(url: string, file: Blob, onProgress: (percent: number) => vo
   });
 }
 
-export default function UploadForm({ defaultDate }: { defaultDate: string }) {
+export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; defaultDate: string }) {
+  const { precision, singular } = DOCUMENT_TYPES[kind];
   const router = useRouter();
   const [progress, setProgress] = useState<number | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
@@ -35,30 +38,30 @@ export default function UploadForm({ defaultDate }: { defaultDate: string }) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const date = String(data.get("date"));
+    const date = precision === "day" ? String(data.get("date")) : `${data.get("year")}-${data.get("month")}`;
     const file = data.get("file") as File | null;
     setMessage(null);
 
-    if (!file || file.size === 0) return setMessage({ kind: "error", text: "Please choose the bulletin PDF." });
-    if (file.type !== "application/pdf") return setMessage({ kind: "error", text: "The bulletin needs to be a PDF file." });
+    if (!file || file.size === 0) return setMessage({ kind: "error", text: `Please choose the ${singular} PDF.` });
+    if (file.type !== "application/pdf") return setMessage({ kind: "error", text: `The ${singular} needs to be a PDF file.` });
     if (file.size > MAX_MEGABYTES * 1024 * 1024) {
       return setMessage({ kind: "error", text: `That file is too big. The limit is ${MAX_MEGABYTES} MB.` });
     }
 
     setProgress(0);
     try {
-      // Picture of the first page for the website. Not essential: without it the standard image is shown.
+      // Picture of the first page for the website. Not essential: without it a standard image is shown.
       const cover = await renderPdfCover(file).catch((error) => {
         console.warn("Couldn’t make a cover picture from the PDF", error);
         return null;
       });
-      const { uploadUrls, error } = await startBulletinUpload(date);
+      const { uploadUrls, error } = await startDocumentUpload(kind, date);
       if (!uploadUrls) throw new Error(error);
       await uploadFile(uploadUrls.pdf, file, setProgress);
       if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
-      await finishBulletinUpload();
+      await finishDocumentUpload(kind);
       form.reset();
-      setMessage({ kind: "success", text: "Bulletin uploaded. It’s now live on the website." });
+      setMessage({ kind: "success", text: `${singular[0].toUpperCase()}${singular.slice(1)} uploaded. It’s now live on the website.` });
       router.refresh();
     } catch (error) {
       setMessage({ kind: "error", text: `The upload didn’t work: ${(error as Error).message}` });
@@ -70,12 +73,16 @@ export default function UploadForm({ defaultDate }: { defaultDate: string }) {
   const uploading = progress !== null;
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
+      {precision === "day" ? (
+        <label>
+          Sunday it’s for
+          <input type="date" name="date" defaultValue={defaultDate} required />
+        </label>
+      ) : (
+        <MonthYearSelect defaultValue={defaultDate} />
+      )}
       <label>
-        Sunday it’s for
-        <input type="date" name="date" defaultValue={defaultDate} required />
-      </label>
-      <label>
-        Bulletin PDF
+        {`${singular[0].toUpperCase()}${singular.slice(1)} PDF`}
         <input type="file" name="file" accept="application/pdf,.pdf" required />
       </label>
       {message && (
@@ -84,7 +91,7 @@ export default function UploadForm({ defaultDate }: { defaultDate: string }) {
         </p>
       )}
       <button className="button" type="submit" disabled={uploading}>
-        {uploading ? `Uploading… ${progress}%` : "Upload bulletin"}
+        {uploading ? `Uploading… ${progress}%` : `Upload ${singular}`}
       </button>
     </form>
   );

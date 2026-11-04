@@ -18,9 +18,10 @@
     - Thanks to God for the season of home assignment. Marsali has been able to share about God and global mission in many churches and groups, including the WFM annual conference in Glasgow, and also attend a Global Health conference in London. Pray that seeds for mission and ministry have been sown.
     - Marsali is now having some time to rest and she would value prayers for this season.
     - Pray as we have meetings and discussions regarding the next assignment in 2027.
-  links:
-    - title: Marsali’s Musings – July 2026 (PDF)
-      url: /docs/missions/marsalis-musings-july-2026.pdf
+  # A button under the partner's text. Marsali's newsletters are uploaded in the admin panel.
+  button:
+    title: Read Marsali’s Musings
+    url: /missions/marsalis-musings/
 
 - name: Argyris and Dina Petrou
   subtitle: Community House Damaris, Athens, Greece

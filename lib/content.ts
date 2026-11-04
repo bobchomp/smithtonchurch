@@ -53,6 +53,7 @@ export type MissionPartner = {
   description?: string;
   prayer?: string[];
   links?: { title: string; url: string }[];
+  button?: { title: string; url: string };
 };
 
 export type VenueRoom = { name: string; image: string; details?: string; capacity?: string };

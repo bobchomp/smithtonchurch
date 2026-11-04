@@ -390,7 +390,10 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .bulletin-finder-title { margin-top: 3rem; font-size: 1.35rem; }
 .bulletin-finder { display: grid; justify-items: center; gap: 1.25rem; }
 .bulletin-finder label { display: grid; gap: 0.35rem; font-weight: 600; text-align: center; }
-.bulletin-finder input {
+.bulletin-finder-selects { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+.bulletin-finder-selects select { min-width: 150px; }
+.bulletin-finder select:disabled { opacity: 0.6; }
+.bulletin-finder input, .bulletin-finder select {
   font: inherit; padding: 0.6rem 0.85rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff; min-width: 220px;
 }
 .bulletin-finder-result { width: 100%; text-align: center; }
@@ -551,6 +554,10 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
 }
 .admin-form .button { justify-self: start; }
+.admin-form select, .admin-find select {
+  font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
+}
+.admin-month-year { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .admin-form .button:disabled { opacity: 0.7; cursor: wait; }
 .admin-success { margin: 0; color: #067647; font-size: 0.95rem; }
 .admin-muted { color: var(--muted); }

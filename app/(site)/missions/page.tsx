@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
 import { missions, site, slugify } from "@/lib/content";
 import { Markdown } from "@/lib/markdown";
@@ -88,6 +89,11 @@ export default function Missions() {
                     ))}
                   </ul>
                 </div>
+              )}
+              {partner.button && (
+                <p>
+                  <Link className="button" href={partner.button.url}>{partner.button.title}</Link>
+                </p>
               )}
               {partner.links && (
                 <ul className="link-list">
