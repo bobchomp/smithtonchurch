@@ -20,8 +20,8 @@
     - Pray as we have meetings and discussions regarding the next assignment in 2027.
   # A button under the partner's text. Marsali's newsletters are uploaded in the admin panel.
   button:
-    title: Read Marsali’s Musings
-    url: /missions/marsalis-musings/
+    title: Read Marsali’s Newsletter
+    url: /missions/marsalis-newsletter/
 
 - name: Argyris and Dina Petrou
   subtitle: Community House Damaris, Athens, Greece

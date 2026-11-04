@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/conferencing-venue-inverness", destination: "/conferencing-venue/", permanent: true },
       { source: "/weekly-devotional", destination: "/weekly-bulletin/", permanent: true },
+      { source: "/missions/marsalis-musings", destination: "/missions/marsalis-newsletter/", permanent: true },
+      { source: "/admin/musings", destination: "/admin/marsalis-newsletter/", permanent: true },
     ];
   },
   images: {

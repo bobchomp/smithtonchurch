@@ -7,7 +7,7 @@ import { deleteDocument } from "./actions";
 import DeleteButton from "./DeleteButton";
 import UploadForm from "./UploadForm";
 
-// The admin page for one kind of document (weekly bulletin, Marsali's Musings...).
+// The admin page for one kind of document (weekly bulletin, Marsali's newsletter...).
 
 const RECENT_COUNT = 2;
 

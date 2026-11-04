@@ -21,11 +21,11 @@ export type UploadedDocument = {
 // Shown until the first upload: the copies that were moved over from the old website.
 const FALLBACKS: Record<DocumentKind, PublicDocument> = {
   bulletin: { date: "", label: fallbackBulletin.date, url: `/docs/bulletins/${fallbackBulletin.file}` },
-  musings: {
+  newsletter: {
     date: "2026-07",
     label: "July 2026",
-    url: "/docs/missions/marsalis-musings-july-2026.pdf",
-    coverUrl: "/images/musings-july-2026.jpg",
+    url: "/docs/missions/marsalis-newsletter-july-2026.pdf",
+    coverUrl: "/images/marsalis-newsletter-july-2026.jpg",
   },
 };
 

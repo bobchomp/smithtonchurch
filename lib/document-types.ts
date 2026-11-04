@@ -1,7 +1,7 @@
 // The kinds of document the admin panel can upload (weekly bulletin, Marsali's newsletter...).
 // This file is safe to use in the browser; the storage code is in lib/documents.ts.
 
-export type DocumentKind = "bulletin" | "musings";
+export type DocumentKind = "bulletin" | "newsletter";
 
 type DocumentType = {
   // "day" documents are for a particular Sunday (YYYY-MM-DD); "month" ones for a month (YYYY-MM).
@@ -25,13 +25,14 @@ export const DOCUMENT_TYPES: Record<DocumentKind, DocumentType> = {
     adminPath: "/admin/bulletin",
     defaultCover: { src: "/images/bulletin.jpg", width: 353, height: 479 },
   },
-  musings: {
+  newsletter: {
     precision: "month",
+    // Kept as "musings" (the newsletter's old name) so files already uploaded are still found.
     folder: "musings",
-    title: "Marsali’s Musings",
+    title: "Marsali’s Newsletter",
     singular: "newsletter",
-    publicPath: "/missions/marsalis-musings",
-    adminPath: "/admin/musings",
+    publicPath: "/missions/marsalis-newsletter",
+    adminPath: "/admin/marsalis-newsletter",
     defaultCover: { src: "/images/missions/marsali.jpg", width: 400, height: 400 },
   },
 };

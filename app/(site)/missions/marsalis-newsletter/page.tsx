@@ -4,19 +4,19 @@ import DocumentShowcase from "@/components/DocumentShowcase";
 import PageBanner from "@/components/PageBanner";
 
 export const metadata: Metadata = {
-  title: "Marsali’s Musings",
-  description: "Read Marsali’s Musings, the newsletter from Marsali Campbell, Smithton Church’s missionary.",
+  title: "Marsali’s Newsletter",
+  description: "Read the newsletter from Marsali Campbell, Smithton Church’s missionary.",
 };
 
 // Refreshed straight away when a newsletter is uploaded in the admin panel, and hourly as a fallback.
 export const revalidate = 3600;
 
-export default function MarsalisMusings() {
+export default function MarsalisNewsletter() {
   return (
     <>
-      <PageBanner title="Marsali’s Musings" />
+      <PageBanner title="Marsali’s Newsletter" />
       <DocumentShowcase
-        kind="musings"
+        kind="newsletter"
         eyebrow="Latest newsletter"
         intro={
           <>

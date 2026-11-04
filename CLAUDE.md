@@ -13,7 +13,7 @@
 - Admin auth: a single `ADMIN_PIN` env var (`lib/admin-auth.ts`). Pages inside `app/admin/(panel)/`
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` itself.
 - Add each new admin tool as a card on `app/admin/(panel)/page.tsx`.
-- Uploaded PDFs (weekly bulletin, Marsali's Musings) share one system: `lib/document-types.ts` (kinds, dated by
+- Uploaded PDFs (weekly bulletin, Marsali's newsletter) share one system: `lib/document-types.ts` (kinds, dated by
   day or month), `lib/documents.ts` (storage), `app/admin/(panel)/_documents/` (admin) and
   `components/Document*.tsx` (public). Add a new kind to DOCUMENT_TYPES rather than copying code.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
