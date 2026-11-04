@@ -116,6 +116,26 @@ Until the old archive has been copied over, the header's **Sermons** button stil
    | `R2_BUCKET` | the bucket name, e.g. `smithton-sermons` |
    | `R2_PUBLIC_URL` | the public address from step 2, e.g. `https://media.smithtonchurch.com` |
 
+### Connecting YouTube (livestream videos on sermon pages)
+
+Past livestreams from the church's YouTube channel are matched to sermons by date and service
+(streams starting before 2pm count as the morning service), so each sermon page shows the video
+with the audio underneath. The list of livestreams is refreshed once a day, or straight away with
+**Check YouTube now** in **Admin → Sermons**, which also lists livestreams that don't have a
+sermon yet. A sermon's video can be changed or switched off on its admin page.
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com), create a project (e.g.
+   "Smithton Church website"), then open **APIs & Services → Library**, find
+   **YouTube Data API v3** and click **Enable**.
+2. Open **APIs & Services → Credentials → Create credentials → API key**. Then edit the key:
+   under **API restrictions** choose **Restrict key** and tick only **YouTube Data API v3**.
+3. In Vercel, add the environment variables `YOUTUBE_API_KEY` (the key) and `CRON_SECRET` (any long
+   random text, e.g. from a password generator; it stops anyone else triggering the daily check).
+   Then redeploy.
+
+The channel is taken from the YouTube link in `content/site.yml`. A full check uses about
+1 unit for every 50 videos of YouTube's free allowance of 10,000 units a day.
+
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):

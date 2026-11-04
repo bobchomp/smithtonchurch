@@ -15,12 +15,19 @@ export type Sermon = {
   audioKey?: string; // file name in the audio storage (Cloudflare R2)
   audioSize?: number; // bytes
   duration?: number; // seconds
-  videoUrl?: string;
+  // The YouTube video: unset = match the livestream from the same date and service automatically,
+  // "none" = no video, otherwise a YouTube video ID chosen in the admin panel.
+  video?: string;
+  videoUrl?: string; // older field: a video link entered by hand
   createdAt: string;
 };
 
-// The bits of a sermon the public pages need, with the audio address worked out.
-export type PublicSermon = Omit<Sermon, "audioKey" | "createdAt"> & { audioUrl?: string; path: string };
+// The bits of a sermon the public pages need, with the audio address and video worked out.
+export type PublicSermon = Omit<Sermon, "audioKey" | "createdAt" | "video" | "videoUrl"> & {
+  audioUrl?: string;
+  youtubeId?: string;
+  path: string;
+};
 
 function slug(text: string): string {
   return text

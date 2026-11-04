@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteButton from "../../_documents/DeleteButton";
 import { requireAdmin } from "@/lib/admin-auth";
+import { videoForSermons, youtubeThumbnail } from "@/lib/livestream-match";
+import { loadLivestreams } from "@/lib/livestreams";
 import { audioUrl, r2IsConfigured } from "@/lib/r2";
 import { formatDuration, formatSermonDate, sermonPath } from "@/lib/sermon-types";
 import { loadSermons } from "@/lib/sermons";
@@ -22,9 +24,10 @@ export default async function EditSermon({
   await requireAdmin();
   const id = Number((await params).id);
   const added = (await searchParams).added;
-  const sermons = await loadSermons();
+  const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);
   const sermon = sermons.find((s) => s.id === id);
   if (!sermon) notFound();
+  const video = videoForSermons([sermon], streams).get(sermon.id);
   const listen = audioUrl(sermon.audioKey);
 
   return (
@@ -46,9 +49,24 @@ export default async function EditSermon({
             seriesNames={namesByUse(sermons, (s) => s.series)}
             audioReady={r2IsConfigured()}
             defaultDate={lastSunday()}
+            streams={streams}
           />
         </section>
         <div className="admin-stack">
+          <section className="admin-panel">
+            <h2>Video</h2>
+            {video ? (
+              <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="admin-video">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={youtubeThumbnail(video.id)} alt="" width={480} height={270} />
+                <span>{"title" in video ? video.title : "YouTube video"}</span>
+              </a>
+            ) : (
+              <p className="admin-muted">
+                {sermon.video === "none" ? "Video switched off for this sermon." : "No livestream matches this sermon’s date and service."}
+              </p>
+            )}
+          </section>
           <section className="admin-panel">
             <h2>Audio</h2>
             {listen ? (

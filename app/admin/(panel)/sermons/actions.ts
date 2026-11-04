@@ -4,6 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { bookFromPassage } from "@/lib/bible";
+import { youtubeId } from "@/lib/livestream-match";
+import { syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
 import { isSermonDate, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
 import { loadSermons, saveSermons } from "@/lib/sermons";
@@ -16,7 +18,8 @@ export type SermonInput = {
   preacher: string;
   series: string;
   passage: string;
-  videoUrl: string;
+  // "" = match the livestream automatically, "none" = no video, or a YouTube link or video ID.
+  video: string;
   audio?: { key: string; size: number; duration?: number };
 };
 
@@ -56,7 +59,7 @@ function validate(input: SermonInput): string | undefined {
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
   if (!input.preacher.trim()) return "Please enter the preacher.";
-  if (input.videoUrl.trim() && !/^https:\/\//.test(input.videoUrl.trim())) return "The video link should start with https://";
+  if (input.video && input.video !== "none" && !youtubeId(input.video)) return "That doesn’t look like a YouTube link.";
   if (input.audio && !/^sermons\/\d{4}\/[\w.-]+\.mp3$/.test(input.audio.key)) return "Invalid audio file.";
   return undefined;
 }
@@ -71,7 +74,8 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
     series: input.series.trim() || undefined,
     passage,
     book: bookFromPassage(passage),
-    videoUrl: input.videoUrl.trim() || undefined,
+    video: input.video === "none" ? "none" : youtubeId(input.video),
+    videoUrl: undefined,
   };
 }
 
@@ -118,4 +122,19 @@ export async function deleteSermon(formData: FormData): Promise<void> {
   await saveSermons(sermons.filter((s) => s.id !== id));
   if (sermon.audioKey && r2IsConfigured()) await deleteAudio(sermon.audioKey).catch((e) => console.error("Could not delete audio", e));
   refresh(sermon);
+}
+
+// "Check YouTube now" in the admin panel.
+export async function syncLivestreamsNow(): Promise<{ message: string; ok: boolean }> {
+  await requireAdmin();
+  try {
+    const { count, changedPaths } = await syncLivestreams();
+    revalidatePath("/sermons");
+    for (const path of changedPaths) revalidatePath(path);
+    revalidatePath("/admin/sermons");
+    return { ok: true, message: `Found ${count} past livestream${count === 1 ? "" : "s"} on YouTube.` };
+  } catch (error) {
+    console.error("Could not sync livestreams", error);
+    return { ok: false, message: `Couldn’t check YouTube. ${(error as Error).message}` };
+  }
 }

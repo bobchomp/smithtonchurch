@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
+import { streamSlot, unmatchedStreams, youtubeThumbnail } from "@/lib/livestream-match";
+import { loadLivestreams } from "@/lib/livestreams";
+import { youtubeIsConfigured } from "@/lib/youtube";
 import { r2IsConfigured } from "@/lib/r2";
 import { formatDuration, formatSermonDate, serviceLabel, type Sermon } from "@/lib/sermon-types";
 import { loadSermons } from "@/lib/sermons";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
+import SyncButton from "./SyncButton";
 
 export const metadata: Metadata = { title: "Sermons" };
 
@@ -22,6 +26,9 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
   const audioReady = r2IsConfigured();
   const sermons = storageReady ? await loadSermons().catch((error: Error) => error) : [];
   const list = sermons instanceof Error ? [] : query ? sermons.filter((s) => matches(s, query)) : sermons;
+  const youtubeReady = youtubeIsConfigured();
+  const livestreams = await loadLivestreams();
+  const unmatched = sermons instanceof Error ? [] : unmatchedStreams(sermons, livestreams.streams);
 
   return (
     <>
@@ -90,6 +97,52 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
               ))}
             </ul>
           </>
+        )}
+      </section>
+
+      <section className="admin-panel admin-livestreams">
+        <h2>YouTube livestreams</h2>
+        {youtubeReady ? (
+          <>
+            <p className="admin-muted">
+              Past livestreams are matched to sermons by date and service (before 2pm counts as the morning). The list is
+              checked once a day.
+              {livestreams.syncedAt &&
+                ` Last checked ${new Date(livestreams.syncedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" })}: ${livestreams.streams.length} livestreams.`}
+            </p>
+            <SyncButton />
+            {unmatched.length > 0 && (
+              <>
+                <h3>Livestreams without a sermon ({unmatched.length})</h3>
+                <ul className="admin-list">
+                  {unmatched.slice(0, 15).map((stream) => {
+                    const { date, service } = streamSlot(stream);
+                    return (
+                      <li key={stream.id}>
+                        <div className="admin-list-item">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img className="admin-video-thumb" src={youtubeThumbnail(stream.id)} alt="" width={64} height={36} />
+                          <span>
+                            <a href={`https://www.youtube.com/watch?v=${stream.id}`} target="_blank" rel="noopener noreferrer">{stream.title}</a>
+                            <span className="admin-muted"> · {formatSermonDate(date)} ({service === "am" ? "morning" : "evening"})</span>
+                          </span>
+                        </div>
+                        <Link href={`/admin/sermons/new/?video=${stream.id}`}>Create sermon</Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {unmatched.length > 15 && <p className="admin-muted">Showing the 15 most recent.</p>}
+              </>
+            )}
+          </>
+        ) : (
+          <div className="admin-notice">
+            <p>
+              <strong>YouTube isn’t connected yet.</strong> Add <code>YOUTUBE_API_KEY</code> (and <code>CRON_SECRET</code>{" "}
+              for the daily check) in Vercel. See the README.
+            </p>
+          </div>
         )}
       </section>
     </>

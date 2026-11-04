@@ -161,7 +161,12 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
                 </p>
               </div>
               <div className="sermon-item-extra">
-                {s.audioUrl ? <span>{formatDuration(s.duration) || "Audio"}</span> : <span className="sermon-item-noaudio">No audio</span>}
+                {s.youtubeId && <span className="sermon-item-video">Video</span>}
+                {s.audioUrl ? (
+                  <span>{formatDuration(s.duration) || "Audio"}</span>
+                ) : (
+                  !s.youtubeId && <span className="sermon-item-noaudio">No recording</span>
+                )}
               </div>
             </li>
           ))}

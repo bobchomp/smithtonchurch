@@ -1,5 +1,7 @@
 import "server-only";
 import { bookFromPassage } from "./bible";
+import { videoForSermons } from "./livestream-match";
+import { loadLivestreams } from "./livestreams";
 import { audioUrl } from "./r2";
 import { sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
@@ -38,15 +40,23 @@ export function newestFirst(a: Sermon, b: Sermon): number {
   return b.date.localeCompare(a.date) || (b.service === "pm" ? 1 : 0) - (a.service === "pm" ? 1 : 0) || b.id - a.id;
 }
 
-export function toPublic(sermon: Sermon): PublicSermon {
-  const { audioKey, createdAt: _createdAt, ...rest } = sermon;
-  return { ...rest, book: sermon.book ?? bookFromPassage(sermon.passage), audioUrl: audioUrl(audioKey), path: sermonPath(sermon) };
+function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
+  const { audioKey, createdAt: _createdAt, video: _video, videoUrl: _videoUrl, ...rest } = sermon;
+  return {
+    ...rest,
+    book: sermon.book ?? bookFromPassage(sermon.passage),
+    audioUrl: audioUrl(audioKey),
+    youtubeId,
+    path: sermonPath(sermon),
+  };
 }
 
 // For the public pages: never fail, just show nothing if storage can't be reached.
 export async function getPublicSermons(): Promise<PublicSermon[]> {
   try {
-    return (await loadSermons()).map(toPublic);
+    const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);
+    const videos = videoForSermons(sermons, streams);
+    return sermons.map((s) => toPublic(s, videos.get(s.id)?.id));
   } catch (error) {
     console.error("Could not load sermons", error);
     return [];

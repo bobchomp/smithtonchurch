@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import YouTubePlayer from "@/components/YouTubePlayer";
 import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
 import { getPublicSermons } from "@/lib/sermons";
 
@@ -79,8 +80,11 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             ) : null}
           </dl>
 
+          {sermon.youtubeId && <YouTubePlayer id={sermon.youtubeId} title={sermon.title} />}
+
           {sermon.audioUrl ? (
             <div className="sermon-player">
+              {sermon.youtubeId && <h2 className="sermon-audio-heading">Listen to the audio</h2>}
               <audio controls preload="metadata" src={sermon.audioUrl}>
                 <a href={sermon.audioUrl}>Download the sermon audio</a>
               </audio>
@@ -88,22 +92,10 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
                 <a className="button button-outline" href={sermon.audioUrl} download>
                   Download MP3
                 </a>
-                {sermon.videoUrl && (
-                  <a className="button" href={sermon.videoUrl} target="_blank" rel="noopener noreferrer">
-                    Watch the video<span className="visually-hidden"> (opens in a new tab)</span>
-                  </a>
-                )}
               </div>
             </div>
           ) : (
-            <div className="sermon-actions">
-              <p className="sermon-empty">The audio for this sermon isn’t available.</p>
-              {sermon.videoUrl && (
-                <a className="button" href={sermon.videoUrl} target="_blank" rel="noopener noreferrer">
-                  Watch the video<span className="visually-hidden"> (opens in a new tab)</span>
-                </a>
-              )}
-            </div>
+            !sermon.youtubeId && <p className="sermon-empty">A recording of this sermon isn’t available.</p>
           )}
 
           {moreInSeries.length > 0 && (

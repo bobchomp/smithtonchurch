@@ -4,5 +4,11 @@
     "deploymentEnabled": {
       "claude/**": false
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/sync-livestreams/",
+      "schedule": "17 5 * * *"
+    }
+  ]
 }

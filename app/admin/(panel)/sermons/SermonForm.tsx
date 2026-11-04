@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { Sermon, Service } from "@/lib/sermon-types";
+import { streamSlot, youtubeId, type Livestream } from "@/lib/livestream-match";
+import { formatDuration, formatSermonDate, type Sermon, type Service } from "@/lib/sermon-types";
 import { saveSermon, startAudioUpload, type SermonInput } from "./actions";
 
 const MAX_MEGABYTES = 300;
@@ -44,20 +45,87 @@ function audioDuration(file: File): Promise<number | undefined> {
   });
 }
 
+const DAY = 24 * 60 * 60 * 1000;
+
+function streamLabel(stream: Livestream): string {
+  const { date, service } = streamSlot(stream);
+  return `${formatSermonDate(date).replace(/^\w+ /, "")} ${service === "am" ? "morning" : "evening"} · ${stream.title}${
+    stream.duration ? ` (${formatDuration(stream.duration)})` : ""
+  }`;
+}
+
+// Choosing the sermon's YouTube video: automatic, none, a livestream from around the date, or a link.
+function VideoField({
+  streams,
+  date,
+  service,
+  initial,
+}: {
+  streams: Livestream[];
+  date: string;
+  service: Service;
+  initial: string;
+}) {
+  const known = new Set(streams.map((s) => s.id));
+  const [choice, setChoice] = useState(initial === "" || initial === "none" || known.has(initial) ? initial : "other");
+  const [link, setLink] = useState(choice === "other" ? initial : "");
+  const day = Date.parse(`${date}T12:00:00Z`);
+  const nearby = Number.isNaN(day)
+    ? []
+    : streams.filter((s) => Math.abs(Date.parse(s.startedAt) - day) < 10 * DAY || s.id === initial);
+  const automatic = streams
+    .filter((s) => {
+      const slot = streamSlot(s);
+      return slot.date === date && slot.service === service;
+    })
+    .sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))[0];
+
+  return (
+    <label>
+      Video
+      <select value={choice} onChange={(e) => setChoice(e.target.value)}>
+        <option value="">
+          {automatic ? `Automatic: ${streamLabel(automatic)}` : "Automatic (no livestream found for this date and service yet)"}
+        </option>
+        <option value="none">No video</option>
+        {nearby.length > 0 && (
+          <optgroup label="Livestreams around this date">
+            {nearby.map((s) => (
+              <option key={s.id} value={s.id}>{streamLabel(s)}</option>
+            ))}
+          </optgroup>
+        )}
+        <option value="other">Another YouTube video…</option>
+      </select>
+      {choice === "other" && (
+        <input type="url" value={link} onChange={(e) => setLink(e.target.value)} placeholder="Paste the YouTube link" required />
+      )}
+      <input type="hidden" name="video" value={choice === "other" ? link : choice} />
+      {choice === "other" && link && !youtubeId(link) && <span className="admin-error">That doesn’t look like a YouTube link.</span>}
+    </label>
+  );
+}
+
 export default function SermonForm({
   sermon,
   preachers,
   seriesNames,
   audioReady,
   defaultDate,
+  streams,
+  prefill,
 }: {
   sermon?: Sermon;
   preachers: string[];
   seriesNames: string[];
   audioReady: boolean;
   defaultDate: string;
+  streams: Livestream[];
+  prefill?: { title: string; date: string; service: Service; video: string };
 }) {
   const router = useRouter();
+  const [date, setDate] = useState(sermon?.date ?? prefill?.date ?? defaultDate);
+  const [service, setService] = useState<Service>(sermon?.service ?? prefill?.service ?? "am");
   const [progress, setProgress] = useState<number | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
   const busy = progress !== null;
@@ -73,7 +141,7 @@ export default function SermonForm({
       preacher: text("preacher"),
       series: text("series"),
       passage: text("passage"),
-      videoUrl: text("videoUrl"),
+      video: text("video"),
     };
     const file = data.get("audio") as File | null;
     setMessage(null);
@@ -111,16 +179,16 @@ export default function SermonForm({
     <form className="admin-form" onSubmit={handleSubmit}>
       <label>
         Title
-        <input type="text" name="title" defaultValue={sermon?.title} required maxLength={200} />
+        <input type="text" name="title" defaultValue={sermon?.title ?? prefill?.title} required maxLength={200} />
       </label>
       <div className="admin-month-year">
         <label>
           Date
-          <input type="date" name="date" defaultValue={sermon?.date ?? defaultDate} required />
+          <input type="date" name="date" value={date} onChange={(e) => setDate(e.target.value)} required />
         </label>
         <label>
           Service
-          <select name="service" defaultValue={sermon?.service ?? "am"}>
+          <select name="service" value={service} onChange={(e) => setService(e.target.value as Service)}>
             <option value="am">Morning</option>
             <option value="pm">Evening</option>
             <option value="">Other</option>
@@ -149,10 +217,12 @@ export default function SermonForm({
         Bible passage <span className="admin-optional">(optional, e.g. John 1:1-18)</span>
         <input type="text" name="passage" defaultValue={sermon?.passage} maxLength={100} />
       </label>
-      <label>
-        Video link <span className="admin-optional">(optional, e.g. the YouTube address)</span>
-        <input type="url" name="videoUrl" defaultValue={sermon?.videoUrl} maxLength={300} />
-      </label>
+      <VideoField
+        streams={streams}
+        date={date}
+        service={service}
+        initial={sermon?.video ?? youtubeId(sermon?.videoUrl) ?? prefill?.video ?? ""}
+      />
       <label>
         {sermon?.audioKey ? "Replace the audio" : "Audio (MP3)"} <span className="admin-optional">(optional)</span>
         <input type="file" name="audio" accept="audio/mpeg,.mp3" disabled={!audioReady} />
