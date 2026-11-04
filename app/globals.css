@@ -205,6 +205,9 @@ p { margin: 0 0 1em; }
 .button-outline { background: transparent; color: var(--blue); }
 .button-outline:hover { background: var(--blue); color: #fff; }
 .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.beliefs { padding-left: 0; list-style: none; display: grid; gap: 1rem; }
+.useful-links-title { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+.beliefs li { background: #fff; border-left: 4px solid var(--blue); border-radius: 6px; padding: 1rem 1.25rem; }
 
 /* ---------- Home ---------- */
 
