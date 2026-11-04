@@ -1,0 +1,220 @@
+.sermon-browser h2 {
+    clear: both;
+}
+div.sermon-browser div.sermons {
+    clear: both;
+    width: 100%;
+}
+div.sermon-browser div.sermons {
+    clear: both;
+    width: 100%;
+}
+div.sermon-browser div.sermons div.sermon-title {
+    cursor: default;
+    font-family: century gothic;
+    font-size: 100%;
+    font-weight: bold;
+    line-height: 24px;
+    margin-top: 5px;
+}
+div.sermon-browser a {
+    text-decoration: none !important;
+}
+div.sermon-browser div.sermons div.sermon-passage {
+    font-size: 110%;
+    font-weight: bold;
+}
+div.sermon-browser div.sermons div.preacher {
+    font-family: century gothic;
+    font-size: 16px;
+    margin: 5px 0;
+}
+div.sermon-browser div.sermons div.files img {
+    border: medium none;
+    margin-right: 24px;
+}
+div.sermonbrowser div.fieldname {
+    font-weight: bold;
+    padding-right: 10px;
+    vertical-align: bottom;
+}
+div.sermonbrowser div.field input, div.sermonbrowser div.field select {
+    width: 170px;
+}
+div.sermonbrowser div.field #date, div.sermonbrowser div.field #enddate {
+    width: 150px;
+}
+div.sermonbrowser div {
+    padding-bottom: 5px;
+    padding-top: 5px;
+    white-space: nowrap;
+}
+div.sermonbrowser div.rightcolumn {
+    padding-left: 10px;
+}
+div.sermon-browser div.floatright {
+    float: right;
+}
+div.sermon-browser div.floatleft {
+    float: left;
+}
+img.sermon-icon, img.site-icon {
+    border: medium none;
+}
+div.podcast {
+    margin: 0 0 1em;
+}
+.podcastall {
+    background: url("wp-content/plugins/sermon-browser/sb-includes/icons/podcast_background.png") repeat-x scroll 0 0 #FFF0C8;
+    float: left;
+    font-size: 1em;
+    padding: 0.5em;
+}
+.podcastcustom {
+    background: url("wp-content/plugins/sermon-browser/sb-includes/icons/podcast_custom_background.png") repeat-x scroll 0 0 #FCE4FF;
+    float: right;
+    font-size: 1em;
+    padding: 0.5em;
+}
+div.podcast-icon {
+    padding-right: 1em;
+}
+div.podcast-icon a {
+    border: medium none;
+}
+div.filtered, div.mainfilter {
+    text-align: left;
+}
+div.filter {
+    margin-bottom: 1em;
+}
+.filter-heading {
+    font-weight: bold;
+}
+div.sermon-browser-results span.preacher {
+    font-size: 120%;
+}
+div.sermon-browser-results span.scripture {
+    font-size: 80%;
+}
+div.sermon-browser-results img.preacher {
+    float: right;
+    margin-left: 1em;
+}
+div.sermon-browser-results div.preacher-description {
+    margin-top: 0.5em;
+}
+div.sermon-browser-results div.preacher-description span.about {
+    font-size: 120%;
+    font-weight: bold;
+}
+span.chapter-num {
+    font-size: 150%;
+    font-weight: bold;
+}
+span.verse-num {
+    font-size: 65%;
+    line-height: 1em;
+    vertical-align: super;
+}
+div.esv span.small-caps {
+    font-variant: small-caps;
+}
+div.net p.poetry {
+    margin: 0;
+}
+div.sermon-browser #poweredbysermonbrowser {
+    text-align: center;
+}
+div.sermon-browser-results #poweredbysermonbrowser {
+    text-align: right;
+}
+div.nearby-sermons {
+    clear: both;
+    width: 100%;
+}
+div.nearby-sermons div, div.nearby-sermons th {
+    text-align: center;
+}
+div.nearby-sermons .earlier {
+    padding-right: 1em;
+    text-align: left;
+}
+div.nearby-sermons .later {
+    padding-left: 1em;
+    text-align: right;
+}
+div.nearby-sermons div {
+    vertical-align: top;
+    width: 33%;
+}
+ul.sermon-widget {
+    list-style-type: none;
+    margin: -15px 0 0;
+    padding: 0;
+}
+ul.sermon-widget li {
+    border-bottom: 1px dotted #CFCFCF;
+    list-style-type: none;
+    margin: 0;
+    padding: 15px 0;
+}
+ul.sermon-widget li span.sermon-title {
+    font-size: 14px;
+    font-weight: bold;
+}
+ul.sermon-widget h4 {
+    font-family: century gothic;
+    margin: 0;
+}
+p.audioplayer_container {
+    display: inline !important;
+}
+div.sb_edit_link {
+    display: inline;
+}
+h2 div.sb_edit_link {
+    font-size: 80%;
+}
+.sermon-options {
+    margin-bottom: -10px;
+}
+.filter-heading {
+    color: #095cb0;
+    font-family: century gothic;
+    font-size: 20px;
+}
+div.sermon-browser div.sermons div.date {
+    font-family: century gothic;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: default;
+}
+#preacher {
+    border-right: 1px dotted #CFCFCF;
+    float: left;
+    margin: 10px;
+    overflow: hidden;
+    padding: 10px 10px 10px 20px;
+    width: 150px;
+}
+#book {
+    border-right: 1px dotted #CFCFCF;
+    float: left;
+    margin: 10px;
+    overflow: hidden;
+    padding: 10px 10px 10px 20px;
+    width: 150px;
+}
+#series {
+    float: left;
+    margin: 10px;
+    overflow: hidden;
+    padding: 10px 10px 10px 20px;
+    width: 150px;
+}
+.files {
+}
+.clear {
+    clear: both;
+}
