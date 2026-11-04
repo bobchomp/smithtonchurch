@@ -129,7 +129,6 @@ export default async function ReviewSermons({
             key={sermon.id}
             sermon={sermon}
             preachers={namesByUse(sermons, (s) => s.preacher)}
-            seriesNames={namesByUse(sermons, (s) => s.series)}
             audioReady={r2IsConfigured()}
             defaultDate={lastSunday()}
             streams={streams}

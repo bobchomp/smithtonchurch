@@ -27,7 +27,6 @@ export default async function NewSermon({ searchParams }: { searchParams: Promis
       <section className="admin-panel admin-panel-narrow">
         <SermonForm
           preachers={namesByUse(sermons, (s) => s.preacher)}
-          seriesNames={namesByUse(sermons, (s) => s.series)}
           audioReady={r2IsConfigured()}
           defaultDate={lastSunday()}
           streams={streams}

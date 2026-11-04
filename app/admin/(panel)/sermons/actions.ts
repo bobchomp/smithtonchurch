@@ -16,7 +16,6 @@ export type SermonInput = {
   date: string;
   service: Service;
   preacher: string;
-  series: string;
   books: string[]; // books of the Bible, empty if not known
   detailsChecked?: boolean; // saved from "Fill in details"
   // "" = match the livestream automatically, "none" = no video, or a YouTube link or video ID.
@@ -73,7 +72,6 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
     date: input.date,
     service: input.service,
     preacher: input.preacher.trim(),
-    series: input.series.trim() || undefined,
     books: sortBooks(input.books),
     book: undefined,
     passage: undefined,

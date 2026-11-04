@@ -34,7 +34,7 @@ export default async function AdminDashboard() {
           <h2>
             Sermon Details {toReview > 0 && <span className="admin-count">{toReview} to do</span>}
           </h2>
-          <p>Watch each recent sermon and fill in its preacher, series and Bible books, one after another.</p>
+          <p>Watch each recent sermon and fill in its title, preacher and Bible books, one after another.</p>
         </Link>
         <Link className="admin-tool" href="/admin/marsalis-newsletter/">
           <h2>Marsali’s Newsletter</h2>

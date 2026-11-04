@@ -149,7 +149,6 @@ function BooksField({ initial }: { initial: string[] }) {
 export default function SermonForm({
   sermon,
   preachers,
-  seriesNames,
   audioReady,
   defaultDate,
   streams,
@@ -158,7 +157,6 @@ export default function SermonForm({
 }: {
   sermon?: Sermon;
   preachers: string[];
-  seriesNames: string[];
   audioReady: boolean;
   defaultDate: string;
   streams: Livestream[];
@@ -182,7 +180,6 @@ export default function SermonForm({
       date: text("date"),
       service: text("service") as Service,
       preacher: text("preacher"),
-      series: text("series"),
       books: data.getAll("books").map(String),
       video: text("video"),
       detailsChecked: review ? true : undefined,
@@ -250,17 +247,6 @@ export default function SermonForm({
         <datalist id="preacher-list">
           {preachers.map((p) => (
             <option key={p} value={p} />
-          ))}
-        </datalist>
-      </label>
-      <label>
-        <span>
-          Series <span className="admin-optional">(optional)</span>
-        </span>
-        <input type="text" name="series" defaultValue={sermon?.series} list="series-list" maxLength={150} />
-        <datalist id="series-list">
-          {seriesNames.map((s) => (
-            <option key={s} value={s} />
           ))}
         </datalist>
       </label>
