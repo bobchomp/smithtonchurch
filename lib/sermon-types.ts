@@ -11,7 +11,6 @@ export type Sermon = {
   date: string; // YYYY-MM-DD
   service: Service;
   preacher: string;
-  series?: string;
   books?: string[]; // the books of the Bible the sermon is from, in Bible order, e.g. ["Ruth"]
   book?: string; // older field: a single book. Use sermonBooks() to read either.
   passage?: string; // older field (chapter and verse); only used to work out the book if nothing else is set

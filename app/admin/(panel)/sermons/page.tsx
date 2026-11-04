@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: "Sermons" };
 const SHOWN = 30;
 
 function matches(sermon: Sermon, query: string): boolean {
-  const text = [sermon.title, sermon.preacher, sermon.series, ...sermonBooks(sermon), sermon.date].join(" ").toLowerCase();
+  const text = [sermon.title, sermon.preacher, ...sermonBooks(sermon), sermon.date].join(" ").toLowerCase();
   return query.toLowerCase().split(/\s+/).every((word) => text.includes(word));
 }
 
@@ -73,7 +73,7 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
         )}
         <form className="admin-find" method="get">
           <label className="visually-hidden" htmlFor="sermon-search">Search sermons</label>
-          <input id="sermon-search" type="search" name="q" defaultValue={query} placeholder="Search title, preacher, series, book or date" />
+          <input id="sermon-search" type="search" name="q" defaultValue={query} placeholder="Search title, preacher, book or date" />
           {missingBook && <input type="hidden" name="missing" value="book" />}
           <button className="button button-outline" type="submit">Search</button>
         </form>

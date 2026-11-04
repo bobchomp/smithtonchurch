@@ -6,7 +6,7 @@ import { getPublicSermons } from "@/lib/sermons";
 
 export const metadata: Metadata = {
   title: "Sermons",
-  description: "Listen to sermons preached at Smithton Church, Inverness, since 2011. Search by preacher, series, Bible book or year.",
+  description: "Listen to sermons preached at Smithton Church, Inverness, since 2011. Search by preacher, Bible book or year.",
 };
 
 // Refreshed straight away when a sermon is added or changed in the admin panel, and hourly as a fallback.

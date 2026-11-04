@@ -1,6 +1,6 @@
 import type { Sermon } from "@/lib/sermon-types";
 
-// Preacher and series names already used, most-used first, to suggest in the form.
+// Preacher names already used, most-used first, to suggest in the form.
 export function namesByUse(sermons: Sermon[], pick: (s: Sermon) => string | undefined): string[] {
   const counts = new Map<string, number>();
   for (const s of sermons) {

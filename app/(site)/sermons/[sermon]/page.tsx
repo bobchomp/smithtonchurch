@@ -28,14 +28,10 @@ export async function generateMetadata({ params }: { params: Promise<{ sermon: s
 
 export default async function SermonPage({ params }: { params: Promise<{ sermon: string }> }) {
   const param = (await params).sermon;
-  const { sermon, sermons } = await findSermon(param);
+  const { sermon } = await findSermon(param);
   if (!sermon) notFound();
   // Send old or mistyped titles in the address to the right one.
   if (`/sermons/${param}/` !== sermon.path) permanentRedirect(sermon.path);
-
-  const moreInSeries = sermon.series
-    ? sermons.filter((s) => s.series === sermon.series && s.id !== sermon.id).slice(0, 6)
-    : [];
 
   return (
     <>
@@ -73,12 +69,6 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
                 </dd>
               </div>
             )}
-            {sermon.series && (
-              <div>
-                <dt>Series</dt>
-                <dd>{sermon.series}</dd>
-              </div>
-            )}
             {sermon.duration ? (
               <div>
                 <dt>Length</dt>
@@ -103,20 +93,6 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             </div>
           ) : (
             !sermon.youtubeId && <p className="sermon-empty">A recording of this sermon isn’t available.</p>
-          )}
-
-          {moreInSeries.length > 0 && (
-            <div className="sermon-more">
-              <h2>More from “{sermon.series}”</h2>
-              <ul>
-                {moreInSeries.map((s) => (
-                  <li key={s.id}>
-                    <Link href={s.path}>{s.title}</Link>
-                    <span> · {formatSermonDate(s.date)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
           )}
 
           <p className="sermon-back">

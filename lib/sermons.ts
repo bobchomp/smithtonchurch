@@ -25,7 +25,8 @@ export async function loadSermons(): Promise<Sermon[]> {
 
 export async function saveSermons(sermons: Sermon[]): Promise<void> {
   await ensureStorageBucket();
-  const body = JSON.stringify([...sermons].sort(newestFirst));
+  // Series are no longer used: drop any left on older records.
+  const body = JSON.stringify([...sermons].sort(newestFirst), (key, value) => (key === "series" ? undefined : value));
   // Sent as plain text (a Blob would be sent as a form upload).
   const { error } = await storage().upload(INDEX_PATH, body, {
     upsert: true,
@@ -51,6 +52,7 @@ function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
     detailsChecked: _detailsChecked,
     ...rest
   } = sermon;
+  delete (rest as { series?: string }).series; // older records may still have one
   return {
     ...rest,
     books: sermonBooks(sermon),

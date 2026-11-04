@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteButton from "../../_documents/DeleteButton";
+import YouTubePlayer from "@/components/YouTubePlayer";
 import { requireAdmin } from "@/lib/admin-auth";
-import { videoForSermons, youtubeThumbnail } from "@/lib/livestream-match";
+import { videoForSermons } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { audioUrl, r2IsConfigured } from "@/lib/r2";
 import { formatDuration, formatSermonDate, sermonPath } from "@/lib/sermon-types";
@@ -55,11 +56,15 @@ export default async function EditSermon({
           <section className="admin-panel">
             <h2>Video</h2>
             {video ? (
-              <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer" className="admin-video">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={youtubeThumbnail(video.id)} alt="" width={480} height={270} />
-                <span>{"title" in video ? video.title : "YouTube video"}</span>
-              </a>
+              <>
+                <YouTubePlayer key={video.id} id={video.id} title={"title" in video ? video.title : sermon.title} />
+                <p className="admin-muted admin-review-stream">
+                  {"title" in video && <>Livestream: “{video.title}” · </>}
+                  <a href={`https://www.youtube.com/watch?v=${video.id}`} target="_blank" rel="noopener noreferrer">
+                    Open on YouTube
+                  </a>
+                </p>
+              </>
             ) : (
               <p className="admin-muted">
                 {sermon.video === "none" ? "Video switched off for this sermon." : "No livestream matches this sermon’s date and service."}

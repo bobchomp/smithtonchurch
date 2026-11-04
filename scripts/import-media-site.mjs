@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Copies the sermon archive from the old media website (smithtonchurchmedia.com) into this site:
-// the details of every sermon (date, service, title, preacher, series and Bible book) go into the
+// the details of every sermon (date, service, title, preacher and Bible book) go into the
 // sermon list in Supabase, and each MP3 is copied to
 // Cloudflare R2. Run it on your own computer (see README.md, "Importing the old sermon archive").
 //
@@ -94,7 +94,7 @@ function parseDate(text) {
   return `${m[3]}-${String(month + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
 }
 
-// One page of the sermon list (15 sermons): date, service, title, preacher, series and MP3.
+// One page of the sermon list (15 sermons): date, service, title, preacher and MP3.
 export function parseListPage(html) {
   const sermons = [];
   const blocks = html.split(/<div class="sermon-title">/).slice(1);
@@ -110,7 +110,6 @@ export function parseListPage(html) {
     if (!titleMatch) return;
     const speakerLine = block.match(/<div class="preacher">\s*Speaker:([\s\S]*?)<\/div>/)?.[1] ?? "";
     const preacher = decode(speakerLine.match(/preacher=\d+[^>]*>([\s\S]*?)<\/a>/)?.[1] ?? "");
-    const seriesName = decode(speakerLine.match(/series=\d+[^>]*>([\s\S]*?)<\/a>/)?.[1] ?? "");
     const fileName = block.match(/[?&](?:amp;)?(?:download|show)&(?:amp;)?file_name=([^"&]+)/)?.[1];
     const serviceText = decode(dateLine.match(/service=\d+[^>]*>([\s\S]*?)<\/a>/)?.[1] ?? "").toLowerCase();
     sermons.push({
@@ -119,8 +118,6 @@ export function parseListPage(html) {
       date: parseDate(decode(dateLine)),
       service: serviceText === "am" || serviceText === "pm" ? serviceText : "",
       preacher,
-      // "Series' name" is a placeholder left on some sermons on the old site.
-      series: seriesName && seriesName !== "Series' name" ? seriesName : undefined,
       fileName: fileName ? decodeURIComponent(fileName.replace(/\+/g, " ")) : undefined,
     });
   });
@@ -258,7 +255,6 @@ async function main() {
           legacyId: item.legacyId,
           title: sameSlot.title || item.title,
           preacher: sameSlot.preacher || item.preacher,
-          series: sameSlot.series ?? item.series,
           books: booksOf(sameSlot).length ? booksOf(sameSlot) : item.books,
           book: undefined,
         }
@@ -270,7 +266,6 @@ async function main() {
           date: item.date,
           service: item.service,
           preacher: item.preacher,
-          series: item.series,
           books: item.books,
           book: undefined,
           createdAt: existing?.createdAt ?? new Date().toISOString(),

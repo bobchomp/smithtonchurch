@@ -170,7 +170,7 @@ The channel is taken from the YouTube link in `content/site.yml`. A full check u
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):
-the details (date, service, title, preacher, series and Bible book) into the sermon list, and each MP3 into R2. Each imported sermon keeps its number from
+the details (date, service, title, preacher and Bible book) into the sermon list, and each MP3 into R2. Each imported sermon keeps its number from
 the old site, so `/?sermon_id=1632` there becomes `/sermons/1632-…` here. Run it on your own
 computer, as the old site can't be reached from Vercel or Claude's environment:
 
