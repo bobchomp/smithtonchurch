@@ -2,7 +2,8 @@
 # "name" is the heading (just the people or organisation); "subtitle" is the line under it
 # (their organisation and/or where they are).
 # Images live in public/images/missions/. Everything except "name" is optional.
-# "links" can point to websites, videos or newsletters (PDFs go in public/docs/missions/).
+# "links" can point to websites, videos or newsletters (PDFs go in public/docs/missions/); each
+# is shown as a button, using "title" as its text.
 
 - name: Marsali Campbell
   subtitle: Pioneers UK
@@ -108,7 +109,7 @@
     - Pray for continued healing, emotional and spiritual strength.
     - Pray for the safety of Stefanos’ staff who travel all over the country to conduct workshops.
   links:
-    - title: releaseinternational.org
+    - title: Visit website
       url: http://www.releaseinternational.org
 
 - name: Suraj Kasula
@@ -141,7 +142,7 @@
   links:
     - title: Watch the latest Wakisa video update
       url: https://vimeo.com/1155506449
-    - title: wakisaministries.com
+    - title: Visit website
       url: http://www.wakisaministries.com
 
 - name: Dwelling Places
@@ -158,7 +159,7 @@
   links:
     - title: Watch Dwelling Places’ latest video update
       url: https://youtu.be/wMSkh6Jlc28
-    - title: dwellingplaces.org
+    - title: Visit website
       url: http://www.dwellingplaces.org/
 
 - name: Christian Solidarity Worldwide (CSW)
@@ -173,7 +174,7 @@
   links:
     - title: Watch CSW’s latest video update
       url: https://vimeo.com/657799673
-    - title: csw.org.uk
+    - title: Visit website
       url: http://www.csw.org.uk
 
 - name: Cheptebo Rural Development Centre
@@ -188,7 +189,7 @@
   links:
     - title: Watch Cheptebo’s latest video update
       url: https://www.youtube.com/watch?v=_zXbAze0yWs
-    - title: cheptebo.org
+    - title: Visit website
       url: http://www.cheptebo.org
 
 - name: Invergordon Seafarers Centre
@@ -201,5 +202,5 @@
     - Pray for guidance and wisdom when dealing with sensitive/spiritual matters.
     - Pray for the families at home, separated from loved ones, many for up to ten months.
   links:
-    - title: sailors-society.org
+    - title: Visit website
       url: https://www.sailors-society.org/

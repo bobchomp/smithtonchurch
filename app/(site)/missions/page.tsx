@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
-import { missions, site, slugify } from "@/lib/content";
+import { isExternal, missions, site, slugify } from "@/lib/content";
 import { Markdown } from "@/lib/markdown";
 
 export const metadata: Metadata = {
@@ -90,19 +90,23 @@ export default function Missions() {
                   </ul>
                 </div>
               )}
-              {partner.button && (
-                <p>
-                  <Link className="button" href={partner.button.url}>{partner.button.title}</Link>
-                </p>
-              )}
-              {partner.links && (
-                <ul className="link-list">
-                  {partner.links.map((link) => (
-                    <li key={link.url}>
-                      <a href={link.url}>{link.title}</a>
-                    </li>
-                  ))}
-                </ul>
+              {(partner.button || partner.links) && (
+                <div className="partner-actions">
+                  {partner.button && (
+                    <Link className="button" href={partner.button.url}>{partner.button.title}</Link>
+                  )}
+                  {/* Videos and websites elsewhere open in a new tab. */}
+                  {partner.links?.map((link) =>
+                    isExternal(link.url) ? (
+                      <a key={link.url} className="button" href={link.url} target="_blank" rel="noopener noreferrer">
+                        {link.title}
+                        <span className="visually-hidden"> (opens in a new tab)</span>
+                      </a>
+                    ) : (
+                      <a key={link.url} className="button" href={link.url}>{link.title}</a>
+                    ),
+                  )}
+                </div>
               )}
             </div>
           </div>
