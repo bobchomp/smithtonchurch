@@ -33,13 +33,26 @@ Keep file names lowercase with hyphens and no spaces, e.g. `20261108-Bulletin-we
 
 ## Contact form
 
-The contact form uses [Formspree](https://formspree.io) (free for up to 50 messages a month):
+The contact forms (home page and Conferencing Venue page) save every message in the admin panel
+(**Dashboard → Messages**) and email it, through [Resend](https://resend.com), to the addresses
+listed there under **Notification emails**. Emails come from `info@rossmackenzie.co.uk`; replying
+to one replies to the person who sent the message. If an email can't be sent, the message is still
+saved and the admin panel says why.
 
-1. Sign up at formspree.io with the church office email address and create a new form.
-2. Copy the form's ID (the part after `/f/` in its URL, e.g. `xyzabcd`).
-3. Paste it into `formspree_id` in `content/site.yml`.
+To set up the emails:
 
-Until that's done, the site shows the office phone number and email address where the form would be.
+1. Sign in at resend.com, open **Domains → Add domain**, enter `rossmackenzie.co.uk`, and add the
+   DNS records it shows wherever that domain's DNS is managed. Wait until Resend shows it as
+   **Verified**.
+2. Open **API Keys → Create API key** with **Sending access** (it can be limited to that domain).
+3. In Vercel, add the environment variable `RESEND_API_KEY` with the key, then redeploy.
+4. In **Admin → Messages**, add the addresses to notify and press **Send a test email**.
+
+To send from a different address later, set `CONTACT_FROM` in Vercel, e.g.
+`Smithton Church <office@smithtonchurch.com>` (its domain must be verified in Resend).
+
+Spam is kept out with a hidden field that only robots fill in and a check that the form wasn't
+submitted instantly. Messages are only ever emailed to the addresses in the admin panel.
 
 ## Admin panel
 

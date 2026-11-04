@@ -30,7 +30,3 @@ social:
   instagram: "https://www.instagram.com/smithton.church/"
   x: "https://x.com/smithtonchurch"
 
-# Contact form: create a free form at https://formspree.io that sends to the church office
-# email, then paste its ID here (the part after /f/ in the form's URL, e.g. "xyzabcd").
-# Until this is filled in, the site shows the office phone and email instead of the form.
-formspree_id: ""

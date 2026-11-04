@@ -105,7 +105,7 @@ export default function ConferencingVenue() {
       <ContactForm
         heading="Enquire about availability"
         intro={`Send us a message using the form below, or call the church office on ${site.phone}.`}
-        subject="Venue hire enquiry"
+        source="venue"
       />
     </>
   );

@@ -25,7 +25,6 @@ export type Site = {
   donate_link: string;
   churchsuite_link: string;
   social: { facebook: string; youtube: string; sermons: string; instagram: string; x: string };
-  formspree_id: string;
 };
 
 export type NavItem = { title: string; url: string; children?: NavItem[] };
