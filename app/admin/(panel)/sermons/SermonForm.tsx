@@ -121,7 +121,7 @@ export default function SermonForm({
   audioReady: boolean;
   defaultDate: string;
   streams: Livestream[];
-  prefill?: { title: string; date: string; service: Service; video: string };
+  prefill?: { title: string; date: string; service: Service; video: string; preacher: string };
 }) {
   const router = useRouter();
   const [date, setDate] = useState(sermon?.date ?? prefill?.date ?? defaultDate);
@@ -196,8 +196,8 @@ export default function SermonForm({
         </label>
       </div>
       <label>
-        Preacher
-        <input type="text" name="preacher" defaultValue={sermon?.preacher} list="preacher-list" required maxLength={100} />
+        Preacher <span className="admin-optional">(optional)</span>
+        <input type="text" name="preacher" defaultValue={sermon?.preacher ?? prefill?.preacher} list="preacher-list" maxLength={100} />
         <datalist id="preacher-list">
           {preachers.map((p) => (
             <option key={p} value={p} />

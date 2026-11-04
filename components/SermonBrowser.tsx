@@ -154,11 +154,7 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
                 <h3>
                   <Link href={s.path}>{s.title}</Link>
                 </h3>
-                <p className="sermon-item-meta">
-                  {s.preacher}
-                  {s.passage && ` · ${s.passage}`}
-                  {s.series && ` · ${s.series}`}
-                </p>
+                <p className="sermon-item-meta">{[s.preacher, s.passage, s.series].filter(Boolean).join(" · ")}</p>
               </div>
               <div className="sermon-item-extra">
                 {s.youtubeId && <span className="sermon-item-video">Video</span>}

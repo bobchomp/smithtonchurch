@@ -4,8 +4,8 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
 import { bookFromPassage } from "@/lib/bible";
-import { youtubeId } from "@/lib/livestream-match";
-import { syncLivestreams } from "@/lib/livestreams";
+import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
+import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
 import { isSermonDate, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
 import { loadSermons, saveSermons } from "@/lib/sermons";
@@ -58,7 +58,6 @@ function validate(input: SermonInput): string | undefined {
   if (!input.title.trim()) return "Please enter a title.";
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
-  if (!input.preacher.trim()) return "Please enter the preacher.";
   if (input.video && input.video !== "none" && !youtubeId(input.video)) return "That doesn’t look like a YouTube link.";
   if (input.audio && !/^sermons\/\d{4}\/[\w.-]+\.mp3$/.test(input.audio.key)) return "Invalid audio file.";
   return undefined;
@@ -136,5 +135,39 @@ export async function syncLivestreamsNow(): Promise<{ message: string; ok: boole
   } catch (error) {
     console.error("Could not sync livestreams", error);
     return { ok: false, message: `Couldn’t check YouTube. ${(error as Error).message}` };
+  }
+}
+
+// "Create sermons" for the ticked livestreams: one sermon each, with the stream's title, date,
+// service, video and preacher (from the stream's description).
+export async function createSermonsFromLivestreams(streamIds: string[]): Promise<{ created?: number; error?: string }> {
+  await requireAdmin();
+  try {
+    const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);
+    // Only streams that still have no sermon, so pressing the button twice can't make duplicates.
+    const available = new Map(unmatchedStreams(sermons, streams).map((s) => [s.id, s]));
+    const chosen = [...new Set(streamIds)].map((id) => available.get(id)).filter((s) => s !== undefined);
+    if (!chosen.length) return { error: "None of those livestreams still need a sermon." };
+    let nextId = Math.max(10000, ...sermons.map((s) => s.id));
+    const now = new Date().toISOString();
+    const created = chosen.map((stream): Sermon => {
+      const { date, service } = streamSlot(stream);
+      return {
+        id: ++nextId,
+        title: stream.title.trim(),
+        date,
+        service,
+        preacher: stream.preacher ?? "",
+        video: stream.id,
+        duration: stream.duration,
+        createdAt: now,
+      };
+    });
+    await saveSermons([...sermons, ...created]);
+    refresh(...created);
+    return { created: created.length };
+  } catch (error) {
+    console.error("Could not create sermons from livestreams", error);
+    return { error: `Couldn’t create the sermons. ${describeStorageError(error)}` };
   }
 }

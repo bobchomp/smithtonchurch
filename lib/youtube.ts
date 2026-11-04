@@ -41,11 +41,19 @@ type PlaylistPage = { nextPageToken?: string; items: { contentDetails: { videoId
 type VideosPage = {
   items: {
     id: string;
-    snippet: { title: string };
+    snippet: { title: string; description?: string };
     contentDetails?: { duration?: string };
     liveStreamingDetails?: { actualStartTime?: string; actualEndTime?: string };
   }[];
 };
+
+// The church puts only the preacher's name in each livestream's description. Anything that doesn't
+// look like a name (a link, or several lines of text) is ignored.
+function preacherFrom(description: string | undefined): string | undefined {
+  const text = description?.trim();
+  if (!text || text.includes("\n") || /https?:|www\.|@/.test(text) || text.length > 60) return undefined;
+  return text;
+}
 
 // Every finished livestream on the channel, newest first. (Uploads that weren't livestreams,
 // and streams that haven't started or are still live, are left out.)
@@ -86,6 +94,7 @@ export async function fetchPastLivestreams(): Promise<Livestream[]> {
         title: video.snippet.title,
         startedAt: live.actualStartTime,
         duration: seconds(video.contentDetails?.duration),
+        preacher: preacherFrom(video.snippet.description),
       });
     }
   }

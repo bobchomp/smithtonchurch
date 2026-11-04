@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ sermon: s
   if (!sermon) return { title: "Sermon not found" };
   return {
     title: sermon.title,
-    description: `${sermon.title}, preached by ${sermon.preacher} at Smithton Church on ${formatSermonDate(sermon.date)}.`,
+    description: `${sermon.title}${sermon.preacher ? `, preached by ${sermon.preacher}` : ""} at Smithton Church on ${formatSermonDate(sermon.date)}.`,
   };
 }
 
@@ -52,12 +52,14 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
       <section className="section">
         <div className="container narrow">
           <dl className="sermon-details">
-            <div>
-              <dt>Preacher</dt>
-              <dd>
-                <Link href={`/sermons/?preacher=${encodeURIComponent(sermon.preacher)}`}>{sermon.preacher}</Link>
-              </dd>
-            </div>
+            {sermon.preacher && (
+              <div>
+                <dt>Preacher</dt>
+                <dd>
+                  <Link href={`/sermons/?preacher=${encodeURIComponent(sermon.preacher)}`}>{sermon.preacher}</Link>
+                </dd>
+              </div>
+            )}
             {sermon.passage && (
               <div>
                 <dt>Bible passage</dt>

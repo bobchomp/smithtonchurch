@@ -230,25 +230,45 @@ async function main() {
   const audio = NO_AUDIO ? undefined : r2();
   const index = await loadIndex(store);
   const byId = new Map(index.map((s) => [s.id, s]));
+  // Sermons already added on the new site (e.g. created from YouTube livestreams) for the same
+  // date and service are merged into, rather than duplicated.
+  const bySlot = new Map(index.filter((s) => !s.legacyId && s.service).map((s) => [`${s.date} ${s.service}`, s]));
+  let merged = 0;
   let copied = 0;
   let failed = 0;
 
   for (const [i, item] of found.entries()) {
     if (!item.date || !item.preacher) continue;
-    const existing = byId.get(item.legacyId);
-    const sermon = {
-      ...existing,
-      id: item.legacyId, // keep the old site's number, so old links can be redirected
-      legacyId: item.legacyId,
-      title: item.title,
-      date: item.date,
-      service: item.service,
-      preacher: item.preacher,
-      series: item.series,
-      passage: item.passage,
-      book: bookFromPassage(item.passage),
-      createdAt: existing?.createdAt ?? new Date().toISOString(),
-    };
+    const sameSlot = !byId.has(item.legacyId) && item.service ? bySlot.get(`${item.date} ${item.service}`) : undefined;
+    const existing = byId.get(item.legacyId) ?? sameSlot;
+    const sermon = sameSlot
+      ? {
+          // Keep what was entered on the new site; fill in anything missing from the old site.
+          ...sameSlot,
+          legacyId: item.legacyId,
+          title: sameSlot.title || item.title,
+          preacher: sameSlot.preacher || item.preacher,
+          series: sameSlot.series ?? item.series,
+          passage: sameSlot.passage ?? item.passage,
+          book: sameSlot.book ?? bookFromPassage(sameSlot.passage ?? item.passage),
+        }
+      : {
+          ...existing,
+          id: item.legacyId, // keep the old site's number, so old links can be redirected
+          legacyId: item.legacyId,
+          title: item.title,
+          date: item.date,
+          service: item.service,
+          preacher: item.preacher,
+          series: item.series,
+          passage: item.passage,
+          book: bookFromPassage(item.passage),
+          createdAt: existing?.createdAt ?? new Date().toISOString(),
+        };
+    if (sameSlot) {
+      merged++;
+      bySlot.delete(`${item.date} ${item.service}`);
+    }
 
     if (audio && item.fileName && (FORCE_AUDIO || !existing?.audioKey)) {
       const key = `sermons/${item.date.slice(0, 4)}/${item.date}${item.service ? `-${item.service}` : ""}-${slug(item.title)}-${item.legacyId}.mp3`;
@@ -292,7 +312,10 @@ async function main() {
     if ((i + 1) % 25 === 0) await saveIndex(store, [...byId.values()]);
   }
   await saveIndex(store, [...byId.values()]);
-  console.log(`\nDone. ${byId.size} sermons in the list; ${copied} audio files copied${failed ? `, ${failed} failed (run again to retry)` : ""}.`);
+  console.log(
+    `\nDone. ${byId.size} sermons in the list${merged ? ` (${merged} merged into sermons already on the new site)` : ""}; ` +
+      `${copied} audio files copied${failed ? `, ${failed} failed (run again to retry)` : ""}.`,
+  );
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split("/").pop())) {

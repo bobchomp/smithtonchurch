@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
-import { streamSlot, unmatchedStreams, youtubeThumbnail } from "@/lib/livestream-match";
+import { unmatchedStreams } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { youtubeIsConfigured } from "@/lib/youtube";
 import { r2IsConfigured } from "@/lib/r2";
@@ -9,6 +9,7 @@ import { formatDuration, formatSermonDate, serviceLabel, type Sermon } from "@/l
 import { loadSermons } from "@/lib/sermons";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import SyncButton from "./SyncButton";
+import UnmatchedStreams from "./UnmatchedStreams";
 
 export const metadata: Metadata = { title: "Sermons" };
 
@@ -87,7 +88,8 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
                     <Link href={`/admin/sermons/${s.id}/`}>{s.title}</Link>
                     <span className="admin-muted">
                       {formatSermonDate(s.date)}
-                      {s.service && ` (${serviceLabel(s.service).toLowerCase()})`} · {s.preacher}
+                      {s.service && ` (${serviceLabel(s.service).toLowerCase()})`}
+                      {s.preacher ? ` · ${s.preacher}` : " · no preacher"}
                       {s.duration ? ` · ${formatDuration(s.duration)}` : ""}
                       {!s.audioKey && " · no audio"}
                     </span>
@@ -112,28 +114,7 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
             </p>
             <SyncButton />
             {unmatched.length > 0 && (
-              <>
-                <h3>Livestreams without a sermon ({unmatched.length})</h3>
-                <ul className="admin-list">
-                  {unmatched.slice(0, 15).map((stream) => {
-                    const { date, service } = streamSlot(stream);
-                    return (
-                      <li key={stream.id}>
-                        <div className="admin-list-item">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img className="admin-video-thumb" src={youtubeThumbnail(stream.id)} alt="" width={64} height={36} />
-                          <span>
-                            <a href={`https://www.youtube.com/watch?v=${stream.id}`} target="_blank" rel="noopener noreferrer">{stream.title}</a>
-                            <span className="admin-muted"> · {formatSermonDate(date)} ({service === "am" ? "morning" : "evening"})</span>
-                          </span>
-                        </div>
-                        <Link href={`/admin/sermons/new/?video=${stream.id}`}>Create sermon</Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {unmatched.length > 15 && <p className="admin-muted">Showing the 15 most recent.</p>}
-              </>
+              <UnmatchedStreams streams={unmatched} />
             )}
           </>
         ) : (

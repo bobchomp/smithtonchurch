@@ -16,7 +16,7 @@ export default async function NewSermon({ searchParams }: { searchParams: Promis
   // "Create sermon" from a livestream fills in its date, service, title and video.
   const videoId = (await searchParams).video;
   const stream = streams.find((s) => s.id === videoId);
-  const prefill = stream && { title: stream.title, ...streamSlot(stream), video: stream.id };
+  const prefill = stream && { title: stream.title, ...streamSlot(stream), video: stream.id, preacher: stream.preacher ?? "" };
   return (
     <>
       <p className="admin-breadcrumb">
