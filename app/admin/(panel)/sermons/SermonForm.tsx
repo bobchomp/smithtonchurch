@@ -121,7 +121,7 @@ export default function SermonForm({
   audioReady: boolean;
   defaultDate: string;
   streams: Livestream[];
-  prefill?: { title: string; date: string; service: Service; video: string; preacher: string };
+  prefill?: { title: string; date: string; service: Service; video: string; preacher: string; passage: string };
 }) {
   const router = useRouter();
   const [date, setDate] = useState(sermon?.date ?? prefill?.date ?? defaultDate);
@@ -215,7 +215,7 @@ export default function SermonForm({
       </label>
       <label>
         Bible passage <span className="admin-optional">(optional, e.g. John 1:1-18)</span>
-        <input type="text" name="passage" defaultValue={sermon?.passage} maxLength={100} />
+        <input type="text" name="passage" defaultValue={sermon?.passage ?? prefill?.passage} maxLength={100} />
       </label>
       <VideoField
         streams={streams}

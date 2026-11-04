@@ -122,7 +122,10 @@ Past livestreams from the church's YouTube channel are matched to sermons by dat
 (streams starting before 2pm count as the morning service), so each sermon page shows the video
 with the audio underneath. The list of livestreams is refreshed once a day, or straight away with
 **Check YouTube now** in **Admin → Sermons**, which also lists livestreams that don't have a
-sermon yet. A sermon's video can be changed or switched off on its admin page.
+sermon yet. A sermon's video can be changed or switched off on its admin page. Streams with
+"Church Night", "funeral" or "thanksgiving service" in the title are left out. When a sermon is
+created from a stream, the preacher comes from the stream's description and the Bible passage from
+its title (when the title includes one, e.g. "Psalm 124").
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com), create a project (e.g.
    "Smithton Church website"), then open **APIs & Services → Library**, find

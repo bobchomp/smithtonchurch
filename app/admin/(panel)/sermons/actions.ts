@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { bookFromPassage } from "@/lib/bible";
+import { bookFromPassage, passageFromTitle } from "@/lib/bible";
 import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
@@ -152,9 +152,12 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
     const now = new Date().toISOString();
     const created = chosen.map((stream): Sermon => {
       const { date, service } = streamSlot(stream);
+      const passage = passageFromTitle(stream.title);
       return {
         id: ++nextId,
         title: stream.title.trim(),
+        passage,
+        book: bookFromPassage(passage),
         date,
         service,
         preacher: stream.preacher ?? "",

@@ -25,8 +25,9 @@
 - YouTube livestreams: `lib/youtube.ts` (Data API, YOUTUBE_API_KEY) fetches finished livestreams; `lib/livestreams.ts`
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);
-  a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night" are never matched or listed;
-  a stream's description is just the preacher's name, used when creating sermons from streams. Pages read the saved list, never YouTube directly.
+  a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
+  a stream's description is just the preacher's name, used when creating sermons from streams;
+  the passage comes from the title via `passageFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
   Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
+import { passageFromTitle } from "@/lib/bible";
 import { streamSlot } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { r2IsConfigured } from "@/lib/r2";
@@ -16,7 +17,7 @@ export default async function NewSermon({ searchParams }: { searchParams: Promis
   // "Create sermon" from a livestream fills in its date, service, title and video.
   const videoId = (await searchParams).video;
   const stream = streams.find((s) => s.id === videoId);
-  const prefill = stream && { title: stream.title, ...streamSlot(stream), video: stream.id, preacher: stream.preacher ?? "" };
+  const prefill = stream && { title: stream.title, ...streamSlot(stream), video: stream.id, preacher: stream.preacher ?? "", passage: passageFromTitle(stream.title) ?? "" };
   return (
     <>
       <p className="admin-breadcrumb">

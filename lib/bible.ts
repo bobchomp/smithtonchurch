@@ -24,3 +24,21 @@ export function bookFromPassage(passage: string | undefined): string | undefined
   // Longest names first, so "1 John" isn't mistaken for "John".
   return [...BIBLE_BOOKS].sort((a, b) => b.length - a.length).find((b) => text.startsWith(b.toLowerCase()));
 }
+
+// Finds a Bible reference in a title, e.g. "‘Felix before Paul’ Acts 24:1-27" -> "Acts 24:1-27",
+// "Ruth2" -> "Ruth 2", "Revelation 3: 7-13" -> "Revelation 3:7-13". Returns undefined if there isn't one.
+export function passageFromTitle(title: string): string | undefined {
+  const names = [...BIBLE_BOOKS, ...Object.keys(ALIASES).map((a) => a.replace(/\b\w/g, (c) => c.toUpperCase()))]
+    .sort((a, b) => b.length - a.length)
+    .map((name) => name.replace(/ /g, "\\s*"));
+  const pattern = new RegExp(
+    `(?<![A-Za-z0-9])(${names.join("|")})\\s*(\\d{1,3})(?:\\s*[:.;]\\s*(\\d{1,3})(?:\\s*[-–]\\s*(\\d{1,3}))?)?(?![\\d])`,
+    "i",
+  );
+  const match = title.match(pattern);
+  if (!match) return undefined;
+  const book = bookFromPassage(match[1].replace(/\s+/g, " "));
+  if (!book) return undefined;
+  const [, , chapter, from, to] = match;
+  return `${book === "Psalms" ? "Psalm" : book} ${chapter}${from ? `:${from}${to ? `-${to}` : ""}` : ""}`;
+}

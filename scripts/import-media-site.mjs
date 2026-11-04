@@ -44,6 +44,16 @@ function bookFromPassage(passage) {
   return [...BOOKS].sort((a, b) => b.length - a.length).find((b) => text.startsWith(b.toLowerCase()));
 }
 
+// Finds a Bible reference in a title (same as passageFromTitle in lib/bible.ts).
+function passageFromTitle(title) {
+  const names = [...BOOKS, "Psalm", "Song of Solomon", "Revelations"].sort((a, b) => b.length - a.length).map((n) => n.replace(/ /g, "\\s*"));
+  const match = title.match(new RegExp(`(?<![A-Za-z0-9])(${names.join("|")})\\s*(\\d{1,3})(?:\\s*[:.;]\\s*(\\d{1,3})(?:\\s*[-–]\\s*(\\d{1,3}))?)?(?![\\d])`, "i"));
+  const book = match && bookFromPassage(match[1].replace(/\s+/g, " "));
+  if (!book) return undefined;
+  const [, , chapter, from, to] = match;
+  return `${book === "Psalms" ? "Psalm" : book} ${chapter}${from ? `:${from}${to ? `-${to}` : ""}` : ""}`;
+}
+
 // ---------- Reading the old site ----------
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#039": "'" };
@@ -208,7 +218,8 @@ async function main() {
   let withPassage = 0;
   for (const [i, sermon] of found.entries()) {
     try {
-      sermon.passage = parsePassage(await getText(`${SOURCE}/?sermon_id=${sermon.legacyId}`));
+      // From the sermon's own page, or failing that from its title.
+      sermon.passage = parsePassage(await getText(`${SOURCE}/?sermon_id=${sermon.legacyId}`)) ?? passageFromTitle(sermon.title);
       if (sermon.passage) withPassage++;
     } catch (error) {
       console.warn(`\n  ${error.message}`);
