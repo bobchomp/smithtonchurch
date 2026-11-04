@@ -21,7 +21,8 @@
   the old media site's `sermon_id` as their id (< 10000); admin-added ones start at 10001. The import merges into an
   existing admin-added sermon with the same date and service (setting its `legacyId`) instead of duplicating it.
   `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
-  http-only, which this environment can't reach). The header still links Sermons to YouTube until the import.
+  http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
+  gets each sermon's Bible book from its `?book=` filter lists and the chapter/verse from the title. The header still links Sermons to YouTube until the import.
 - YouTube livestreams: `lib/youtube.ts` (Data API, YOUTUBE_API_KEY) fetches finished livestreams; `lib/livestreams.ts`
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);

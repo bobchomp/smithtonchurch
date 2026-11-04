@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Copies the sermon archive from the old media website (smithtonchurchmedia.com) into this site:
-// the details of every sermon go into the sermon list in Supabase, and each MP3 is copied to
+// the details of every sermon (date, service, title, preacher, series, Bible book and, where the
+// title includes it, the passage) go into the sermon list in Supabase, and each MP3 is copied to
 // Cloudflare R2. Run it on your own computer (see README.md, "Importing the old sermon archive").
 //
 //   node --env-file=.env.import scripts/import-media-site.mjs --dry-run      # read only, save a preview
@@ -98,7 +99,9 @@ export function parseListPage(html) {
     const before = chunks[i];
     const dateLines = [...before.matchAll(/<div class="preacher">([\s\S]*?)<\/div>/g)];
     const dateLine = dateLines.length ? dateLines[dateLines.length - 1][1] : "";
-    const titleMatch = block.match(/sermon_id=(\d+)[^>]*>([\s\S]*?)<\/a>/);
+    // Only look inside the title itself, so a link further down the page can't be picked up.
+    const titleDiv = block.slice(0, block.indexOf("</div>"));
+    const titleMatch = titleDiv.match(/sermon_id=(\d+)[^>]*>([\s\S]*?)<\/a>/);
     if (!titleMatch) return;
     const speakerLine = block.match(/<div class="preacher">\s*Speaker:([\s\S]*?)<\/div>/)?.[1] ?? "";
     const preacher = decode(speakerLine.match(/preacher=\d+[^>]*>([\s\S]*?)<\/a>/)?.[1] ?? "");
@@ -118,26 +121,6 @@ export function parseListPage(html) {
   });
   const hasNext = /pagenum=\d+[^>]*>\s*Next page/i.test(html);
   return { sermons, hasNext };
-}
-
-// A sermon's own page: the Bible passage, which the list doesn't show.
-export function parsePassage(html) {
-  const tries = [
-    /class="[^"]*passage[^"]*"[^>]*>([\s\S]*?)<\/(?:span|div|p|a|li)>/i,
-    /Bible (?:passage|text|reading)s?:?\s*<\/?[^>]*>?\s*([\s\S]*?)<\/(?:span|div|p|li|td)>/i,
-    /Bible (?:passage|text|reading)s?:\s*([^<]+)/i,
-  ];
-  for (const pattern of tries) {
-    const text = decode(html.match(pattern)?.[1] ?? "").replace(/^[:\s]+/, "");
-    if (text && bookFromPassage(text)) return text;
-  }
-  // Failing that, any link to a Bible book filter on the page, e.g. ?book=John.
-  const book = html.match(/[?&](?:amp;)?book=([^"&]+)"[^>]*>([\s\S]*?)<\/a>/);
-  if (book) {
-    const text = decode(book[2]);
-    if (bookFromPassage(text)) return text;
-  }
-  return undefined;
 }
 
 // ---------- Destinations ----------
@@ -214,22 +197,33 @@ async function main() {
   }
   console.log("");
 
-  console.log("Reading each sermon’s page for its Bible passage…");
-  let withPassage = 0;
-  for (const [i, sermon] of found.entries()) {
-    try {
-      // From the sermon's own page, or failing that from its title.
-      sermon.passage = parsePassage(await getText(`${SOURCE}/?sermon_id=${sermon.legacyId}`)) ?? passageFromTitle(sermon.title);
-      if (sermon.passage) withPassage++;
-    } catch (error) {
-      console.warn(`\n  ${error.message}`);
+  // The old site's sermon pages don't show the Bible passage, but its "Book" filter lists the
+  // sermons for each book of the Bible, so go through those to give every sermon its book.
+  console.log("Reading the sermon list for each book of the Bible…");
+  const bookOf = new Map();
+  for (const [i, book] of BOOKS.entries()) {
+    for (let page = 1; page <= 200; page++) {
+      const { sermons, hasNext } = parseListPage(await getText(`${SOURCE}/?book=${encodeURIComponent(book)}&pagenum=${page}`));
+      for (const s of sermons) if (!bookOf.has(s.legacyId)) bookOf.set(s.legacyId, book);
+      if (!hasNext || sermons.length === 0) break;
     }
-    process.stdout.write(`\r  ${i + 1} of ${found.length}`);
+    process.stdout.write(`\r  ${i + 1} of ${BOOKS.length} books`);
   }
-  console.log(`\n  ${withPassage} of ${found.length} have a Bible passage.`);
+  let withBook = 0;
+  let withPassage = 0;
+  for (const sermon of found) {
+    // The chapter and verse come from the title when it includes them, e.g. "Acts 24:1-27".
+    sermon.passage = passageFromTitle(sermon.title);
+    sermon.book = bookOf.get(sermon.legacyId) ?? bookFromPassage(sermon.passage);
+    // Only keep a passage from the title if it's in the same book the old site recorded.
+    if (sermon.passage && bookFromPassage(sermon.passage) !== sermon.book) sermon.passage = undefined;
+    if (sermon.book) withBook++;
+    if (sermon.passage) withPassage++;
+  }
+  console.log(`\n  ${withBook} of ${found.length} have a Bible book, ${withPassage} with chapter and verse from the title.`);
 
-  const problems = found.filter((s) => !s.date || !s.preacher);
-  if (problems.length) console.warn(`  ${problems.length} sermons are missing a date or preacher; they’ll be skipped:`, problems.map((s) => s.legacyId).join(", "));
+  const problems = found.filter((s) => !s.date);
+  if (problems.length) console.warn(`  ${problems.length} sermons have no date; they’ll be skipped:`, problems.map((s) => s.legacyId).join(", "));
 
   if (DRY_RUN) {
     await writeFile("media-import-preview.json", JSON.stringify(found, null, 2));
@@ -249,7 +243,7 @@ async function main() {
   let failed = 0;
 
   for (const [i, item] of found.entries()) {
-    if (!item.date || !item.preacher) continue;
+    if (!item.date) continue;
     const sameSlot = !byId.has(item.legacyId) && item.service ? bySlot.get(`${item.date} ${item.service}`) : undefined;
     const existing = byId.get(item.legacyId) ?? sameSlot;
     const sermon = sameSlot
@@ -261,7 +255,7 @@ async function main() {
           preacher: sameSlot.preacher || item.preacher,
           series: sameSlot.series ?? item.series,
           passage: sameSlot.passage ?? item.passage,
-          book: sameSlot.book ?? bookFromPassage(sameSlot.passage ?? item.passage),
+          book: sameSlot.book ?? item.book,
         }
       : {
           ...existing,
@@ -273,7 +267,7 @@ async function main() {
           preacher: item.preacher,
           series: item.series,
           passage: item.passage,
-          book: bookFromPassage(item.passage),
+          book: item.book,
           createdAt: existing?.createdAt ?? new Date().toISOString(),
         };
     if (sameSlot) {
