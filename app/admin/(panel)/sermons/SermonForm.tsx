@@ -197,7 +197,9 @@ export default function SermonForm({
         </label>
       </div>
       <label>
-        Preacher <span className="admin-optional">(optional)</span>
+        <span>
+          Preacher <span className="admin-optional">(optional)</span>
+        </span>
         <input type="text" name="preacher" defaultValue={sermon?.preacher ?? prefill?.preacher} list="preacher-list" maxLength={100} />
         <datalist id="preacher-list">
           {preachers.map((p) => (
@@ -206,7 +208,9 @@ export default function SermonForm({
         </datalist>
       </label>
       <label>
-        Series <span className="admin-optional">(optional)</span>
+        <span>
+          Series <span className="admin-optional">(optional)</span>
+        </span>
         <input type="text" name="series" defaultValue={sermon?.series} list="series-list" maxLength={150} />
         <datalist id="series-list">
           {seriesNames.map((s) => (
@@ -215,7 +219,9 @@ export default function SermonForm({
         </datalist>
       </label>
       <label>
-        Bible book <span className="admin-optional">(optional)</span>
+        <span>
+          Bible book <span className="admin-optional">(optional)</span>
+        </span>
         <select name="book" defaultValue={sermon?.book ?? bookFromPassage(sermon?.passage) ?? prefill?.book ?? ""}>
           <option value="">Not set</option>
           {BIBLE_BOOKS.map((b) => (
@@ -230,7 +236,9 @@ export default function SermonForm({
         initial={sermon?.video ?? youtubeId(sermon?.videoUrl) ?? prefill?.video ?? ""}
       />
       <label>
-        {sermon?.audioKey ? "Replace the audio" : "Audio (MP3)"} <span className="admin-optional">(optional)</span>
+        <span>
+          {sermon?.audioKey ? "Replace the audio" : "Audio (MP3)"} <span className="admin-optional">(optional)</span>
+        </span>
         <input type="file" name="audio" accept="audio/mpeg,.mp3" disabled={!audioReady} />
         {!audioReady && <span className="admin-muted">Audio uploads will work once Cloudflare R2 is set up.</span>}
       </label>
