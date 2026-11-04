@@ -16,6 +16,11 @@
 - Uploaded PDFs (weekly bulletin, Marsali's newsletter) share one system: `lib/document-types.ts` (kinds, dated by
   day or month), `lib/documents.ts` (storage), `app/admin/(panel)/_documents/` (admin) and
   `components/Document*.tsx` (public). Add a new kind to DOCUMENT_TYPES rather than copying code.
+- Sermons: the list is one JSON file in Supabase Storage (`website/sermons/index.json`, `lib/sermons.ts`);
+  audio is in Cloudflare R2 (`lib/r2.ts`, S3 API, browser uploads via presigned PUT). Imported sermons keep
+  the old media site's `sermon_id` as their id (< 10000); admin-added ones start at 10001.
+  `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
+  http-only, which this environment can't reach). The header still links Sermons to YouTube until the import.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
   Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.

@@ -1,0 +1,130 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound, permanentRedirect } from "next/navigation";
+import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
+import { getPublicSermons } from "@/lib/sermons";
+
+// Built when first visited, then cached; refreshed when the sermon is changed in the admin panel.
+export const revalidate = 3600;
+export function generateStaticParams() {
+  return [];
+}
+
+async function findSermon(param: string) {
+  const id = sermonIdFromParam(param);
+  const sermons = await getPublicSermons();
+  return { sermon: sermons.find((s) => s.id === id), sermons };
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ sermon: string }> }): Promise<Metadata> {
+  const { sermon } = await findSermon((await params).sermon);
+  if (!sermon) return { title: "Sermon not found" };
+  return {
+    title: sermon.title,
+    description: `${sermon.title}, preached by ${sermon.preacher} at Smithton Church on ${formatSermonDate(sermon.date)}.`,
+  };
+}
+
+export default async function SermonPage({ params }: { params: Promise<{ sermon: string }> }) {
+  const param = (await params).sermon;
+  const { sermon, sermons } = await findSermon(param);
+  if (!sermon) notFound();
+  // Send old or mistyped titles in the address to the right one.
+  if (`/sermons/${param}/` !== sermon.path) permanentRedirect(sermon.path);
+
+  const moreInSeries = sermon.series
+    ? sermons.filter((s) => s.series === sermon.series && s.id !== sermon.id).slice(0, 6)
+    : [];
+
+  return (
+    <>
+      <section className="page-banner sermon-banner">
+        <div className="container narrow">
+          <p className="sermon-banner-date">
+            {formatSermonDate(sermon.date)}
+            {sermon.service && ` · ${serviceLabel(sermon.service)} service`}
+          </p>
+          <h1>{sermon.title}</h1>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="container narrow">
+          <dl className="sermon-details">
+            <div>
+              <dt>Preacher</dt>
+              <dd>
+                <Link href={`/sermons/?preacher=${encodeURIComponent(sermon.preacher)}`}>{sermon.preacher}</Link>
+              </dd>
+            </div>
+            {sermon.passage && (
+              <div>
+                <dt>Bible passage</dt>
+                <dd>{sermon.passage}</dd>
+              </div>
+            )}
+            {sermon.series && (
+              <div>
+                <dt>Series</dt>
+                <dd>
+                  <Link href={`/sermons/?series=${encodeURIComponent(sermon.series)}`}>{sermon.series}</Link>
+                </dd>
+              </div>
+            )}
+            {sermon.duration ? (
+              <div>
+                <dt>Length</dt>
+                <dd>{formatDuration(sermon.duration)}</dd>
+              </div>
+            ) : null}
+          </dl>
+
+          {sermon.audioUrl ? (
+            <div className="sermon-player">
+              <audio controls preload="metadata" src={sermon.audioUrl}>
+                <a href={sermon.audioUrl}>Download the sermon audio</a>
+              </audio>
+              <div className="sermon-actions">
+                <a className="button button-outline" href={sermon.audioUrl} download>
+                  Download MP3
+                </a>
+                {sermon.videoUrl && (
+                  <a className="button" href={sermon.videoUrl} target="_blank" rel="noopener noreferrer">
+                    Watch the video<span className="visually-hidden"> (opens in a new tab)</span>
+                  </a>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="sermon-actions">
+              <p className="sermon-empty">The audio for this sermon isn’t available.</p>
+              {sermon.videoUrl && (
+                <a className="button" href={sermon.videoUrl} target="_blank" rel="noopener noreferrer">
+                  Watch the video<span className="visually-hidden"> (opens in a new tab)</span>
+                </a>
+              )}
+            </div>
+          )}
+
+          {moreInSeries.length > 0 && (
+            <div className="sermon-more">
+              <h2>More from “{sermon.series}”</h2>
+              <ul>
+                {moreInSeries.map((s) => (
+                  <li key={s.id}>
+                    <Link href={s.path}>{s.title}</Link>
+                    <span> · {formatSermonDate(s.date)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <p className="sermon-back">
+            <Link href="/sermons/">← All sermons</Link>
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}

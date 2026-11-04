@@ -73,6 +73,74 @@ Supabase pauses free projects after a week without activity. If that happens, up
 working and the website shows the bulletin built into the site (`content/bulletin.yml`) until the
 project is restored from the Supabase dashboard.
 
+## Sermons
+
+The Sermons page (`/sermons/`) is a searchable archive with a page and audio player for each
+sermon. Sermons are added and edited in the admin panel (**Dashboard → Sermons**). Their details
+are kept in Supabase; the audio files are kept in **Cloudflare R2**, which is very cheap for large
+files and doesn't charge when people listen or download.
+
+Until the old archive has been copied over, the header's **Sermons** button still goes to YouTube
+(`content/navigation.yml`); point it at `/sermons/` when you're ready.
+
+### Setting up Cloudflare R2 (for sermon audio)
+
+1. In the Cloudflare dashboard open **R2 Object Storage** and create a bucket, e.g.
+   `smithton-sermons`.
+2. Give it a public address: in the bucket's **Settings → Custom Domains**, connect a domain such
+   as `media.smithtonchurch.com` (the domain's DNS must be managed by Cloudflare). For testing,
+   you can instead turn on the **r2.dev** public address on the same page.
+3. Still in the bucket's **Settings**, add this **CORS policy** so the admin panel can upload to it:
+
+   ```json
+   [
+     {
+       "AllowedOrigins": ["https://admin.rossmdev.co.uk", "https://admin.smithtonchurch.com"],
+       "AllowedMethods": ["PUT", "GET", "HEAD"],
+       "AllowedHeaders": ["content-type", "content-disposition"],
+       "MaxAgeSeconds": 3600
+     }
+   ]
+   ```
+
+4. Back on the R2 overview, choose **Manage API tokens → Create API token**, with
+   **Object Read & Write** permission for just that bucket. Copy the access key ID and secret
+   access key (the secret is only shown once).
+5. In Vercel, add these environment variables, then redeploy:
+
+   | Variable | Value |
+   | --- | --- |
+   | `R2_ACCOUNT_ID` | your Cloudflare account ID (shown on the R2 overview page) |
+   | `R2_ACCESS_KEY_ID` | from step 4 |
+   | `R2_SECRET_ACCESS_KEY` | from step 4 |
+   | `R2_BUCKET` | the bucket name, e.g. `smithton-sermons` |
+   | `R2_PUBLIC_URL` | the public address from step 2, e.g. `https://media.smithtonchurch.com` |
+
+### Importing the old sermon archive
+
+`scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):
+the details into the sermon list and each MP3 into R2. Each imported sermon keeps its number from
+the old site, so `/?sermon_id=1632` there becomes `/sermons/1632-…` here. Run it on your own
+computer, as the old site can't be reached from Vercel or Claude's environment:
+
+1. Install [Node.js](https://nodejs.org) 22 or newer, then in this folder run `npm install`.
+2. Copy `.env.import.example` to `.env.import` and fill in the Supabase and R2 values (the same
+   as in Vercel). `.env.import` is never committed.
+3. Check what it finds, without changing anything (saves `media-import-preview.json`):
+
+   ```bash
+   node --env-file=.env.import scripts/import-media-site.mjs --dry-run
+   ```
+
+4. Copy everything (about 1,500 sermons and 45–50 GB of audio, so it takes a few hours):
+
+   ```bash
+   node --env-file=.env.import scripts/import-media-site.mjs
+   ```
+
+It's safe to run again: sermons already copied are updated rather than duplicated, and audio
+already copied is skipped, so an interrupted run carries on where it stopped.
+
 ## Going live on Vercel
 
 1. Sign in at [vercel.com](https://vercel.com) with GitHub, click **Add New → Project**, and import

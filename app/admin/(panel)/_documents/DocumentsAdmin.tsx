@@ -40,7 +40,7 @@ function DocumentRow({ kind, doc, live }: { kind: DocumentKind; doc: UploadedDoc
       <form action={deleteDocument}>
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="path" value={doc.path} />
-        <DeleteButton label={label} />
+        <DeleteButton question={`Delete the ${DOCUMENT_TYPES[kind].singular} for ${label}?`} />
       </form>
     </li>
   );

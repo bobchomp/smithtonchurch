@@ -14,6 +14,10 @@ export default function AdminDashboard() {
           <h2>Weekly Bulletin</h2>
           <p>Upload this week’s bulletin PDF to the website.</p>
         </Link>
+        <Link className="admin-tool" href="/admin/sermons/">
+          <h2>Sermons</h2>
+          <p>Add sermons with their audio, and edit the sermon archive.</p>
+        </Link>
         <Link className="admin-tool" href="/admin/marsalis-newsletter/">
           <h2>Marsali’s Newsletter</h2>
           <p>Upload Marsali’s monthly newsletter to her page on the website.</p>
