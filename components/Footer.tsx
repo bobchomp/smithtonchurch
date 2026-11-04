@@ -9,6 +9,7 @@ export default function Footer() {
         <div className="footer-brand">
           <Image src="/images/logo-white.png" alt="Smithton Church" width={600} height={123} />
           <SocialLinks />
+          <p className="footer-credit">Website built and designed by Ross Mackenzie</p>
         </div>
         <div>
           <h2>Visit us</h2>

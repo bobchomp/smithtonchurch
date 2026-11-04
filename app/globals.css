@@ -559,6 +559,7 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .footer-brand img { width: 260px; margin-bottom: 1.5rem; }
 .footer-brand .social-links a { width: 42px; height: 42px; }
 .footer-brand .social-links svg { width: 21px; height: 21px; }
+.footer-credit { margin: 1.25rem 0 0; font-size: 0.85rem; opacity: 0.85; }
 .footer-bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.25); margin-top: 2.5rem; padding-top: 1.25rem;
