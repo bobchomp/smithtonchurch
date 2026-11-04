@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
     default: `${site.title}, Inverness`,
-    template: `%s | ${site.title} Inverness`,
+    template: `%s | ${site.title}`,
   },
   description: site.description,
   icons: { icon: "/images/favicon.png" },

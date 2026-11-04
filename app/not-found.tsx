@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PageBanner from "@/components/PageBanner";
 import { navigation, site } from "@/lib/content";
+
+export const metadata: Metadata = { title: "Page not found" };
 
 // Shown for any address that doesn't exist. It sits outside the (site) layout,
 // so it adds the header and footer itself.
