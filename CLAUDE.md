@@ -23,7 +23,10 @@
   `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
   gets each sermon's Bible book from its `?book=` filter lists (or the title).
-- Sermons record only the Bible book (no chapter/verse), by the owner's choice; `passage` is a legacy field. The header still links Sermons to YouTube until the import.
+- Sermons record only Bible books (no chapter/verse), by the owner's choice. A sermon can have several: `books` (array,
+  Bible order); `book` and `passage` are legacy fields, so always read them with `sermonBooks()` (lib/sermon-types.ts).
+- Admin → Sermons → Fill in details (`app/admin/(panel)/sermons/review/`, `lib/sermon-review.ts`) steps through sermons after
+  the old media site's last one (latest imported date, or 15 Feb 2026), not imported and not yet `detailsChecked`, oldest first. The header still links Sermons to YouTube until the import.
 - YouTube livestreams: `lib/youtube.ts` (Data API, YOUTUBE_API_KEY) fetches finished livestreams; `lib/livestreams.ts`
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);

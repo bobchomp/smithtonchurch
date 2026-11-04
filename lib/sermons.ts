@@ -1,9 +1,8 @@
 import "server-only";
-import { bookFromPassage } from "./bible";
 import { videoForSermons } from "./livestream-match";
 import { loadLivestreams } from "./livestreams";
 import { audioUrl } from "./r2";
-import { sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
+import { sermonBooks, sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
 
 // The list of sermons is one JSON file in Supabase Storage (website/sermons/index.json): about
@@ -41,10 +40,20 @@ export function newestFirst(a: Sermon, b: Sermon): number {
 }
 
 function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
-  const { audioKey, createdAt: _createdAt, video: _video, videoUrl: _videoUrl, passage: _passage, ...rest } = sermon;
+  const {
+    audioKey,
+    createdAt: _createdAt,
+    video: _video,
+    videoUrl: _videoUrl,
+    passage: _passage,
+    book: _book,
+    books: _books,
+    detailsChecked: _detailsChecked,
+    ...rest
+  } = sermon;
   return {
     ...rest,
-    book: sermon.book ?? bookFromPassage(sermon.passage),
+    books: sermonBooks(sermon),
     audioUrl: audioUrl(audioKey),
     youtubeId,
     path: sermonPath(sermon),

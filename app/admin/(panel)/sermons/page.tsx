@@ -5,7 +5,8 @@ import { unmatchedStreams } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { youtubeIsConfigured } from "@/lib/youtube";
 import { r2IsConfigured } from "@/lib/r2";
-import { formatDuration, formatSermonDate, serviceLabel, type Sermon } from "@/lib/sermon-types";
+import { formatDuration, formatSermonDate, sermonBooks, serviceLabel, type Sermon } from "@/lib/sermon-types";
+import { sermonsToReview } from "@/lib/sermon-review";
 import { loadSermons } from "@/lib/sermons";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import SyncButton from "./SyncButton";
@@ -16,7 +17,7 @@ export const metadata: Metadata = { title: "Sermons" };
 const SHOWN = 30;
 
 function matches(sermon: Sermon, query: string): boolean {
-  const text = [sermon.title, sermon.preacher, sermon.series, sermon.book, sermon.date].join(" ").toLowerCase();
+  const text = [sermon.title, sermon.preacher, sermon.series, ...sermonBooks(sermon), sermon.date].join(" ").toLowerCase();
   return query.toLowerCase().split(/\s+/).every((word) => text.includes(word));
 }
 
@@ -28,7 +29,8 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
   const storageReady = supabaseIsConfigured();
   const audioReady = r2IsConfigured();
   const sermons = storageReady ? await loadSermons().catch((error: Error) => error) : [];
-  const withoutBook = sermons instanceof Error ? [] : sermons.filter((s) => !s.book);
+  const toReview = sermons instanceof Error ? [] : sermonsToReview(sermons);
+  const withoutBook = sermons instanceof Error ? [] : sermons.filter((s) => !sermonBooks(s).length);
   const list =
     sermons instanceof Error
       ? []
@@ -76,6 +78,12 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
           <button className="button button-outline" type="submit">Search</button>
         </form>
       </div>
+      {toReview.length > 0 && (
+        <p className="admin-notice admin-notice-spaced">
+          {toReview.length} sermon{toReview.length === 1 ? "" : "s"} since the old media site need{toReview.length === 1 ? "s" : ""} their
+          details filling in. <Link href="/admin/sermons/review/">Fill in details</Link>
+        </p>
+      )}
       {withoutBook.length > 0 && (
         <p className="admin-filter-links">
           {missingBook ? (
@@ -111,7 +119,7 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
                       {s.service && ` (${serviceLabel(s.service).toLowerCase()})`}
                       {s.preacher ? ` · ${s.preacher}` : " · no preacher"}
                       {s.duration ? ` · ${formatDuration(s.duration)}` : ""}
-                      {s.book ? ` · ${s.book}` : " · no Bible book"}
+                      {sermonBooks(s).length ? ` · ${sermonBooks(s).join(", ")}` : " · no Bible book"}
                       {!s.audioKey && " · no audio"}
                     </span>
                   </div>

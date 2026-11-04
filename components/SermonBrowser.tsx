@@ -22,11 +22,11 @@ function countBy(sermons: PublicSermon[], pick: (s: PublicSermon) => string | un
 function matches(s: PublicSermon, f: Filters): boolean {
   if (f.preacher && s.preacher !== f.preacher) return false;
   if (f.series && s.series !== f.series) return false;
-  if (f.book && s.book !== f.book) return false;
+  if (f.book && !s.books.includes(f.book)) return false;
   if (f.year && !s.date.startsWith(f.year)) return false;
   if (f.service && s.service !== f.service) return false;
   if (f.q) {
-    const text = [s.title, s.preacher, s.series, s.book].join(" ").toLowerCase();
+    const text = [s.title, s.preacher, s.series, ...s.books].join(" ").toLowerCase();
     if (!f.q.toLowerCase().split(/\s+/).every((word) => text.includes(word))) return false;
   }
   return true;
@@ -63,7 +63,8 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
   const preachers = useMemo(() => countBy(sermons, (s) => s.preacher).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), [sermons]);
   const seriesList = useMemo(() => countBy(sermons, (s) => s.series).sort((a, b) => a[0].localeCompare(b[0])), [sermons]);
   const books = useMemo(() => {
-    const counts = new Map(countBy(sermons, (s) => s.book));
+    const counts = new Map<string, number>();
+    for (const s of sermons) for (const b of s.books) counts.set(b, (counts.get(b) ?? 0) + 1);
     return BIBLE_BOOKS.filter((b) => counts.has(b)).map((b) => [b, counts.get(b)!] as [string, number]);
   }, [sermons]);
   const years = useMemo(() => countBy(sermons, (s) => s.date.slice(0, 4)).sort((a, b) => b[0].localeCompare(a[0])), [sermons]);
@@ -154,7 +155,7 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
                 <h3>
                   <Link href={s.path}>{s.title}</Link>
                 </h3>
-                <p className="sermon-item-meta">{[s.preacher, s.book, s.series].filter(Boolean).join(" · ")}</p>
+                <p className="sermon-item-meta">{[s.preacher, s.books.join(", "), s.series].filter(Boolean).join(" · ")}</p>
               </div>
               <div className="sermon-item-extra">
                 {s.youtubeId && <span className="sermon-item-video">Video</span>}

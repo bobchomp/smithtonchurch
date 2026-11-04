@@ -706,6 +706,28 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 .admin-form select, .admin-find select {
   font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
 }
+.admin-books { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 0.5rem; }
+.admin-books legend { font-weight: 600; font-size: 0.95rem; padding: 0; margin-bottom: 0.35rem; }
+.admin-book-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.admin-book-list li {
+  display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+  background: var(--blue-light); color: var(--blue); border-radius: 999px; font-weight: 600; font-size: 0.92rem;
+}
+.admin-book-list button {
+  display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border: 0; border-radius: 50%;
+  background: transparent; color: inherit; font-size: 1.1rem; line-height: 1; cursor: pointer;
+}
+.admin-book-list button:hover { background: rgba(0, 0, 0, 0.08); }
+.admin-review { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.admin-review-media { position: sticky; top: 1rem; display: grid; gap: 0.75rem; }
+.admin-review-media .youtube-player { margin-bottom: 0.75rem; }
+.admin-review-stream { margin: 0 0 0.75rem; font-size: 0.92rem; overflow-wrap: anywhere; }
+.admin-review-nav { display: flex; justify-content: space-between; gap: 1rem; margin: 0; }
+.admin-review-nav a { padding: 0.35rem 0; }
+@media (max-width: 900px) {
+  .admin-review { grid-template-columns: minmax(0, 1fr); }
+  .admin-review-media { position: static; }
+}
 .admin-month-year { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; }
 .admin-form .button:disabled { opacity: 0.7; cursor: wait; }
 .admin-success { margin: 0; color: #067647; font-size: 0.95rem; }

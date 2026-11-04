@@ -97,6 +97,11 @@ files and doesn't charge when people listen or download.
 Until the old archive has been copied over, the header's **Sermons** button still goes to YouTube
 (`content/navigation.yml`); point it at `/sermons/` when you're ready.
 
+A sermon can have more than one book of the Bible. **Admin → Sermon Details** steps through the
+sermons since the old media site stopped (the ones the import can't fill in), oldest first: the
+video is on the left and the details on the right, and **Save and next** saves one and opens the
+next. **Skip for now** leaves a sermon for later.
+
 ### Setting up Cloudflare R2 (for sermon audio)
 
 1. In the Cloudflare dashboard open **R2 Object Storage** and create a bucket, e.g.

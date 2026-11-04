@@ -52,3 +52,9 @@ export function bookFromTitle(title: string): string | undefined {
 export function isBibleBook(value: string | undefined): value is string {
   return Boolean(value && BIBLE_BOOKS.includes(value));
 }
+
+// A list of books tidied up: only real books, no repeats, in Bible order.
+export function sortBooks(books: Iterable<string | undefined>): string[] {
+  const chosen = new Set([...books].filter(isBibleBook));
+  return BIBLE_BOOKS.filter((b) => chosen.has(b));
+}

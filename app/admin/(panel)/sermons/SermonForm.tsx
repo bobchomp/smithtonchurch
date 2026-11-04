@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { BIBLE_BOOKS, bookFromPassage } from "@/lib/bible";
+import { BIBLE_BOOKS, sortBooks } from "@/lib/bible";
 import { streamSlot, youtubeId, type Livestream } from "@/lib/livestream-match";
-import { formatDuration, formatSermonDate, type Sermon, type Service } from "@/lib/sermon-types";
+import { formatDuration, formatSermonDate, sermonBooks, type Sermon, type Service } from "@/lib/sermon-types";
 import { saveSermon, startAudioUpload, type SermonInput } from "./actions";
 
 const MAX_MEGABYTES = 300;
@@ -107,6 +107,45 @@ function VideoField({
   );
 }
 
+// The sermon's books of the Bible: usually one, but a sermon can cover several.
+function BooksField({ initial }: { initial: string[] }) {
+  const [books, setBooks] = useState(initial);
+  const remove = (book: string) => setBooks((current) => current.filter((b) => b !== book));
+  return (
+    <fieldset className="admin-books">
+      <legend>
+        {books.length > 1 ? "Bible books" : "Bible book"} <span className="admin-optional">(optional)</span>
+      </legend>
+      {books.length > 0 && (
+        <ul className="admin-book-list">
+          {books.map((book) => (
+            <li key={book}>
+              {book}
+              <button type="button" onClick={() => remove(book)} aria-label={`Remove ${book}`}>
+                ×
+              </button>
+              <input type="hidden" name="books" value={book} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <select
+        value=""
+        aria-label={books.length ? "Add another book" : "Add a book"}
+        onChange={(e) => {
+          const book = e.target.value;
+          if (book) setBooks((current) => sortBooks([...current, book]));
+        }}
+      >
+        <option value="">{books.length ? "Add another book…" : "Choose a book…"}</option>
+        {BIBLE_BOOKS.filter((b) => !books.includes(b)).map((b) => (
+          <option key={b} value={b}>{b}</option>
+        ))}
+      </select>
+    </fieldset>
+  );
+}
+
 export default function SermonForm({
   sermon,
   preachers,
@@ -115,6 +154,7 @@ export default function SermonForm({
   defaultDate,
   streams,
   prefill,
+  review,
 }: {
   sermon?: Sermon;
   preachers: string[];
@@ -122,7 +162,9 @@ export default function SermonForm({
   audioReady: boolean;
   defaultDate: string;
   streams: Livestream[];
-  prefill?: { title: string; date: string; service: Service; video: string; preacher: string; book: string };
+  prefill?: { title: string; date: string; service: Service; video: string; preacher: string; books: string[] };
+  // In "Fill in details": saving marks the sermon as checked and moves on to the next one.
+  review?: { nextHref: string };
 }) {
   const router = useRouter();
   const [date, setDate] = useState(sermon?.date ?? prefill?.date ?? defaultDate);
@@ -141,8 +183,9 @@ export default function SermonForm({
       service: text("service") as Service,
       preacher: text("preacher"),
       series: text("series"),
-      book: text("book"),
+      books: data.getAll("books").map(String),
       video: text("video"),
+      detailsChecked: review ? true : undefined,
     };
     const file = data.get("audio") as File | null;
     setMessage(null);
@@ -162,7 +205,10 @@ export default function SermonForm({
       }
       const result = await saveSermon(sermon?.id ?? null, input);
       if (!result.id) throw new Error(result.error);
-      if (sermon) {
+      if (review) {
+        router.push(review.nextHref);
+        router.refresh();
+      } else if (sermon) {
         setMessage({ kind: "success", text: "Saved. The changes are now live on the website." });
         router.replace(`/admin/sermons/${sermon.id}/`);
         router.refresh();
@@ -218,17 +264,7 @@ export default function SermonForm({
           ))}
         </datalist>
       </label>
-      <label>
-        <span>
-          Bible book <span className="admin-optional">(optional)</span>
-        </span>
-        <select name="book" defaultValue={sermon?.book ?? bookFromPassage(sermon?.passage) ?? prefill?.book ?? ""}>
-          <option value="">Not set</option>
-          {BIBLE_BOOKS.map((b) => (
-            <option key={b} value={b}>{b}</option>
-          ))}
-        </select>
-      </label>
+      <BooksField initial={sermon ? sermonBooks(sermon) : (prefill?.books ?? [])} />
       <VideoField
         streams={streams}
         date={date}
@@ -248,7 +284,15 @@ export default function SermonForm({
         </p>
       )}
       <button className="button" type="submit" disabled={busy}>
-        {busy ? (progress ? `Uploading audio… ${progress}%` : "Saving…") : sermon ? "Save changes" : "Add sermon"}
+        {busy
+          ? progress
+            ? `Uploading audio… ${progress}%`
+            : "Saving…"
+          : review
+            ? "Save and next"
+            : sermon
+              ? "Save changes"
+              : "Add sermon"}
       </button>
     </form>
   );

@@ -1,5 +1,7 @@
 // Sermons: shared between the server and the browser (no secrets here).
 
+import { bookFromPassage, sortBooks } from "./bible";
+
 export type Service = "am" | "pm" | "";
 
 export type Sermon = {
@@ -10,8 +12,11 @@ export type Sermon = {
   service: Service;
   preacher: string;
   series?: string;
-  book?: string; // the book of the Bible the sermon is from, e.g. "Ruth"
-  passage?: string; // older field (chapter and verse); only used to work out `book` if it's missing
+  books?: string[]; // the books of the Bible the sermon is from, in Bible order, e.g. ["Ruth"]
+  book?: string; // older field: a single book. Use sermonBooks() to read either.
+  passage?: string; // older field (chapter and verse); only used to work out the book if nothing else is set
+  // Set once someone has gone through the sermon in Admin → Sermons → Fill in details.
+  detailsChecked?: boolean;
   audioKey?: string; // file name in the audio storage (Cloudflare R2)
   audioSize?: number; // bytes
   duration?: number; // seconds
@@ -23,11 +28,22 @@ export type Sermon = {
 };
 
 // The bits of a sermon the public pages need, with the audio address and video worked out.
-export type PublicSermon = Omit<Sermon, "audioKey" | "createdAt" | "video" | "videoUrl" | "passage"> & {
+export type PublicSermon = Omit<
+  Sermon,
+  "audioKey" | "createdAt" | "video" | "videoUrl" | "passage" | "book" | "books" | "detailsChecked"
+> & {
+  books: string[];
   audioUrl?: string;
   youtubeId?: string;
   path: string;
 };
+
+// The sermon's Bible books, whichever way they were saved.
+export function sermonBooks(sermon: Pick<Sermon, "books" | "book" | "passage">): string[] {
+  if (sermon.books?.length) return sortBooks(sermon.books);
+  const one = sermon.book ?? bookFromPassage(sermon.passage);
+  return one ? [one] : [];
+}
 
 function slug(text: string): string {
   return text

@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listMessages } from "@/lib/messages";
+import { sermonsToReview } from "@/lib/sermon-review";
+import { loadSermons } from "@/lib/sermons";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
 // The admin home page. New tools get a card in the grid below.
 export default async function AdminDashboard() {
-  const unread = (await listMessages().catch(() => [])).filter((m) => !m.read).length;
+  const [messages, sermons] = await Promise.all([listMessages().catch(() => []), loadSermons().catch(() => [])]);
+  const unread = messages.filter((m) => !m.read).length;
+  const toReview = sermonsToReview(sermons).length;
   return (
     <>
       <h1>Dashboard</h1>
@@ -25,6 +29,12 @@ export default async function AdminDashboard() {
         <Link className="admin-tool" href="/admin/sermons/">
           <h2>Sermons</h2>
           <p>Add sermons with their audio, and edit the sermon archive.</p>
+        </Link>
+        <Link className="admin-tool" href="/admin/sermons/review/">
+          <h2>
+            Sermon Details {toReview > 0 && <span className="admin-count">{toReview} to do</span>}
+          </h2>
+          <p>Watch each recent sermon and fill in its preacher, series and Bible books, one after another.</p>
         </Link>
         <Link className="admin-tool" href="/admin/marsalis-newsletter/">
           <h2>Marsali’s Newsletter</h2>

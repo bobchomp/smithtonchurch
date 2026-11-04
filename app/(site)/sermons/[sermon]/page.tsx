@@ -60,11 +60,16 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
                 </dd>
               </div>
             )}
-            {sermon.book && (
+            {sermon.books.length > 0 && (
               <div>
-                <dt>Bible book</dt>
+                <dt>{sermon.books.length === 1 ? "Bible book" : "Bible books"}</dt>
                 <dd>
-                  <Link href={`/sermons/?book=${encodeURIComponent(sermon.book)}`}>{sermon.book}</Link>
+                  {sermon.books.map((book, i) => (
+                    <span key={book}>
+                      {i > 0 && ", "}
+                      <Link href={`/sermons/?book=${encodeURIComponent(book)}`}>{book}</Link>
+                    </span>
+                  ))}
                 </dd>
               </div>
             )}

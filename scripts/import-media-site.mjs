@@ -37,6 +37,11 @@ const BOOKS = [
 ];
 const BOOK_ALIASES = { psalm: "Psalms", "song of solomon": "Song of Songs", revelations: "Revelation" };
 
+// A sermon's books, whether saved as a list (books) or the older single book.
+function booksOf(sermon) {
+  return sermon.books?.length ? sermon.books : sermon.book ? [sermon.book] : [];
+}
+
 function bookFromPassage(passage) {
   if (!passage) return undefined;
   const text = passage.trim().toLowerCase().replace(/\s+/g, " ");
@@ -198,13 +203,17 @@ async function main() {
   console.log("");
 
   // The old site's sermon pages don't show the Bible passage, but its "Book" filter lists the
-  // sermons for each book of the Bible, so go through those to give every sermon its book.
+  // sermons for each book of the Bible, so go through those to give every sermon its books (a
+  // sermon listed under several books gets them all).
   console.log("Reading the sermon list for each book of the Bible…");
   const bookOf = new Map();
   for (const [i, book] of BOOKS.entries()) {
     for (let page = 1; page <= 200; page++) {
       const { sermons, hasNext } = parseListPage(await getText(`${SOURCE}/?book=${encodeURIComponent(book)}&pagenum=${page}`));
-      for (const s of sermons) if (!bookOf.has(s.legacyId)) bookOf.set(s.legacyId, book);
+      for (const s of sermons) {
+        const books = bookOf.get(s.legacyId) ?? [];
+        if (!books.includes(book)) bookOf.set(s.legacyId, [...books, book]);
+      }
       if (!hasNext || sermons.length === 0) break;
     }
     process.stdout.write(`\r  ${i + 1} of ${BOOKS.length} books`);
@@ -212,8 +221,9 @@ async function main() {
   let withBook = 0;
   for (const sermon of found) {
     // The old site's book lists, or failing that a book named in the title, e.g. "Psalm 124".
-    sermon.book = bookOf.get(sermon.legacyId) ?? bookFromPassage(passageFromTitle(sermon.title));
-    if (sermon.book) withBook++;
+    const fromTitle = bookFromPassage(passageFromTitle(sermon.title));
+    sermon.books = bookOf.get(sermon.legacyId) ?? (fromTitle ? [fromTitle] : []);
+    if (sermon.books.length) withBook++;
   }
   console.log(`\n  ${withBook} of ${found.length} have a Bible book.`);
 
@@ -249,7 +259,8 @@ async function main() {
           title: sameSlot.title || item.title,
           preacher: sameSlot.preacher || item.preacher,
           series: sameSlot.series ?? item.series,
-          book: sameSlot.book ?? item.book,
+          books: booksOf(sameSlot).length ? booksOf(sameSlot) : item.books,
+          book: undefined,
         }
       : {
           ...existing,
@@ -260,7 +271,8 @@ async function main() {
           service: item.service,
           preacher: item.preacher,
           series: item.series,
-          book: item.book,
+          books: item.books,
+          book: undefined,
           createdAt: existing?.createdAt ?? new Date().toISOString(),
         };
     if (sameSlot) {

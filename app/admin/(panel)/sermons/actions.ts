@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { bookFromTitle, isBibleBook } from "@/lib/bible";
+import { bookFromTitle, isBibleBook, sortBooks } from "@/lib/bible";
 import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
@@ -17,7 +17,8 @@ export type SermonInput = {
   service: Service;
   preacher: string;
   series: string;
-  book: string; // "" if not known
+  books: string[]; // books of the Bible, empty if not known
+  detailsChecked?: boolean; // saved from "Fill in details"
   // "" = match the livestream automatically, "none" = no video, or a YouTube link or video ID.
   video: string;
   audio?: { key: string; size: number; duration?: number };
@@ -59,7 +60,8 @@ function validate(input: SermonInput): string | undefined {
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
   if (input.video && input.video !== "none" && !youtubeId(input.video)) return "That doesn’t look like a YouTube link.";
-  if (input.book && !isBibleBook(input.book)) return "Please choose a book of the Bible from the list.";
+  if (!Array.isArray(input.books) || input.books.length > 20 || !input.books.every(isBibleBook))
+    return "Please choose the books of the Bible from the list.";
   if (input.audio && !/^sermons\/\d{4}\/[\w.-]+\.mp3$/.test(input.audio.key)) return "Invalid audio file.";
   return undefined;
 }
@@ -72,10 +74,12 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
     service: input.service,
     preacher: input.preacher.trim(),
     series: input.series.trim() || undefined,
-    book: isBibleBook(input.book) ? input.book : undefined,
+    books: sortBooks(input.books),
+    book: undefined,
     passage: undefined,
     video: input.video === "none" ? "none" : youtubeId(input.video),
     videoUrl: undefined,
+    ...(input.detailsChecked ? { detailsChecked: true } : {}),
   };
 }
 
@@ -156,7 +160,7 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
       return {
         id: ++nextId,
         title: stream.title.trim(),
-        book: bookFromTitle(stream.title),
+        books: sortBooks([bookFromTitle(stream.title)]),
         date,
         service,
         preacher: stream.preacher ?? "",
