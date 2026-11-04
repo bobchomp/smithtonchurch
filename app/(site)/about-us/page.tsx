@@ -50,7 +50,7 @@ export default function AboutUs() {
             the problems and challenges in life (sin), and that God sent his son Jesus to the world with a message of
             forgiveness, and a promise that He has done all that is necessary to save us from sin and its consequences.
           </p>
-          <p>Smithton Church is part of the Free Church of Scotland, which believes three simple truths:</p>
+          <p>Smithton Church is part of the Free Church of Scotland, which believes three main truths:</p>
           <ol className="beliefs">
             <li>
               <strong>Firstly,</strong> we believe there is only one God who is at the same time three Persons: Father,
