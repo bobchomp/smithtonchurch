@@ -41,7 +41,7 @@ export function newestFirst(a: Sermon, b: Sermon): number {
 }
 
 function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
-  const { audioKey, createdAt: _createdAt, video: _video, videoUrl: _videoUrl, ...rest } = sermon;
+  const { audioKey, createdAt: _createdAt, video: _video, videoUrl: _videoUrl, passage: _passage, ...rest } = sermon;
   return {
     ...rest,
     book: sermon.book ?? bookFromPassage(sermon.passage),

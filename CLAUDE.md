@@ -22,13 +22,14 @@
   existing admin-added sermon with the same date and service (setting its `legacyId`) instead of duplicating it.
   `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
-  gets each sermon's Bible book from its `?book=` filter lists and the chapter/verse from the title. The header still links Sermons to YouTube until the import.
+  gets each sermon's Bible book from its `?book=` filter lists (or the title).
+- Sermons record only the Bible book (no chapter/verse), by the owner's choice; `passage` is a legacy field. The header still links Sermons to YouTube until the import.
 - YouTube livestreams: `lib/youtube.ts` (Data API, YOUTUBE_API_KEY) fetches finished livestreams; `lib/livestreams.ts`
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);
   a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
   a stream's description is just the preacher's name, used when creating sermons from streams;
-  the passage comes from the title via `passageFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
+  the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
   Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.

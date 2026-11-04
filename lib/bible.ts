@@ -42,3 +42,13 @@ export function passageFromTitle(title: string): string | undefined {
   const [, , chapter, from, to] = match;
   return `${book === "Psalms" ? "Psalm" : book} ${chapter}${from ? `:${from}${to ? `-${to}` : ""}` : ""}`;
 }
+
+// The book of the Bible named in a title, e.g. "‘Saved from the Jaws of Death’ Psalm 124" -> "Psalms".
+export function bookFromTitle(title: string): string | undefined {
+  return bookFromPassage(passageFromTitle(title));
+}
+
+// Whether a value is one of the 66 book names above.
+export function isBibleBook(value: string | undefined): value is string {
+  return Boolean(value && BIBLE_BOOKS.includes(value));
+}

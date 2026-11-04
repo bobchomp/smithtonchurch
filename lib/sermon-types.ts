@@ -10,8 +10,8 @@ export type Sermon = {
   service: Service;
   preacher: string;
   series?: string;
-  passage?: string; // e.g. "John 1:1-18"
-  book?: string; // Bible book, for filtering
+  book?: string; // the book of the Bible the sermon is from, e.g. "Ruth"
+  passage?: string; // older field (chapter and verse); only used to work out `book` if it's missing
   audioKey?: string; // file name in the audio storage (Cloudflare R2)
   audioSize?: number; // bytes
   duration?: number; // seconds
@@ -23,7 +23,7 @@ export type Sermon = {
 };
 
 // The bits of a sermon the public pages need, with the audio address and video worked out.
-export type PublicSermon = Omit<Sermon, "audioKey" | "createdAt" | "video" | "videoUrl"> & {
+export type PublicSermon = Omit<Sermon, "audioKey" | "createdAt" | "video" | "videoUrl" | "passage"> & {
   audioUrl?: string;
   youtubeId?: string;
   path: string;

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BIBLE_BOOKS, bookFromPassage } from "@/lib/bible";
 import { streamSlot, youtubeId, type Livestream } from "@/lib/livestream-match";
 import { formatDuration, formatSermonDate, type Sermon, type Service } from "@/lib/sermon-types";
 import { saveSermon, startAudioUpload, type SermonInput } from "./actions";
@@ -121,7 +122,7 @@ export default function SermonForm({
   audioReady: boolean;
   defaultDate: string;
   streams: Livestream[];
-  prefill?: { title: string; date: string; service: Service; video: string; preacher: string; passage: string };
+  prefill?: { title: string; date: string; service: Service; video: string; preacher: string; book: string };
 }) {
   const router = useRouter();
   const [date, setDate] = useState(sermon?.date ?? prefill?.date ?? defaultDate);
@@ -140,7 +141,7 @@ export default function SermonForm({
       service: text("service") as Service,
       preacher: text("preacher"),
       series: text("series"),
-      passage: text("passage"),
+      book: text("book"),
       video: text("video"),
     };
     const file = data.get("audio") as File | null;
@@ -214,8 +215,13 @@ export default function SermonForm({
         </datalist>
       </label>
       <label>
-        Bible passage <span className="admin-optional">(optional, e.g. John 1:1-18)</span>
-        <input type="text" name="passage" defaultValue={sermon?.passage ?? prefill?.passage} maxLength={100} />
+        Bible book <span className="admin-optional">(optional)</span>
+        <select name="book" defaultValue={sermon?.book ?? bookFromPassage(sermon?.passage) ?? prefill?.book ?? ""}>
+          <option value="">Not set</option>
+          {BIBLE_BOOKS.map((b) => (
+            <option key={b} value={b}>{b}</option>
+          ))}
+        </select>
       </label>
       <VideoField
         streams={streams}

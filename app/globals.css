@@ -616,6 +616,7 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 .admin-toolbar .admin-find { flex: 1; justify-content: flex-end; }
 .admin-toolbar .admin-find input { min-width: min(100%, 360px); font: inherit; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; }
 .admin-notice-spaced { margin-bottom: 1.25rem; }
+.admin-filter-links { margin: -0.5rem 0 1rem; font-size: 0.95rem; }
 .admin-notice p + p { margin-top: 0.5rem; }
 .admin-panel-narrow { max-width: 640px; }
 .admin-optional { font-weight: 400; color: var(--muted); }

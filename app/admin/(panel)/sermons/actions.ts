@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { bookFromPassage, passageFromTitle } from "@/lib/bible";
+import { bookFromTitle, isBibleBook } from "@/lib/bible";
 import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
@@ -17,7 +17,7 @@ export type SermonInput = {
   service: Service;
   preacher: string;
   series: string;
-  passage: string;
+  book: string; // "" if not known
   // "" = match the livestream automatically, "none" = no video, or a YouTube link or video ID.
   video: string;
   audio?: { key: string; size: number; duration?: number };
@@ -59,20 +59,21 @@ function validate(input: SermonInput): string | undefined {
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
   if (input.video && input.video !== "none" && !youtubeId(input.video)) return "That doesn’t look like a YouTube link.";
+  if (input.book && !isBibleBook(input.book)) return "Please choose a book of the Bible from the list.";
   if (input.audio && !/^sermons\/\d{4}\/[\w.-]+\.mp3$/.test(input.audio.key)) return "Invalid audio file.";
   return undefined;
 }
 
 function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
-  const passage = input.passage.trim() || undefined;
+
   return {
     title: input.title.trim(),
     date: input.date,
     service: input.service,
     preacher: input.preacher.trim(),
     series: input.series.trim() || undefined,
-    passage,
-    book: bookFromPassage(passage),
+    book: isBibleBook(input.book) ? input.book : undefined,
+    passage: undefined,
     video: input.video === "none" ? "none" : youtubeId(input.video),
     videoUrl: undefined,
   };
@@ -152,12 +153,10 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
     const now = new Date().toISOString();
     const created = chosen.map((stream): Sermon => {
       const { date, service } = streamSlot(stream);
-      const passage = passageFromTitle(stream.title);
       return {
         id: ++nextId,
         title: stream.title.trim(),
-        passage,
-        book: bookFromPassage(passage),
+        book: bookFromTitle(stream.title),
         date,
         service,
         preacher: stream.preacher ?? "",

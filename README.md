@@ -124,8 +124,8 @@ with the audio underneath. The list of livestreams is refreshed once a day, or s
 **Check YouTube now** in **Admin → Sermons**, which also lists livestreams that don't have a
 sermon yet. A sermon's video can be changed or switched off on its admin page. Streams with
 "Church Night", "funeral" or "thanksgiving service" in the title are left out. When a sermon is
-created from a stream, the preacher comes from the stream's description and the Bible passage from
-its title (when the title includes one, e.g. "Psalm 124").
+created from a stream, the preacher comes from the stream's description and the Bible book from
+its title (when the title names one, e.g. "Psalm 124").
 
 1. Go to [console.cloud.google.com](https://console.cloud.google.com), create a project (e.g.
    "Smithton Church website"), then open **APIs & Services → Library**, find
@@ -151,8 +151,7 @@ The channel is taken from the YouTube link in `content/site.yml`. A full check u
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):
-the details (date, service, title, preacher, series and Bible book, plus chapter and verse when the
-title includes them) into the sermon list, and each MP3 into R2. Each imported sermon keeps its number from
+the details (date, service, title, preacher, series and Bible book) into the sermon list, and each MP3 into R2. Each imported sermon keeps its number from
 the old site, so `/?sermon_id=1632` there becomes `/sermons/1632-…` here. Run it on your own
 computer, as the old site can't be reached from Vercel or Claude's environment:
 

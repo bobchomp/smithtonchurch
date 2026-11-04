@@ -26,7 +26,7 @@ function matches(s: PublicSermon, f: Filters): boolean {
   if (f.year && !s.date.startsWith(f.year)) return false;
   if (f.service && s.service !== f.service) return false;
   if (f.q) {
-    const text = [s.title, s.preacher, s.series, s.passage].join(" ").toLowerCase();
+    const text = [s.title, s.preacher, s.series, s.book].join(" ").toLowerCase();
     if (!f.q.toLowerCase().split(/\s+/).every((word) => text.includes(word))) return false;
   }
   return true;
@@ -80,7 +80,7 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
       <form className="sermon-filters" role="search" onSubmit={(event) => event.preventDefault()}>
         <label className="sermon-search">
           Search
-          <input type="search" value={filters.q} placeholder="Title, preacher, series or passage" onChange={(e) => set("q", e.target.value)} />
+          <input type="search" value={filters.q} placeholder="Title, preacher, series or book" onChange={(e) => set("q", e.target.value)} />
         </label>
         <label>
           Preacher
@@ -154,7 +154,7 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
                 <h3>
                   <Link href={s.path}>{s.title}</Link>
                 </h3>
-                <p className="sermon-item-meta">{[s.preacher, s.passage, s.series].filter(Boolean).join(" · ")}</p>
+                <p className="sermon-item-meta">{[s.preacher, s.book, s.series].filter(Boolean).join(" · ")}</p>
               </div>
               <div className="sermon-item-extra">
                 {s.youtubeId && <span className="sermon-item-video">Video</span>}

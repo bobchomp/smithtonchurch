@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Copies the sermon archive from the old media website (smithtonchurchmedia.com) into this site:
-// the details of every sermon (date, service, title, preacher, series, Bible book and, where the
-// title includes it, the passage) go into the sermon list in Supabase, and each MP3 is copied to
+// the details of every sermon (date, service, title, preacher, series and Bible book) go into the
+// sermon list in Supabase, and each MP3 is copied to
 // Cloudflare R2. Run it on your own computer (see README.md, "Importing the old sermon archive").
 //
 //   node --env-file=.env.import scripts/import-media-site.mjs --dry-run      # read only, save a preview
@@ -210,17 +210,12 @@ async function main() {
     process.stdout.write(`\r  ${i + 1} of ${BOOKS.length} books`);
   }
   let withBook = 0;
-  let withPassage = 0;
   for (const sermon of found) {
-    // The chapter and verse come from the title when it includes them, e.g. "Acts 24:1-27".
-    sermon.passage = passageFromTitle(sermon.title);
-    sermon.book = bookOf.get(sermon.legacyId) ?? bookFromPassage(sermon.passage);
-    // Only keep a passage from the title if it's in the same book the old site recorded.
-    if (sermon.passage && bookFromPassage(sermon.passage) !== sermon.book) sermon.passage = undefined;
+    // The old site's book lists, or failing that a book named in the title, e.g. "Psalm 124".
+    sermon.book = bookOf.get(sermon.legacyId) ?? bookFromPassage(passageFromTitle(sermon.title));
     if (sermon.book) withBook++;
-    if (sermon.passage) withPassage++;
   }
-  console.log(`\n  ${withBook} of ${found.length} have a Bible book, ${withPassage} with chapter and verse from the title.`);
+  console.log(`\n  ${withBook} of ${found.length} have a Bible book.`);
 
   const problems = found.filter((s) => !s.date);
   if (problems.length) console.warn(`  ${problems.length} sermons have no date; they’ll be skipped:`, problems.map((s) => s.legacyId).join(", "));
@@ -254,7 +249,6 @@ async function main() {
           title: sameSlot.title || item.title,
           preacher: sameSlot.preacher || item.preacher,
           series: sameSlot.series ?? item.series,
-          passage: sameSlot.passage ?? item.passage,
           book: sameSlot.book ?? item.book,
         }
       : {
@@ -266,7 +260,6 @@ async function main() {
           service: item.service,
           preacher: item.preacher,
           series: item.series,
-          passage: item.passage,
           book: item.book,
           createdAt: existing?.createdAt ?? new Date().toISOString(),
         };

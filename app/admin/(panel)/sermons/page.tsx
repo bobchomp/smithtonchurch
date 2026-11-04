@@ -16,17 +16,23 @@ export const metadata: Metadata = { title: "Sermons" };
 const SHOWN = 30;
 
 function matches(sermon: Sermon, query: string): boolean {
-  const text = [sermon.title, sermon.preacher, sermon.series, sermon.passage, sermon.date].join(" ").toLowerCase();
+  const text = [sermon.title, sermon.preacher, sermon.series, sermon.book, sermon.date].join(" ").toLowerCase();
   return query.toLowerCase().split(/\s+/).every((word) => text.includes(word));
 }
 
-export default async function SermonsAdmin({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+export default async function SermonsAdmin({ searchParams }: { searchParams: Promise<{ q?: string; missing?: string }> }) {
   await requireAdmin();
-  const query = ((await searchParams).q ?? "").trim();
+  const params = await searchParams;
+  const query = (params.q ?? "").trim();
+  const missingBook = params.missing === "book";
   const storageReady = supabaseIsConfigured();
   const audioReady = r2IsConfigured();
   const sermons = storageReady ? await loadSermons().catch((error: Error) => error) : [];
-  const list = sermons instanceof Error ? [] : query ? sermons.filter((s) => matches(s, query)) : sermons;
+  const withoutBook = sermons instanceof Error ? [] : sermons.filter((s) => !s.book);
+  const list =
+    sermons instanceof Error
+      ? []
+      : (missingBook ? withoutBook : sermons).filter((s) => !query || matches(s, query));
   const youtubeReady = youtubeIsConfigured();
   const livestreams = await loadLivestreams();
   const unmatched = sermons instanceof Error ? [] : unmatchedStreams(sermons, livestreams.streams);
@@ -65,20 +71,34 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
         )}
         <form className="admin-find" method="get">
           <label className="visually-hidden" htmlFor="sermon-search">Search sermons</label>
-          <input id="sermon-search" type="search" name="q" defaultValue={query} placeholder="Search title, preacher, series, passage or date" />
+          <input id="sermon-search" type="search" name="q" defaultValue={query} placeholder="Search title, preacher, series, book or date" />
+          {missingBook && <input type="hidden" name="missing" value="book" />}
           <button className="button button-outline" type="submit">Search</button>
         </form>
       </div>
+      {withoutBook.length > 0 && (
+        <p className="admin-filter-links">
+          {missingBook ? (
+            <>
+              Showing the {withoutBook.length} sermons without a Bible book. <Link href="/admin/sermons/">Show all sermons</Link>
+            </>
+          ) : (
+            <Link href="/admin/sermons/?missing=book">{withoutBook.length} sermons don’t have a Bible book yet</Link>
+          )}
+        </p>
+      )}
 
       <section className="admin-panel">
         {sermons instanceof Error ? (
           <p className="admin-error">Couldn’t load the sermons from storage. {describeStorageError(sermons)}</p>
         ) : list.length === 0 ? (
-          <p className="admin-muted">{query ? `No sermons match “${query}”.` : "No sermons have been added yet."}</p>
+          <p className="admin-muted">
+            {query ? `No sermons match “${query}”.` : missingBook ? "Every sermon has a Bible book." : "No sermons have been added yet."}
+          </p>
         ) : (
           <>
             <p className="admin-muted">
-              {query ? `${list.length} match${list.length === 1 ? "" : "es"}` : "Most recent"}
+              {query ? `${list.length} match${list.length === 1 ? "" : "es"}` : missingBook ? "Without a Bible book, most recent first" : "Most recent"}
               {list.length > SHOWN && `, showing the first ${SHOWN}`}
             </p>
             <ul className="admin-list">
@@ -91,6 +111,7 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
                       {s.service && ` (${serviceLabel(s.service).toLowerCase()})`}
                       {s.preacher ? ` · ${s.preacher}` : " · no preacher"}
                       {s.duration ? ` · ${formatDuration(s.duration)}` : ""}
+                      {s.book ? ` · ${s.book}` : " · no Bible book"}
                       {!s.audioKey && " · no audio"}
                     </span>
                   </div>

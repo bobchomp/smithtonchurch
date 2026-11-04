@@ -60,10 +60,12 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
                 </dd>
               </div>
             )}
-            {sermon.passage && (
+            {sermon.book && (
               <div>
-                <dt>Bible passage</dt>
-                <dd>{sermon.passage}</dd>
+                <dt>Bible book</dt>
+                <dd>
+                  <Link href={`/sermons/?book=${encodeURIComponent(sermon.book)}`}>{sermon.book}</Link>
+                </dd>
               </div>
             )}
             {sermon.series && (
