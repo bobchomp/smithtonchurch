@@ -10,7 +10,7 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.title} Inverness – Sunday Services, Live Services, Community`,
+    default: `${site.title}, Inverness`,
     template: `%s | ${site.title} Inverness`,
   },
   description: site.description,
