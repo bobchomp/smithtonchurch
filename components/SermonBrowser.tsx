@@ -6,9 +6,9 @@ import { BIBLE_BOOKS } from "@/lib/bible";
 import { formatDuration, formatSermonDate, serviceLabel, type PublicSermon } from "@/lib/sermon-types";
 
 const PER_PAGE = 20;
-const FILTERS = ["q", "preacher", "series", "book", "year", "service"] as const;
+const FILTERS = ["q", "preacher", "book", "year", "service"] as const;
 type Filters = Record<(typeof FILTERS)[number], string>;
-const EMPTY: Filters = { q: "", preacher: "", series: "", book: "", year: "", service: "" };
+const EMPTY: Filters = { q: "", preacher: "", book: "", year: "", service: "" };
 
 function countBy(sermons: PublicSermon[], pick: (s: PublicSermon) => string | undefined): [string, number][] {
   const counts = new Map<string, number>();
@@ -21,7 +21,6 @@ function countBy(sermons: PublicSermon[], pick: (s: PublicSermon) => string | un
 
 function matches(s: PublicSermon, f: Filters): boolean {
   if (f.preacher && s.preacher !== f.preacher) return false;
-  if (f.series && s.series !== f.series) return false;
   if (f.book && !s.books.includes(f.book)) return false;
   if (f.year && !s.date.startsWith(f.year)) return false;
   if (f.service && s.service !== f.service) return false;
@@ -61,7 +60,6 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
   const shown = results.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const preachers = useMemo(() => countBy(sermons, (s) => s.preacher).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])), [sermons]);
-  const seriesList = useMemo(() => countBy(sermons, (s) => s.series).sort((a, b) => a[0].localeCompare(b[0])), [sermons]);
   const books = useMemo(() => {
     const counts = new Map<string, number>();
     for (const s of sermons) for (const b of s.books) counts.set(b, (counts.get(b) ?? 0) + 1);
@@ -93,15 +91,6 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
           </select>
         </label>
         <label>
-          Series
-          <select value={filters.series} onChange={(e) => set("series", e.target.value)}>
-            <option value="">All series</option>
-            {seriesList.map(([name, count]) => (
-              <option key={name} value={name}>{`${name} (${count})`}</option>
-            ))}
-          </select>
-        </label>
-        <label>
           Bible book
           <select value={filters.book} onChange={(e) => set("book", e.target.value)}>
             <option value="">All books</option>
@@ -122,7 +111,7 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
         <label>
           Service
           <select value={filters.service} onChange={(e) => set("service", e.target.value)}>
-            <option value="">Morning &amp; evening</option>
+            <option value="">All services</option>
             <option value="am">Morning</option>
             <option value="pm">Evening</option>
           </select>

@@ -76,9 +76,7 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             {sermon.series && (
               <div>
                 <dt>Series</dt>
-                <dd>
-                  <Link href={`/sermons/?series=${encodeURIComponent(sermon.series)}`}>{sermon.series}</Link>
-                </dd>
+                <dd>{sermon.series}</dd>
               </div>
             )}
             {sermon.duration ? (
