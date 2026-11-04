@@ -598,6 +598,12 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
   padding: 0.2rem 0.5rem; border: 1px solid rgba(255, 255, 255, 0.5); border-radius: 4px;
 }
 .admin-brand:hover { color: #fff; }
+.admin-bar-start { display: flex; align-items: center; gap: 2rem; }
+.admin-pill {
+  font-weight: 600; font-size: 0.95rem; color: var(--blue); background: #fff; text-decoration: none;
+  border-radius: 999px; padding: 0.4rem 1.1rem; white-space: nowrap;
+}
+.admin-pill:hover { color: var(--blue); background: rgba(255, 255, 255, 0.88); }
 .admin-bar-actions { display: flex; align-items: center; gap: 1.25rem; font-size: 0.95rem; }
 .admin-bar-actions a { color: #fff; }
 .admin-bar-actions button {
@@ -726,4 +732,7 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 @media (max-width: 520px) {
   .admin-brand img { width: 120px; }
   .admin-bar-actions { gap: 0.75rem; font-size: 0.9rem; }
+  .admin-bar-inner { flex-wrap: wrap; padding-top: 0.6rem; padding-bottom: 0.6rem; row-gap: 0.6rem; }
+  .admin-bar-start { gap: 0.75rem; }
+  .admin-pill { font-size: 0.85rem; padding: 0.35rem 0.8rem; }
 }

@@ -13,10 +13,15 @@ export default async function PanelLayout({ children }: { children: React.ReactN
     <>
       <header className="admin-bar">
         <div className="container admin-bar-inner">
-          <Link className="admin-brand" href="/admin/">
-            <Image src="/images/logo-white.png" alt="Smithton Church" width={600} height={123} />
-            <span>Admin</span>
-          </Link>
+          <div className="admin-bar-start">
+            <Link className="admin-brand" href="/admin/">
+              <Image src="/images/logo-white.png" alt="Smithton Church" width={600} height={123} />
+              <span>Admin</span>
+            </Link>
+            <Link className="admin-pill" href="/admin/">
+              Dashboard
+            </Link>
+          </div>
           <div className="admin-bar-actions">
             <a href={onAdminHost ? `https://${SITE_HOST}/` : "/"}>View website</a>
             <form action={signOut}>
