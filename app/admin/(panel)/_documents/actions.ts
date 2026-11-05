@@ -2,19 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-auth";
-import { DOCUMENT_TYPES, bulletinSunday, isDocumentDate, isDocumentKind, type DocumentKind } from "@/lib/document-types";
+import { DOCUMENT_TYPES, isDocumentDate, isDocumentKind, type DocumentKind } from "@/lib/document-types";
 import { createDocumentUploadUrls, deleteDocuments, listDocuments, removeReplacedDocuments } from "@/lib/documents";
 import { sermonPath } from "@/lib/sermon-types";
 import { loadSermons } from "@/lib/sermons";
 import { describeStorageError } from "@/lib/supabase";
 
-// Refreshes the document's pages, and for a bulletin the pages of that week's sermons (which link to it).
+// Refreshes the document's pages, and for a bulletin the pages of that Sunday's sermons (which link to it).
 async function refreshPages(kind: DocumentKind, date?: string) {
   revalidatePath(DOCUMENT_TYPES[kind].publicPath);
   revalidatePath(DOCUMENT_TYPES[kind].adminPath);
   if (kind !== "bulletin" || !date) return;
   const sermons = await loadSermons().catch(() => []);
-  for (const s of sermons) if (bulletinSunday(s.date) === date) revalidatePath(sermonPath(s).replace(/\/$/, ""));
+  for (const s of sermons) if (s.date === date) revalidatePath(sermonPath(s).replace(/\/$/, ""));
 }
 
 // Step 1 of an upload: get one-off addresses for the browser to send the PDF and cover to.

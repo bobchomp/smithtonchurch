@@ -79,10 +79,10 @@ export async function getPublicDocuments(kind: DocumentKind): Promise<{ current:
   return { current: FALLBACKS[kind], archive: [] };
 }
 
-// The bulletin for the week a date is in (its Sunday, or the Sunday before), if one was uploaded.
+// The bulletin for a Sunday, if one was uploaded. Weekday services (e.g. Good Friday) don't get one.
 export async function bulletinForDate(date: string): Promise<PublicDocument | undefined> {
-  const sunday = bulletinSunday(date);
-  return (await getPublicDocuments("bulletin")).archive.find((d) => d.date === sunday);
+  if (bulletinSunday(date) !== date) return undefined;
+  return (await getPublicDocuments("bulletin")).archive.find((d) => d.date === date);
 }
 
 // One-off addresses the admin's browser uploads the PDF and its cover picture to directly

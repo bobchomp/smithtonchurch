@@ -23,8 +23,8 @@
   `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
   gets each sermon's Bible book from its `?book=` filter lists (or the title).
-- Each sermon page links to that week's bulletin (the Sunday on or before its date, `bulletinForDate` in lib/documents.ts);
-  uploading or deleting a bulletin refreshes that week's sermon pages.
+- Each Sunday sermon's page links to that Sunday's bulletin (`bulletinForDate` in lib/documents.ts; weekday services get none);
+  uploading or deleting a bulletin refreshes that Sunday's sermon pages.
 - Sermons record only Bible books (no chapter/verse), by the owner's choice. A sermon can have several: `books` (array,
   Bible order); `book` and `passage` are legacy fields, so always read them with `sermonBooks()` (lib/sermon-types.ts).
 - Admin → Sermons → Fill in details (`app/admin/(panel)/sermons/review/`, `lib/sermon-review.ts`) steps through sermons after
