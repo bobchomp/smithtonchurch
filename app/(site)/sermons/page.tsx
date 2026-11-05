@@ -18,6 +18,11 @@ export default async function Sermons() {
       <PageBanner title="Sermons" />
       <section className="section">
         <div className="container">
+          <p className="section-intro sermon-intro">
+            This page has all of Smithton Church’s Sunday sermons since 2011. Search by title, or choose a preacher, book
+            of the Bible, year or service, then listen online or download the audio. More recent services also have the
+            video of the livestream.
+          </p>
           {sermons.length === 0 ? (
             <p className="sermon-empty">Sermons will appear here soon.</p>
           ) : (
