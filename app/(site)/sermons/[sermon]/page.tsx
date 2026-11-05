@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import YouTubePlayer from "@/components/YouTubePlayer";
+import { bulletinForDate } from "@/lib/documents";
 import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
 import { getPublicSermons } from "@/lib/sermons";
 
@@ -32,6 +33,7 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
   if (!sermon) notFound();
   // Send old or mistyped titles in the address to the right one.
   if (`/sermons/${param}/` !== sermon.path) permanentRedirect(sermon.path);
+  const bulletin = await bulletinForDate(sermon.date);
 
   return (
     <>
@@ -93,6 +95,22 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             </div>
           ) : (
             !sermon.youtubeId && <p className="sermon-empty">A recording of this sermon isn’t available.</p>
+          )}
+
+          {bulletin && (
+            <div className="sermon-bulletin">
+              {bulletin.coverUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={bulletin.coverUrl} alt="" width={90} height={127} loading="lazy" />
+              )}
+              <div>
+                <h2>That week’s bulletin</h2>
+                <p>{bulletin.label}: news, notices and prayer points (PDF).</p>
+                <a className="button" href={bulletin.url}>
+                  Open the bulletin
+                </a>
+              </div>
+            </div>
           )}
 
           <p className="sermon-back">

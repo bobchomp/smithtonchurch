@@ -499,6 +499,17 @@ input[type="date"]::-webkit-date-and-time-value { text-align: left; }
   content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-35%, -50%);
   border-style: solid; border-width: 11px 0 11px 19px; border-color: transparent transparent transparent #fff;
 }
+.sermon-bulletin {
+  display: flex; align-items: center; gap: 1.25rem; margin-top: 2.5rem; padding: 1.25rem;
+  background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.sermon-bulletin img { width: 90px; height: auto; border-radius: 4px; box-shadow: var(--shadow); flex-shrink: 0; }
+.sermon-bulletin h2 { font-size: 1.15rem; margin: 0 0 0.3rem; }
+.sermon-bulletin p { margin: 0 0 0.85rem; color: var(--muted); }
+.sermon-bulletin .button { border-radius: 999px; white-space: nowrap; }
+.sermon-bulletin > div { min-width: 0; }
+@media (max-width: 480px) { .sermon-bulletin { gap: 1rem; padding: 1rem; } .sermon-bulletin img { width: 64px; } }
+@media (max-width: 360px) { .sermon-bulletin img { display: none; } }
 .sermon-audio-heading { font-size: 1.1rem; margin-bottom: 0.6rem; }
 .sermon-item-noaudio { font-style: italic; }
 .sermon-pages { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; }

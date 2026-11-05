@@ -59,7 +59,7 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
       if (!uploadUrls) throw new Error(error);
       await uploadFile(uploadUrls.pdf, file, setProgress);
       if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
-      await finishDocumentUpload(kind);
+      await finishDocumentUpload(kind, date);
       form.reset();
       setMessage({ kind: "success", text: `${singular[0].toUpperCase()}${singular.slice(1)} uploaded. It’s now live on the website.` });
       router.refresh();

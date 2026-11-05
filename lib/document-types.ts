@@ -67,3 +67,10 @@ export const MONTH_NAMES = [
 
 // What the public site needs to know about each document.
 export type PublicDocument = { date: string; label: string; url: string; coverUrl?: string };
+
+// The Sunday on or before a date (YYYY-MM-DD): the weekly bulletin a day belongs to.
+export function bulletinSunday(date: string): string {
+  const day = new Date(`${date}T12:00:00Z`);
+  day.setUTCDate(day.getUTCDate() - day.getUTCDay());
+  return day.toISOString().slice(0, 10);
+}

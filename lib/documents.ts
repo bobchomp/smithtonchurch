@@ -1,7 +1,7 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
 import { bulletin as fallbackBulletin } from "./content";
-import { DOCUMENT_TYPES, formatDocumentDate, type DocumentKind, type PublicDocument } from "./document-types";
+import { DOCUMENT_TYPES, bulletinSunday, formatDocumentDate, type DocumentKind, type PublicDocument } from "./document-types";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
 
 // Documents uploaded through the admin panel are stored in Supabase Storage as
@@ -77,6 +77,12 @@ export async function getPublicDocuments(kind: DocumentKind): Promise<{ current:
     console.error(`Could not list ${kind} documents`, error);
   }
   return { current: FALLBACKS[kind], archive: [] };
+}
+
+// The bulletin for the week a date is in (its Sunday, or the Sunday before), if one was uploaded.
+export async function bulletinForDate(date: string): Promise<PublicDocument | undefined> {
+  const sunday = bulletinSunday(date);
+  return (await getPublicDocuments("bulletin")).archive.find((d) => d.date === sunday);
 }
 
 // One-off addresses the admin's browser uploads the PDF and its cover picture to directly
