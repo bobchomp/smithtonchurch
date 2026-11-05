@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 // Documents and websites about what the Free Church believes (they open in a new tab).
 const beliefLinks = [
+  { label: "Free Church of Scotland", href: "https://freechurch.org" },
   { label: "Westminster Confession of Faith", href: "https://freechurch.org/wp-content/uploads/2024/07/Westminster_Confession_of_Faith.pdf" },
   { label: "Westminster Shorter Catechism", href: "https://freechurch.org/wp-content/uploads/2024/07/Westminster_Shorter_Catechism.pdf" },
   { label: "Westminster Larger Catechism", href: "https://freechurch.org/wp-content/uploads/2024/07/Westminster_Larger_Catechism.pdf" },
-  { label: "Free Church of Scotland", href: "https://freechurch.org" },
 ];
 
 export default function AboutUs() {
