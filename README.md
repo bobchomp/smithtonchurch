@@ -94,9 +94,6 @@ sermon. Sermons are added and edited in the admin panel (**Dashboard → Sermons
 are kept in Supabase; the audio files are kept in **Cloudflare R2**, which is very cheap for large
 files and doesn't charge when people listen or download.
 
-Until the old archive has been copied over, the header's **Sermons** button still goes to YouTube
-(`content/navigation.yml`); point it at `/sermons/` when you're ready.
-
 A sermon can have more than one book of the Bible. **Admin → Sermon Details** steps through the
 sermons since the old media site stopped (the ones the import can't fill in), oldest first: the
 video is on the left and the details on the right, and **Save and next** saves one and opens the
