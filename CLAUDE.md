@@ -31,7 +31,7 @@
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);
   a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
-  a stream's description is just the preacher's name, used when creating sermons from streams;
+  a stream's description is the preacher's name, sometimes after the title on the line above (`preacherFrom` in lib/youtube.ts), used when creating sermons from streams and to fill a blank preacher in the admin forms;
   the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
 - Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as its own
   JSON file in the private Supabase bucket `private/messages/` (`lib/messages.ts`), (first + last name, stored as `name`), then emails it via Resend

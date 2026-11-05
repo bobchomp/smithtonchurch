@@ -29,6 +29,9 @@ export default async function EditSermon({
   const sermon = sermons.find((s) => s.id === id);
   if (!sermon) notFound();
   const video = videoForSermons([sermon], streams).get(sermon.id);
+  // A blank preacher is filled in from the livestream's description (saved when the form is).
+  const streamPreacher = video && "preacher" in video ? video.preacher : undefined;
+  const formSermon = !sermon.preacher && streamPreacher ? { ...sermon, preacher: streamPreacher } : sermon;
   const listen = audioUrl(sermon.audioKey);
 
   return (
@@ -45,7 +48,7 @@ export default async function EditSermon({
       <div className="admin-columns">
         <section className="admin-panel">
           <SermonForm
-            sermon={sermon}
+            sermon={formSermon}
             preachers={namesByUse(sermons, (s) => s.preacher)}
             audioReady={r2IsConfigured()}
             defaultDate={lastSunday()}

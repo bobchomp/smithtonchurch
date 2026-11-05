@@ -83,6 +83,8 @@ export default async function ReviewSermons({
   const previous = queue[index - 1];
   const video = videoForSermons([sermon], streams).get(sermon.id);
   const stream = video && "startedAt" in video ? video : undefined;
+  // A blank preacher is filled in from the livestream's description (saved when the form is).
+  const formSermon = !sermon.preacher && stream?.preacher ? { ...sermon, preacher: stream.preacher } : sermon;
   const listen = audioUrl(sermon.audioKey);
 
   return (
@@ -127,7 +129,7 @@ export default async function ReviewSermons({
         <section className="admin-panel">
           <SermonForm
             key={sermon.id}
-            sermon={sermon}
+            sermon={formSermon}
             preachers={namesByUse(sermons, (s) => s.preacher)}
             audioReady={r2IsConfigured()}
             defaultDate={lastSunday()}

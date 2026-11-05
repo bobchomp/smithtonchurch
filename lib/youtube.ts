@@ -47,12 +47,28 @@ type VideosPage = {
   }[];
 };
 
-// The church puts only the preacher's name in each livestream's description. Anything that doesn't
-// look like a name (a link, or several lines of text) is ignored.
-function preacherFrom(description: string | undefined): string | undefined {
-  const text = description?.trim();
-  if (!text || text.includes("\n") || /https?:|www\.|@/.test(text) || text.length > 60) return undefined;
-  return text;
+// The church puts the preacher's name in each livestream's description: usually on its own, but
+// sometimes after the sermon's title on the line above, e.g. "'Abiding'\nRev Alasdair Macleod".
+// Lines that repeat the title, are in quotes, or don't look like a name (links, sentences) are
+// skipped; a longer description (more than three lines) is ignored.
+const NAME_PREFIX = /^(rev|revd|rev\.|the rev|dr|dr\.|pastor|mr|mrs|ms|miss|prof)\b/i;
+
+function simplify(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+export function preacherFrom(description: string | undefined, title = ""): string | undefined {
+  const lines = (description ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0 || lines.length > 3) return undefined;
+  const plainTitle = simplify(title);
+  const candidates = lines.filter((line) => {
+    if (line.length > 60 || /https?:|www\.|@/.test(line)) return false;
+    if (/^['"‘’“”]/.test(line)) return false; // a quoted title
+    if (plainTitle && simplify(line) && plainTitle.includes(simplify(line))) return false; // repeats the title
+    if (/[.!?:]$/.test(line) && !NAME_PREFIX.test(line)) return false; // a sentence
+    return true;
+  });
+  return candidates.find((line) => NAME_PREFIX.test(line)) ?? candidates[candidates.length - 1];
 }
 
 // Every finished livestream on the channel, newest first. (Uploads that weren't livestreams,
@@ -94,7 +110,7 @@ export async function fetchPastLivestreams(): Promise<Livestream[]> {
         title: video.snippet.title,
         startedAt: live.actualStartTime,
         duration: seconds(video.contentDetails?.duration),
-        preacher: preacherFrom(video.snippet.description),
+        preacher: preacherFrom(video.snippet.description, video.snippet.title),
       });
     }
   }
