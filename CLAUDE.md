@@ -23,6 +23,8 @@
   `scripts/import-media-site.mjs` copies the old archive and is run by the owner locally (the old site is
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
   gets each sermon's Bible book from its `?book=` filter lists (or the title).
+- The livestream player (site.yml `livestream_embed`) is on its own page, /live/ (with this week's bulletin via
+  `components/BulletinBox.tsx`); the home page has a "Watch online" card linking to it, and the footer links to it.
 - Each Sunday sermon's page links to that Sunday's bulletin (`bulletinForDate` in lib/documents.ts; weekday services get none);
   uploading or deleting a bulletin refreshes that Sunday's sermon pages.
 - Sermons record only Bible books (no chapter/verse), by the owner's choice. A sermon can have several: `books` (array,

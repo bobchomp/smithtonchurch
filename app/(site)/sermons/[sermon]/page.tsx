@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import BulletinBox from "@/components/BulletinBox";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import { bulletinForDate } from "@/lib/documents";
 import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
@@ -98,19 +99,7 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
           )}
 
           {bulletin && (
-            <div className="sermon-bulletin">
-              {bulletin.coverUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={bulletin.coverUrl} alt="" width={90} height={127} loading="lazy" />
-              )}
-              <div>
-                <h2>That week’s bulletin</h2>
-                <p>{bulletin.label}: news, notices and prayer points (PDF).</p>
-                <a className="button" href={bulletin.url}>
-                  Open the bulletin
-                </a>
-              </div>
-            </div>
+            <BulletinBox bulletin={bulletin} heading="That week’s bulletin" />
           )}
 
           <p className="sermon-back">

@@ -55,18 +55,17 @@ export default function Home() {
               <div><dt>2nd &amp; 4th Wednesday<br />Community Groups</dt><dd>7:30pm</dd></div>
             </dl>
           </div>
-          <div className="livestream">
-            <iframe
-              src={site.livestream_embed}
-              title="Smithton Church live stream"
-              allow="autoplay; fullscreen"
-              allowFullScreen
-              loading="lazy"
-            />
-            <p>
-              Can’t make it in person? Watch the service live here, or catch up on{" "}
-              <Link href="/sermons/">past sermons</Link>.
-            </p>
+          <div className="watch-online">
+            <h2>Watch online</h2>
+            <p>Can’t make it in person? Our Sunday services are streamed live, so you can join us from wherever you are.</p>
+            <div className="actions">
+              <Link className="button" href="/live/">
+                Watch live
+              </Link>
+              <Link className="button button-outline" href="/sermons/">
+                Past sermons
+              </Link>
+            </div>
           </div>
         </div>
       </section>
