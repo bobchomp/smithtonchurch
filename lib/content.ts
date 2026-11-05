@@ -27,7 +27,8 @@ export type Site = {
   social: { facebook: string; youtube: string; sermons: string; instagram: string; x: string };
 };
 
-export type NavItem = { title: string; url: string; children?: NavItem[] };
+// mobileOnly: shown in the phone/tablet menu but not the full desktop menu (which is out of room).
+export type NavItem = { title: string; url: string; children?: NavItem[]; mobileOnly?: boolean };
 
 export type Person = {
   name: string;

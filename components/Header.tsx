@@ -67,7 +67,9 @@ export default function Header({ navigation, churchsuiteLink }: { navigation: Na
               return (
                 <li
                   key={item.title}
-                  className={[item.children && "has-children", active && "is-active"].filter(Boolean).join(" ")}
+                  className={[item.children && "has-children", active && "is-active", item.mobileOnly && "nav-mobile-only"]
+                    .filter(Boolean)
+                    .join(" ")}
                 >
                   <NavLink item={item} current={current} />
                   {item.children && (

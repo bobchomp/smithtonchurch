@@ -105,6 +105,7 @@ p { margin: 0 0 1em; }
 .main-nav .nav-cta a:hover { background: var(--blue-dark); color: #fff; }
 
 .submenu-toggle { display: none; }
+@media (min-width: 1301px) { .main-nav .nav-mobile-only { display: none; } }
 .submenu {
   position: absolute; left: 0; top: 100%;
   min-width: 190px; padding: 0.4rem !important;
