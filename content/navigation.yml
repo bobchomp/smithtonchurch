@@ -1,5 +1,7 @@
 # The main menu. "url" starting with / is a page on this site; anything else is an external link.
 # Add "children" to make a drop-down.
+- title: Home
+  url: /
 - title: About Us
   url: /about-us/
   children:

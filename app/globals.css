@@ -74,7 +74,7 @@ p { margin: 0 0 1em; }
   box-shadow: 0 1px 0 var(--border), 0 4px 16px rgba(30, 45, 70, 0.05);
 }
 .header-inner {
-  max-width: 1300px;
+  max-width: 1440px;
   display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
   min-height: 72px;
 }
@@ -129,7 +129,7 @@ p { margin: 0 0 1em; }
 .menu-toggle-bars::before { top: -6px; }
 .menu-toggle-bars::after { top: 6px; }
 
-@media (max-width: 1250px) {
+@media (max-width: 1300px) {
   .logo img { width: 170px; }
   .header-inner { min-height: 64px; }
   .menu-toggle { display: inline-flex; }

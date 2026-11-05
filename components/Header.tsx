@@ -38,7 +38,8 @@ export default function Header({ navigation, churchsuiteLink }: { navigation: Na
   return (
     <header className="site-header">
       <div className="container header-inner">
-        <Link className="logo" href="/">
+        {/* Just the logo, not a link: "Home" in the menu goes to the home page. */}
+        <div className="logo">
           <Image
             src="/images/logo.png"
             alt="Smithton Church – knowing Jesus, making Jesus known"
@@ -46,7 +47,7 @@ export default function Header({ navigation, churchsuiteLink }: { navigation: Na
             height={123}
             priority
           />
-        </Link>
+        </div>
         <button
           className="menu-toggle"
           type="button"
