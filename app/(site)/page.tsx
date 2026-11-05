@@ -64,8 +64,8 @@ export default function Home() {
               loading="lazy"
             />
             <p>
-              Can’t make it in person? Watch the service live here, or catch up on past{" "}
-              <a href={site.social.sermons}>sermons on YouTube</a>.
+              Can’t make it in person? Watch the service live here, or catch up on{" "}
+              <Link href="/sermons/">past sermons</Link>.
             </p>
           </div>
         </div>
