@@ -396,6 +396,12 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .bulletin-card:hover .bulletin-card-cover img { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(30, 45, 70, 0.22); }
 .bulletin-card-date { font: 600 1rem var(--font-head); color: var(--blue); margin-top: 0.5rem; }
 .bulletin-card-link { font-size: 0.9rem; color: var(--blue); text-decoration: underline; }
+/* The one found with "Looking for an older…": a pill button instead of a text link. */
+.bulletin-grid-single .bulletin-card-link {
+  margin-top: 0.6rem; padding: 0.55rem 1.4rem; border-radius: 999px; background: var(--blue); color: #fff;
+  font: 600 0.95rem var(--font-head); text-decoration: none; transition: background 0.15s;
+}
+.bulletin-grid-single .bulletin-card:hover .bulletin-card-link { background: var(--blue-dark); }
 .bulletin-finder-title { margin-top: 3rem; font-size: 1.35rem; }
 .bulletin-finder { display: grid; justify-items: center; gap: 1.25rem; }
 .bulletin-finder label { display: grid; gap: 0.35rem; font-weight: 600; text-align: center; }
@@ -447,6 +453,7 @@ input[type="date"]::-webkit-date-and-time-value { text-align: left; }
   .bulletin-grid { gap: 0.75rem; }
   .bulletin-card-date { font-size: 0.85rem; }
   .bulletin-card-link { font-size: 0.8rem; }
+  .bulletin-grid-single .bulletin-card-link { font-size: 0.95rem; }
 }
 
 /* ---------- Sermons ---------- */
