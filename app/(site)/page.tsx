@@ -27,7 +27,7 @@ export default function Home() {
 
       <section className="section welcome">
         <div className="container narrow">
-          <h1>Welcome to Smithton Church</h1>
+          <h1>Welcome to Smithton Church!</h1>
           <p className="lead">You found us! We are delighted that you did.</p>
           <p>
             Whether you are looking for a spiritual home to learn more about Jesus and what it means to live for him,
