@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DOCUMENT_TYPES, MONTH_NAMES, formatDocumentDate, type DocumentKind, type PublicDocument } from "@/lib/document-types";
+import { DOCUMENT_TYPES, MONTH_NAMES, type DocumentKind, type PublicDocument } from "@/lib/document-types";
+import DatePicker from "./DatePicker";
 import DocumentCard from "./DocumentCard";
 
 // Find a past document. Everything happens in the browser, from the list the page was built
@@ -22,49 +23,15 @@ function Result({ kind, doc }: { kind: DocumentKind; doc: PublicDocument }) {
   );
 }
 
-// Weekly documents: pick any date; if there's nothing for it, offer the nearest either side.
+// Weekly documents: a calendar where only the Sundays that have one can be picked.
 function DayFinder({ kind, archive }: { kind: DocumentKind; archive: PublicDocument[] }) {
-  const { singular } = DOCUMENT_TYPES[kind];
   const [date, setDate] = useState("");
   const found = archive.find((d) => d.date === date);
-  // archive is newest first, so the nearest earlier/later ones are either side of the date.
-  const earlier = date ? archive.find((d) => d.date < date) : undefined;
-  const later = date ? [...archive].reverse().find((d) => d.date > date) : undefined;
-
   return (
     <div className="bulletin-finder">
-      <label>
-        Choose a Sunday
-        <input
-          type="date"
-          value={date}
-          min={archive[archive.length - 1]?.date}
-          max={archive[0]?.date}
-          onChange={(event) => setDate(event.target.value)}
-        />
-      </label>
+      <DatePicker label="Choose a Sunday" value={date} onChange={setDate} available={archive.map((d) => d.date)} />
       <div className="bulletin-finder-result" aria-live="polite">
-        {found ? (
-          <Result kind={kind} doc={found} />
-        ) : (
-          date && (
-            <p>
-              There’s no {singular} for {formatDocumentDate(kind, date)}.
-              {(earlier || later) && " The nearest: "}
-              {earlier && (
-                <button type="button" className="link-button" onClick={() => setDate(earlier.date)}>
-                  {earlier.label}
-                </button>
-              )}
-              {earlier && later && " or "}
-              {later && (
-                <button type="button" className="link-button" onClick={() => setDate(later.date)}>
-                  {later.label}
-                </button>
-              )}
-            </p>
-          )
-        )}
+        {found && <Result kind={kind} doc={found} />}
       </div>
     </div>
   );
