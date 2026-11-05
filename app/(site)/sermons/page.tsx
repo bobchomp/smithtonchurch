@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import PageBanner from "@/components/PageBanner";
 import SermonBrowser from "@/components/SermonBrowser";
-import { site } from "@/lib/content";
 import { getPublicSermons } from "@/lib/sermons";
 
 export const metadata: Metadata = {
@@ -19,10 +18,6 @@ export default async function Sermons() {
       <PageBanner title="Sermons" />
       <section className="section">
         <div className="container">
-          <p className="section-intro sermon-intro">
-            Listen to or download sermons preached at Smithton Church. Sunday services are also streamed live and{" "}
-            <a href={site.social.sermons}>available on YouTube</a>.
-          </p>
           {sermons.length === 0 ? (
             <p className="sermon-empty">Sermons will appear here soon.</p>
           ) : (
