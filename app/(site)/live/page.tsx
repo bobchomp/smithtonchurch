@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import BulletinBox from "@/components/BulletinBox";
+import LiveNotice from "@/components/LiveNotice";
 import PageBanner from "@/components/PageBanner";
 import { site } from "@/lib/content";
 import { getPublicDocuments } from "@/lib/documents";
@@ -26,6 +27,7 @@ export default async function WatchLive() {
           <p className="section-intro">
             Sunday services are streamed live at 10:30am and 5:30pm. Can’t join us in person? Watch along here.
           </p>
+          <LiveNotice />
           <div className="livestream">
             <iframe
               src={site.livestream_embed}

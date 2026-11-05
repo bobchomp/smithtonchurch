@@ -254,6 +254,16 @@ p { margin: 0 0 1em; }
 .watch-online p { color: var(--muted); max-width: 26rem; margin: 0 auto 1.5rem; }
 .watch-online .actions { justify-content: center; }
 .live-page .section-intro { margin-top: 0; }
+.live-notice {
+  margin-bottom: 1.5rem; background: #fff; border: 1px solid var(--border); border-left: 5px solid var(--blue);
+  border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;
+}
+.live-notice img { display: block; width: 100%; height: auto; }
+.live-notice-body { padding: 1.25rem 1.5rem; }
+.live-notice h2 { font-size: 1.3rem; margin: 0 0 0.4rem; }
+.live-notice p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.live-notice .button { margin-top: 1rem; border-radius: 999px; }
+.live-notice-body > :first-child { margin-top: 0; }
 .live-more { margin-top: 2.5rem; text-align: center; }
 .live-more h2 { font-size: 1.25rem; margin-bottom: 0.3rem; }
 .live-more p { color: var(--muted); margin: 0 0 1rem; }
@@ -458,8 +468,8 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
 .bulletin-finder-result { width: 100%; text-align: center; }
 .bulletin-finder-result p { margin: 0; color: var(--muted); }
 /* iPhones draw date boxes their own way: keep them full height and left-aligned like the other fields. */
-input[type="date"] { -webkit-appearance: none; appearance: none; min-height: 2.75rem; }
-input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+input[type="date"], input[type="datetime-local"] { -webkit-appearance: none; appearance: none; min-height: 2.75rem; }
+input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-webkit-date-and-time-value { text-align: left; }
 .link-button { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); text-decoration: underline; cursor: pointer; }
 @media (max-width: 640px) {
   .bulletin-grid { gap: 0.75rem; }
@@ -764,6 +774,14 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
 }
 .admin-form .button { justify-self: start; }
+.admin-form textarea {
+  font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff; resize: vertical; min-width: 0;
+}
+.admin-notice-image { max-width: 100%; max-height: 260px; width: auto; border-radius: 6px; border: 1px solid var(--border); justify-self: start; }
+@media (max-width: 560px) { .admin-pair { grid-template-columns: minmax(0, 1fr); } }
+.admin-status-showing { background: #e3f4ea; color: #067647; }
+.admin-status-scheduled { background: #fff3d6; color: #8a5a00; }
+.admin-status-ended { background: #eef0f3; color: #5b6573; }
 .admin-form select, .admin-find select {
   font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
 }

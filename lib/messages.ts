@@ -1,12 +1,17 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { supabaseIsConfigured, supabaseAdmin, withTimeout } from "./supabase";
+import {
+  ensurePrivateBucket,
+  privateStore,
+  readPrivateJson as readJson,
+  writePrivateJson as writeJson,
+} from "./private-store";
+import { supabaseIsConfigured, withTimeout } from "./supabase";
 
 // Messages sent through the website's contact forms. Each is saved as its own small file in
 // Supabase (messages/<time>-<id>.json, in a private bucket), so two messages arriving at once can't
 // overwrite each other. The list of people emailed about new messages is settings/contact.json.
 
-const BUCKET = "private";
 const FOLDER = "messages";
 const SETTINGS_PATH = "settings/contact.json";
 
@@ -22,33 +27,6 @@ export type ContactMessage = {
   emailed?: boolean; // whether the notification email went out
   emailError?: string;
 };
-
-function privateStore() {
-  return supabaseAdmin().storage.from(BUCKET);
-}
-
-// Messages contain people's details, so they live in a bucket that isn't public.
-async function ensurePrivateBucket(): Promise<void> {
-  const { error } = await supabaseAdmin().storage.getBucket(BUCKET);
-  if (!error) return;
-  const created = await supabaseAdmin().storage.createBucket(BUCKET, { public: false });
-  if (created.error && !/already exists/i.test(created.error.message)) throw created.error;
-}
-
-async function readJson<T>(path: string): Promise<T | undefined> {
-  const { data, error } = await withTimeout(privateStore().download(path, { cacheNonce: String(Date.now()) }));
-  if (error) return undefined;
-  return JSON.parse(await data.text()) as T;
-}
-
-async function writeJson(path: string, value: unknown): Promise<void> {
-  const { error } = await privateStore().upload(path, JSON.stringify(value), {
-    upsert: true,
-    contentType: "application/json",
-    cacheControl: "0",
-  });
-  if (error) throw error;
-}
 
 export function messagesAreConfigured(): boolean {
   return supabaseIsConfigured();
