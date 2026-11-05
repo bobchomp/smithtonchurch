@@ -23,11 +23,10 @@ export default function Footer() {
             ))}
             <a href={site.maps_link}>Get directions</a>
           </p>
-          <p>
-            Sundays at 10:30am &amp; 5:30pm
-            <br />
-            <Link href="/live/">Watch live online</Link>
-          </p>
+          <p>Sundays at 10:30am &amp; 5:30pm</p>
+          <Link className="footer-button" href="/live/">
+            Live Services
+          </Link>
         </div>
         <div>
           <h2>Get in touch</h2>

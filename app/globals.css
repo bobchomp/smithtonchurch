@@ -617,6 +617,11 @@ input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 .footer-brand img { width: 260px; margin-bottom: 1.5rem; }
 .footer-brand .social-links a { width: 42px; height: 42px; }
 .footer-brand .social-links svg { width: 21px; height: 21px; }
+.site-footer a.footer-button {
+  display: inline-block; padding: 0.5rem 1.25rem; border-radius: 999px; background: #fff; color: var(--blue);
+  font: 600 0.95rem var(--font-head); text-decoration: none; transition: background 0.15s;
+}
+.site-footer a.footer-button:hover { background: var(--blue-light); color: var(--blue-dark); }
 .footer-credit { margin: 1.25rem 0 0; font-size: 0.85rem; opacity: 0.85; }
 .footer-bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem;
