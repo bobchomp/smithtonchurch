@@ -681,11 +681,13 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 .admin-pill:hover { color: var(--blue); background: rgba(255, 255, 255, 0.88); }
 .admin-bar-actions { display: flex; align-items: center; gap: 1.25rem; font-size: 0.95rem; }
 .admin-bar-actions a { color: #fff; padding: 0.4rem 0; }
+/* Sign out: the same pill as Dashboard, but outlined instead of filled. */
 .admin-bar-actions button {
-  white-space: nowrap;
-  font: inherit; color: var(--blue); background: #fff; border: 0; border-radius: 6px;
-  padding: 0.45rem 0.9rem; cursor: pointer; font-weight: 600;
+  white-space: nowrap; font: inherit; font-weight: 600; font-size: 0.95rem; line-height: inherit;
+  color: #fff; background: transparent; border: 2px solid #fff; border-radius: 999px;
+  padding: calc(0.4rem - 2px) calc(1.1rem - 2px); cursor: pointer; transition: background 0.15s;
 }
+.admin-bar-actions button:hover { background: rgba(255, 255, 255, 0.15); }
 
 .admin-main { padding: 2.5rem 0 4rem; }
 .admin-main h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
@@ -859,6 +861,7 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   .admin-bar-actions { gap: 0.75rem; font-size: 0.9rem; }
   .admin-bar-start { gap: 0.75rem; }
   .admin-pill { font-size: 0.85rem; padding: 0.35rem 0.8rem; }
+  .admin-bar-actions button { font-size: 0.85rem; padding: calc(0.35rem - 2px) calc(0.8rem - 2px); }
   .admin-panel { padding: 1.1rem; }
   .admin-login-card { padding: 1.5rem 1.25rem; }
 }
