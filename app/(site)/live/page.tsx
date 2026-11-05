@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import BulletinBox from "@/components/BulletinBox";
 import LiveNotice from "@/components/LiveNotice";
@@ -6,10 +7,10 @@ import PageBanner from "@/components/PageBanner";
 import { site } from "@/lib/content";
 import { getPublicDocuments } from "@/lib/documents";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/live/", {
   title: "Watch Live",
   description: "Watch Smithton Church's Sunday services live online, at 10:30am and 5:30pm.",
-};
+});
 
 // Refreshed when a bulletin is uploaded in the admin panel, and hourly as a fallback.
 export const revalidate = 3600;

@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
 import { isExternal, missions, site, slugify } from "@/lib/content";
 import { Markdown } from "@/lib/markdown";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/missions/", {
   title: "Missions",
   description:
     "The mission partners supported by Smithton Church, Inverness, at home and around the world, and how to pray for them.",
-};
+});
 
 export default function Missions() {
   return (

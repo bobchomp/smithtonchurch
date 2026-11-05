@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import CardImage from "@/components/CardImage";
 import ServiceTimesGraphic from "@/components/ServiceTimesGraphic";
 import PageBanner from "@/components/PageBanner";
 import { slugify, whatsOn } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/community/", {
   title: "What's On",
   description:
     "Groups and activities at Smithton Church, Inverness, through the week – from toddler groups and kids' club to Bible studies, community food night and more.",
-};
+});
 
 export default function WhatsOn() {
   return (

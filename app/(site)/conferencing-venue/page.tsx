@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import CardImage from "@/components/CardImage";
 import ContactForm from "@/components/ContactForm";
 import PageBanner from "@/components/PageBanner";
 import { site, venueRooms } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/conferencing-venue/", {
   title: "Conferencing Venue",
   description:
     "Hire Smithton Church in Inverness for conferences, meetings and events – an auditorium with live streaming, meeting rooms, café, kitchen, free wifi and parking for around 200 cars.",
-};
+});
 
 const avPhotos = [
   { src: "/images/venue/mixing-desk.jpg", alt: "The sound mixing desk" },

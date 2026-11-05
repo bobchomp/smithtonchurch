@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import PageBanner from "@/components/PageBanner";
 import SermonBrowser from "@/components/SermonBrowser";
 import { getPublicSermons } from "@/lib/sermons";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/sermons/", {
   title: "Sermons",
   description: "Listen to sermons preached at Smithton Church, Inverness, since 2011. Search by preacher, Bible book or year.",
-};
+});
 
 // Refreshed straight away when a sermon is added or changed in the admin panel, and hourly as a fallback.
 export const revalidate = 3600;

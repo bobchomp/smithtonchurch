@@ -48,6 +48,10 @@
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
   Supabase with a signed upload URL from a server action, which avoids Vercel's request size limit.
+- SEO: every public page sets its metadata with `pageMetadata(path, {...})` (lib/seo.ts): canonical on site.yml `url`
+  (smithtonchurch.com), Open Graph/Twitter tags and the share image `public/images/og-image.jpg` (1200×630). The home page
+  has schema.org Church JSON-LD. `app/robots.ts` and `app/sitemap.ts` (includes every sermon). New pages: use pageMetadata
+  and add them to the sitemap list.
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

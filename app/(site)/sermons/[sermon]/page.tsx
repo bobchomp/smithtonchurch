@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import BulletinBox from "@/components/BulletinBox";
@@ -22,10 +23,10 @@ async function findSermon(param: string) {
 export async function generateMetadata({ params }: { params: Promise<{ sermon: string }> }): Promise<Metadata> {
   const { sermon } = await findSermon((await params).sermon);
   if (!sermon) return { title: "Sermon not found" };
-  return {
+  return pageMetadata(sermon.path, {
     title: sermon.title,
     description: `${sermon.title}${sermon.preacher ? `, preached by ${sermon.preacher}` : ""} at Smithton Church on ${formatSermonDate(sermon.date)}.`,
-  };
+  });
 }
 
 export default async function SermonPage({ params }: { params: Promise<{ sermon: string }> }) {

@@ -1,8 +1,44 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import SocialLinks from "@/components/SocialLinks";
 import { site } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata("/", { title: { absolute: `${site.title}, Inverness` } });
+
+// Tells search engines who the church is, where it meets and how to get in touch.
+function churchDetails() {
+  const [street, town] = site.address_lines;
+  const postcode = town.match(/[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i)?.[0];
+  return {
+    "@context": "https://schema.org",
+    "@type": "Church",
+    "@id": `${site.url}/#church`,
+    name: site.title,
+    alternateName: "Smithton & Culloden Free Church",
+    description: site.description,
+    slogan: site.tagline,
+    url: `${site.url}/`,
+    logo: `${site.url}/images/logo.png`,
+    image: `${site.url}/images/hero-aerial.jpg`,
+    telephone: site.phone_link,
+    email: site.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: street,
+      addressLocality: town.replace(/,?\s*[A-Z]{1,2}\d[A-Z\d]? ?\d[A-Z]{2}$/i, "").trim(),
+      ...(postcode ? { postalCode: postcode } : {}),
+      addressRegion: "Highland",
+      addressCountry: "GB",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: 57.48168, longitude: -4.14517 },
+    hasMap: site.maps_link,
+    sameAs: [site.social.facebook, site.social.youtube, site.social.instagram, site.social.x],
+    parentOrganization: { "@type": "Organization", name: "Free Church of Scotland", url: "https://freechurch.org/" },
+  };
+}
 
 const infoCards = [
   { accent: "#00bc87", title: "Drop us a line", href: "#contact", lines: [`Fill out the contact form below or call ${site.phone}`] },
@@ -14,6 +50,11 @@ const infoCards = [
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // JSON.stringify output with "<" escaped, so it can't close the script tag.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(churchDetails()).replace(/</g, "\\u003c") }}
+      />
       <section className="hero">
         <Image
           src="/images/hero-aerial.jpg"

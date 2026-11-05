@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import DocumentShowcase from "@/components/DocumentShowcase";
 import PageBanner from "@/components/PageBanner";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/missions/marsalis-newsletter/", {
   title: "Marsali’s Newsletter",
   description: "Read the newsletter from Marsali Campbell, Smithton Church’s missionary.",
-};
+});
 
 // Refreshed straight away when a newsletter is uploaded in the admin panel, and hourly as a fallback.
 export const revalidate = 3600;

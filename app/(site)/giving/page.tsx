@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import PageBanner from "@/components/PageBanner";
 import { site } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/giving/", {
   title: "Giving",
   description:
     "Ways to give to the ministry of Smithton Church, Inverness – online, by bank transfer, card, cheque or phone.",
-};
+});
 
 export default function Giving() {
   return (

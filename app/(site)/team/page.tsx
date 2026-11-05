@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import PageBanner from "@/components/PageBanner";
 import TeamGrid from "@/components/TeamGrid";
 import { team } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/team/", {
   title: "Meet The Team",
   description: "Meet the ministry team, support team, elders and deacons of Smithton Church, Inverness.",
-};
+});
 
 export default function Team() {
   return (

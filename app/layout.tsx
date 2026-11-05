@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Open_Sans, Poppins } from "next/font/google";
 import { site } from "@/lib/content";
 import { HIDE_FROM_SEARCH_ENGINES } from "@/lib/domains";
+import { SHARE_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 const openSans = Open_Sans({ subsets: ["latin"], variable: "--font-open-sans" });
@@ -16,12 +17,8 @@ export const metadata: Metadata = {
   description: site.description,
   icons: { icon: "/images/favicon.png" },
   robots: HIDE_FROM_SEARCH_ENGINES ? { index: false, follow: false } : undefined,
-  openGraph: {
-    siteName: site.title,
-    type: "website",
-    locale: "en_GB",
-    images: ["/images/hero-aerial.jpg"],
-  },
+  // Pages add their own canonical address and sharing details with pageMetadata() (lib/seo.ts).
+  openGraph: { siteName: site.title, type: "website", locale: "en_GB", images: [SHARE_IMAGE] },
 };
 
 // Shared by the public website and the admin panel. Each has its own layout inside this one.

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import PageBanner from "@/components/PageBanner";
 import { site } from "@/lib/content";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata("/our-vision/", {
   title: "Our Vision",
   description:
     "The vision and mission of Smithton Church, Inverness – knowing Jesus and making Jesus known – for our eldership, congregation, community and city.",
-};
+});
 
 export default function OurVision() {
   return (
