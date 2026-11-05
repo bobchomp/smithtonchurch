@@ -27,7 +27,7 @@
   `components/BulletinBox.tsx`); the home page has a "Watch online" card linking to it, and the footer has a "Live Services" button to it.
 - Live Notices (Admin → Live Notices, `lib/live-notices.ts`, `lib/live-notice-types.ts`): scheduled text/image notices above the
   player on /live/. Stored in the private bucket (`live-notices/index.json`, so future ones stay hidden), images in
-  `website/live-notices/`. Only one shows: of those on, the latest start (or added time). The page fetches
+  `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
 - Each Sunday sermon's page links to that Sunday's bulletin (`bulletinForDate` in lib/documents.ts; weekday services get none);
   uploading or deleting a bulletin refreshes that Sunday's sermon pages.

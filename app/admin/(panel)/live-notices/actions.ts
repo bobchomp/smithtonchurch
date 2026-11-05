@@ -84,7 +84,7 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
       if (index < 0) return { error: "That notice no longer exists." };
       const existing = notices[index];
       if (existing.image && existing.image.path !== notice.image?.path) oldImage = existing.image.path;
-      notices[index] = { id, ...notice, createdAt: existing.createdAt, updatedAt: now };
+      notices[index] = { id, ...notice, ...(existing.off ? { off: true } : {}), createdAt: existing.createdAt, updatedAt: now };
     }
     await saveNotices(notices);
     if (oldImage) await deleteNoticeImages([oldImage]);
@@ -93,6 +93,24 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
   } catch (error) {
     console.error("Could not save notice", error);
     return { error: `Couldn’t save the notice. ${describeStorageError(error)}` };
+  }
+}
+
+// The on/off switch in the list of notices.
+export async function setNoticeOn(id: string, on: boolean): Promise<{ error?: string }> {
+  await requireAdmin();
+  try {
+    const notices = await loadNotices();
+    const notice = notices.find((n) => n.id === id);
+    if (!notice) return { error: "That notice no longer exists." };
+    if (on) delete notice.off;
+    else notice.off = true;
+    notice.updatedAt = new Date().toISOString();
+    await saveNotices(notices);
+    revalidatePath("/admin/live-notices");
+    return {};
+  } catch (error) {
+    return { error: `Couldn’t change the notice. ${describeStorageError(error)}` };
   }
 }
 

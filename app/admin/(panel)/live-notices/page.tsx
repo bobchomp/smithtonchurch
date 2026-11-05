@@ -6,6 +6,7 @@ import { formatNoticeTime, noticeStatus, type LiveNotice, type NoticeStatus } fr
 import { loadNotices } from "@/lib/live-notices";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import { deleteNotice } from "./actions";
+import NoticeSwitch from "./NoticeSwitch";
 
 export const metadata: Metadata = { title: "Live Notices" };
 
@@ -14,6 +15,7 @@ const LABELS: Record<NoticeStatus, string> = {
   hidden: "On, but a newer notice is showing",
   scheduled: "Scheduled",
   ended: "Ended",
+  off: "Switched off",
 };
 
 function when(n: LiveNotice): string {
@@ -28,7 +30,7 @@ export default async function LiveNoticesAdmin({ searchParams }: { searchParams:
   const loaded = supabaseIsConfigured() ? await loadNotices().catch((e: Error) => e) : [];
   const notices = loaded instanceof Error ? [] : loaded;
   const now = Date.now();
-  const order: NoticeStatus[] = ["showing", "hidden", "scheduled", "ended"];
+  const order: NoticeStatus[] = ["showing", "hidden", "scheduled", "off", "ended"];
   const sorted = notices
     .map((n) => ({ n, status: noticeStatus(n, notices, now) }))
     .sort(
@@ -45,7 +47,8 @@ export default async function LiveNoticesAdmin({ searchParams }: { searchParams:
       <h1>Live Notices</h1>
       <p className="admin-intro">
         A notice shows above the player on the <Link href="/live/">Watch Live page</Link> between the times you choose.
-        Only one shows at a time: if several are on, the one that started most recently.
+        Only one shows at a time: if several are on, the one that started most recently. Use the switch to turn a
+        notice off without deleting it.
       </p>
       {saved && <p className="admin-success admin-notice-spaced">Notice saved.</p>}
       {!supabaseIsConfigured() && <p className="admin-error">File storage (Supabase) isn’t set up yet.</p>}
@@ -63,7 +66,7 @@ export default async function LiveNoticesAdmin({ searchParams }: { searchParams:
         ) : (
           <ul className="admin-list">
             {sorted.map(({ n, status }) => (
-              <li key={n.id}>
+              <li key={n.id} className="admin-notice-row">
                 <div className="admin-list-item admin-sermon-row">
                   <Link href={`/admin/live-notices/${n.id}/`}>{n.heading || n.text.slice(0, 60) || "(image only)"}</Link>
                   <span className="admin-muted">
@@ -71,6 +74,7 @@ export default async function LiveNoticesAdmin({ searchParams }: { searchParams:
                   </span>
                 </div>
                 <div className="admin-row-links">
+                  <NoticeSwitch id={n.id} on={!n.off} label={n.heading || "untitled"} />
                   <Link href={`/admin/live-notices/${n.id}/`}>Edit</Link>
                   <form action={deleteNotice}>
                     <input type="hidden" name="id" value={n.id} />

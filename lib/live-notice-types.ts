@@ -8,6 +8,7 @@ export type LiveNotice = {
   link?: { label: string; url: string };
   startsAt?: string; // ISO time; unset = straight away
   endsAt?: string; // ISO time; unset = until removed
+  off?: boolean; // switched off in the admin panel: never shows, whatever the times
   createdAt: string;
   updatedAt: string;
 };
@@ -21,10 +22,10 @@ export type PublicLiveNotice = {
   link?: { label: string; url: string };
 };
 
-export type NoticeStatus = "showing" | "hidden" | "scheduled" | "ended";
+export type NoticeStatus = "showing" | "hidden" | "scheduled" | "ended" | "off";
 
 function isOn(notice: LiveNotice, now: number): boolean {
-  return (!notice.startsAt || Date.parse(notice.startsAt) <= now) && (!notice.endsAt || now < Date.parse(notice.endsAt));
+  return !notice.off && (!notice.startsAt || Date.parse(notice.startsAt) <= now) && (!notice.endsAt || now < Date.parse(notice.endsAt));
 }
 
 // Only one notice shows at a time: of those that are on, the one that started most recently.
@@ -34,6 +35,7 @@ export function currentNotice(notices: LiveNotice[], now = Date.now()): LiveNoti
 }
 
 export function noticeStatus(notice: LiveNotice, notices: LiveNotice[], now = Date.now()): NoticeStatus {
+  if (notice.off) return "off";
   if (notice.endsAt && Date.parse(notice.endsAt) <= now) return "ended";
   if (notice.startsAt && Date.parse(notice.startsAt) > now) return "scheduled";
   return currentNotice(notices, now)?.id === notice.id ? "showing" : "hidden";
