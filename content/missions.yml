@@ -24,6 +24,51 @@
     title: Read Marsali’s Newsletter
     url: /missions/marsalis-newsletter/
 
+- name: Dwelling Places
+  subtitle: Uganda
+  image: dwelling-places.jpg
+  description: |-
+    Dwelling Places began in 2002 and is a Christian NGO dedicated to the rescue and rehabilitation of street children, abandoned babies and high-risk slum families in Uganda.
+
+    Dwelling Places follows a holistic program to restore and rebuild the children and families in its care. The ‘Restore’ program is dedicated to rescuing vulnerable children and rehabilitating them through healthcare, education and reconciliation with their families, helping them to welcome their children back into the home, and to enable alumni to develop and enjoy a sustainable way of life after leaving Dwelling Places.
+  prayer:
+    - Pray for the provision of resources for our Transitional Rehabilitation Home. Dwelling Places would like to take on at least 100 girls and effectively rehabilitate them but they are limited by resources.
+    - Pray that all of the families of these precious children will be found and there will be successful reconciliation and reintegration.
+    - Pray for the staff who are at the forefront of this work to have the wisdom, patience, compassion and love for the children as they serve, especially during the Rehabilitation Process.
+  links:
+    - title: Watch Dwelling Places’ latest video update
+      url: https://youtu.be/wMSkh6Jlc28
+    - title: Visit website
+      url: http://www.dwellingplaces.org/
+
+- name: Cheptebo Rural Development Centre
+  subtitle: Kerio Valley, Kenya
+  image: cheptebo.jpg
+  description: |-
+    Set in the beautiful Kerio Valley of Western Kenya, the Cheptebo Rural Development Centre stands as a testimony to God’s faithfulness. Started in 1986 under the auspices of Africa Inland Mission to promote the spiritual and physical welfare of the community, it now features a demonstration farm and animal husbandry skills to aid sustainable agriculture. The centre also includes a conference facility for 100 guests and a new residential.
+  prayer:
+    - Pray that the ongoing work at the Cheptebo Agricultural and Innovation Centre continues to progress smoothly and that the students from other colleges in Kenya benefit greatly from their attachments, further enhancing the centre’s reputation.
+    - Pray for wisdom and guidance for the leadership of the Cheptebo Rural Development Centre as they implement their new five-year strategic plan. Pray that their work continues to spread the gospel and show the love of Jesus in the Rift Valley.
+    - Pray for the two new churches planted in Torok and Kuber, and that the recent evangelism outreach events bear fruit. Pray especially that more local people, particularly young men who are difficult to reach, will be connected to their local church.
+  links:
+    - title: Watch Cheptebo’s latest video update
+      url: https://www.youtube.com/watch?v=_zXbAze0yWs
+    - title: Visit website
+      url: http://www.cheptebo.org
+
+- name: Invergordon Seafarers Centre
+  subtitle: Port of Invergordon
+  image: seafarers.jpg
+  description: |-
+    The Invergordon Seafarers Centre, led by Port Chaplain Drew Anderson and his wife Liz, assisted by volunteers, welcomes thousands of crew members annually. The centre provides tea, coffee, shortbread, woollen hats, internet access, pastoral care, and warm clothing, while gifting Bibles and booklets in multiple languages. Crew members on incoming vessels also receive parcels with essential items and a New Testament in their native language, which are gratefully received.
+  prayer:
+    - Pray for the crew members that need help and support to be able to get ashore.
+    - Pray for guidance and wisdom when dealing with sensitive/spiritual matters.
+    - Pray for the families at home, separated from loved ones, many for up to ten months.
+  links:
+    - title: Visit website
+      url: https://www.sailors-society.org/
+
 - name: Argyris and Dina Petrou
   subtitle: Community House Damaris, Athens, Greece
   image: petrou.jpg
@@ -39,32 +84,6 @@
       url: https://vimeo.com/1170727599
     - title: Watch the Petrous’ video update
       url: https://vimeo.com/753326927
-
-- name: Manuel and Alba Franco
-  subtitle: Almuñécar, Spain
-  image: franco.jpg
-  description: |-
-    Meet Manuel and Alba Franco, our mission partners in Almuñécar, located in the south of Spain. Together with their son Teo, aged 7, they serve their community fervently.
-
-    Manuel initiated the church two decades ago, witnessing numerous individuals embracing faith throughout the years. Their outreach efforts are diverse, including English classes, Mums and Tots gatherings, weekly radio broadcasts, and distributing Bibles at the local market. Additionally, teams from the UK visit annually to conduct evangelistic activities for local children.
-
-    With a growing congregation, the Francos are actively fundraising for a new church building to accommodate the expanding numbers.
-  prayer:
-    - Pray for the new people who are coming to the church, for the conversion of the non-believers, and for a good adaptation in our community for the believers.
-    - Pray for the children who are coming to the support classes and their families, so that there will also be more new attendance.
-  links:
-    - title: Watch Manuel’s latest video
-      url: https://vimeo.com/1161176362
-    - title: European Mission website
-      url: http://www.europeanmission.org/missionary/manuel-and-alba-lopez-franco
-
-- name: ‘Adam’
-  subtitle: Central Asia
-  image: adam.jpg
-  description: |-
-    Adam’s work is particularly sensitive and it would not be appropriate to provide too many details on a public display.
-
-    ‘Adam’ works with Christians from Central Asia and other refugee groups in the US, Europe and Central Asia. He travels widely to those areas encouraging, teaching, training and bringing practical support to those he meets.
 
 - name: Dan Sempungu
   subtitle: Kisozi Community Church, near Kampala, Uganda
@@ -96,21 +115,6 @@
   links:
     - title: Watch the Merkinch video update
       url: https://vimeo.com/753281396
-
-- name: Voice of Persecuted Christians
-  subtitle: Formerly Release International
-  image: voice-of-persecuted-christians.jpg
-  description: |-
-    Voice of Persecuted Christians is an inter-denominational Christian ministry working through local church partners in more than 25 countries, helping persecuted Christians prayerfully, pastorally and practically. Their ministry is based on Hebrews 13v3: ‘Continue to remember those in prison as if you were together with them in prison, and those who are mistreated as if you yourselves were suffering.’
-
-    They were founded in 1968, inspired by the testimony and ministry of Pastor Richard Wurmbrand, who was imprisoned for his faith for 14 years in communist Romania.
-  prayer:
-    - Give thanks for the recent trauma healing workshop and the profound impact it made on the lives of those who attended.
-    - Pray for continued healing, emotional and spiritual strength.
-    - Pray for the safety of Stefanos’ staff who travel all over the country to conduct workshops.
-  links:
-    - title: Visit website
-      url: http://www.releaseinternational.org
 
 - name: Suraj Kasula
   subtitle: Shekinah Evangelical Church, Bhaktapur, Nepal
@@ -145,22 +149,46 @@
     - title: Visit website
       url: http://www.wakisaministries.com
 
-- name: Dwelling Places
-  subtitle: Uganda
-  image: dwelling-places.jpg
+- name: Manuel and Alba Franco
+  subtitle: Almuñécar, Spain
+  image: franco.jpg
   description: |-
-    Dwelling Places began in 2002 and is a Christian NGO dedicated to the rescue and rehabilitation of street children, abandoned babies and high-risk slum families in Uganda.
+    Meet Manuel and Alba Franco, our mission partners in Almuñécar, located in the south of Spain. Together with their son Teo, aged 7, they serve their community fervently.
 
-    Dwelling Places follows a holistic program to restore and rebuild the children and families in its care. The ‘Restore’ program is dedicated to rescuing vulnerable children and rehabilitating them through healthcare, education and reconciliation with their families, helping them to welcome their children back into the home, and to enable alumni to develop and enjoy a sustainable way of life after leaving Dwelling Places.
+    Manuel initiated the church two decades ago, witnessing numerous individuals embracing faith throughout the years. Their outreach efforts are diverse, including English classes, Mums and Tots gatherings, weekly radio broadcasts, and distributing Bibles at the local market. Additionally, teams from the UK visit annually to conduct evangelistic activities for local children.
+
+    With a growing congregation, the Francos are actively fundraising for a new church building to accommodate the expanding numbers.
   prayer:
-    - Pray for the provision of resources for our Transitional Rehabilitation Home. Dwelling Places would like to take on at least 100 girls and effectively rehabilitate them but they are limited by resources.
-    - Pray that all of the families of these precious children will be found and there will be successful reconciliation and reintegration.
-    - Pray for the staff who are at the forefront of this work to have the wisdom, patience, compassion and love for the children as they serve, especially during the Rehabilitation Process.
+    - Pray for the new people who are coming to the church, for the conversion of the non-believers, and for a good adaptation in our community for the believers.
+    - Pray for the children who are coming to the support classes and their families, so that there will also be more new attendance.
   links:
-    - title: Watch Dwelling Places’ latest video update
-      url: https://youtu.be/wMSkh6Jlc28
+    - title: Watch Manuel’s latest video
+      url: https://vimeo.com/1161176362
+    - title: European Mission website
+      url: http://www.europeanmission.org/missionary/manuel-and-alba-lopez-franco
+
+- name: ‘Adam’
+  subtitle: Central Asia
+  image: adam.jpg
+  description: |-
+    Adam’s work is particularly sensitive and it would not be appropriate to provide too many details on a public display.
+
+    ‘Adam’ works with Christians from Central Asia and other refugee groups in the US, Europe and Central Asia. He travels widely to those areas encouraging, teaching, training and bringing practical support to those he meets.
+
+- name: Voice of Persecuted Christians
+  subtitle: Formerly Release International
+  image: voice-of-persecuted-christians.jpg
+  description: |-
+    Voice of Persecuted Christians is an inter-denominational Christian ministry working through local church partners in more than 25 countries, helping persecuted Christians prayerfully, pastorally and practically. Their ministry is based on Hebrews 13v3: ‘Continue to remember those in prison as if you were together with them in prison, and those who are mistreated as if you yourselves were suffering.’
+
+    They were founded in 1968, inspired by the testimony and ministry of Pastor Richard Wurmbrand, who was imprisoned for his faith for 14 years in communist Romania.
+  prayer:
+    - Give thanks for the recent trauma healing workshop and the profound impact it made on the lives of those who attended.
+    - Pray for continued healing, emotional and spiritual strength.
+    - Pray for the safety of Stefanos’ staff who travel all over the country to conduct workshops.
+  links:
     - title: Visit website
-      url: http://www.dwellingplaces.org/
+      url: http://www.releaseinternational.org
 
 - name: Christian Solidarity Worldwide (CSW)
   subtitle: Africa, Asia, Latin America & the Middle East
@@ -176,31 +204,3 @@
       url: https://vimeo.com/657799673
     - title: Visit website
       url: http://www.csw.org.uk
-
-- name: Cheptebo Rural Development Centre
-  subtitle: Kerio Valley, Kenya
-  image: cheptebo.jpg
-  description: |-
-    Set in the beautiful Kerio Valley of Western Kenya, the Cheptebo Rural Development Centre stands as a testimony to God’s faithfulness. Started in 1986 under the auspices of Africa Inland Mission to promote the spiritual and physical welfare of the community, it now features a demonstration farm and animal husbandry skills to aid sustainable agriculture. The centre also includes a conference facility for 100 guests and a new residential.
-  prayer:
-    - Pray that the ongoing work at the Cheptebo Agricultural and Innovation Centre continues to progress smoothly and that the students from other colleges in Kenya benefit greatly from their attachments, further enhancing the centre’s reputation.
-    - Pray for wisdom and guidance for the leadership of the Cheptebo Rural Development Centre as they implement their new five-year strategic plan. Pray that their work continues to spread the gospel and show the love of Jesus in the Rift Valley.
-    - Pray for the two new churches planted in Torok and Kuber, and that the recent evangelism outreach events bear fruit. Pray especially that more local people, particularly young men who are difficult to reach, will be connected to their local church.
-  links:
-    - title: Watch Cheptebo’s latest video update
-      url: https://www.youtube.com/watch?v=_zXbAze0yWs
-    - title: Visit website
-      url: http://www.cheptebo.org
-
-- name: Invergordon Seafarers Centre
-  subtitle: Port of Invergordon
-  image: seafarers.jpg
-  description: |-
-    The Invergordon Seafarers Centre, led by Port Chaplain Drew Anderson and his wife Liz, assisted by volunteers, welcomes thousands of crew members annually. The centre provides tea, coffee, shortbread, woollen hats, internet access, pastoral care, and warm clothing, while gifting Bibles and booklets in multiple languages. Crew members on incoming vessels also receive parcels with essential items and a New Testament in their native language, which are gratefully received.
-  prayer:
-    - Pray for the crew members that need help and support to be able to get ashore.
-    - Pray for guidance and wisdom when dealing with sensitive/spiritual matters.
-    - Pray for the families at home, separated from loved ones, many for up to ten months.
-  links:
-    - title: Visit website
-      url: https://www.sailors-society.org/

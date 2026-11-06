@@ -404,6 +404,12 @@ a.info-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,
   background: #fff; text-decoration: none; font: 500 0.92rem var(--font-head);
 }
 .day-links a:hover, .partner-links a:hover { background: var(--blue); border-color: var(--blue); color: #fff; }
+/* Wide screens: bigger partner buttons, each row spread to fill the width (rows are balanced by the
+   order in content/missions.yml). */
+@media (min-width: 1160px) {
+  .partner-links { justify-content: space-between; row-gap: 0.75rem; column-gap: 0.75rem; }
+  .partner-links a { font-size: 1.05rem; padding: 0.55rem 1.5rem; }
+}
 
 /* ---------- Team ---------- */
 
