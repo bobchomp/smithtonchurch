@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import PageBanner from "@/components/PageBanner";
+import LostPage from "@/components/LostPage";
 import { navigation, site } from "@/lib/content";
 
 export const metadata: Metadata = { title: "Page not found", robots: { index: false } };
@@ -12,17 +11,10 @@ export const metadata: Metadata = { title: "Page not found", robots: { index: fa
 export default function NotFound() {
   return (
     <>
+      <a className="skip-link" href="#main">Skip to content</a>
       <Header navigation={navigation} churchsuiteLink={site.churchsuite_link} />
       <main id="main">
-        <PageBanner title="Page not found" />
-        <section className="section">
-          <div className="container narrow center prose">
-            <p>Sorry, we couldn’t find that page. It may have moved when the website was updated.</p>
-            <p>
-              <Link className="button" href="/">Go to the home page</Link>
-            </p>
-          </div>
-        </section>
+        <LostPage />
       </main>
       <Footer />
     </>
