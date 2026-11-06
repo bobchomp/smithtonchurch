@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import PageBanner from "@/components/PageBanner";
 import { site } from "@/lib/content";
+import ExternalIcon from "@/components/ExternalIcon";
 
 export const metadata: Metadata = pageMetadata("/giving/", {
   title: "Giving",
@@ -34,7 +35,11 @@ export default function Giving() {
                 applicable, and supports the General Fund of the church.
               </p>
               <p>
-                <a className="button" href={site.donate_link}>Make a donation</a>
+                <a className="button" href={site.donate_link} target="_blank" rel="noopener noreferrer">
+                  <ExternalIcon />
+                  Make a donation
+                  <span className="visually-hidden"> (opens in a new tab)</span>
+                </a>
               </p>
             </div>
           </div>
