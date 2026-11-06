@@ -661,7 +661,6 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
   font: 600 0.95rem var(--font-head); text-decoration: none; transition: background 0.15s;
 }
 .site-footer a.footer-button:hover { background: var(--blue-light); color: var(--blue-dark); }
-.footer-credit { margin: 1.25rem 0 0; font-size: 0.85rem; opacity: 0.85; }
 .footer-bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.25); margin-top: 2.5rem; padding-top: 1.25rem;
