@@ -24,7 +24,7 @@
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
   gets each sermon's Bible book from its `?book=` filter lists (or the title).
 - The livestream player (site.yml `livestream_embed`) is on its own page, /live/ (with this week's bulletin via
-  `components/BulletinBox.tsx`); the home page has a "Watch online" card linking to it, and the footer has a "Live Services" button to it, and the phone/tablet menu has "Live Services" (`mobileOnly` in navigation.yml, hidden in the full desktop menu above 1300px).
+  `components/BulletinBox.tsx`); the home page has a "Watch online" card linking to it, and the footer has a "Live Services" button to it, and the menu has "Live Services" (the full desktop menu shows from 1366px; below that the Menu button. Items can be `mobileOnly` in navigation.yml).
 - Live Notices (Admin → Live Notices, `lib/live-notices.ts`, `lib/live-notice-types.ts`): scheduled text/image notices above the
   player on /live/. Stored in the private bucket (`live-notices/index.json`, so future ones stay hidden), images in
   `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches

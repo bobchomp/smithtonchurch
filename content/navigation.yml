@@ -17,7 +17,6 @@
   url: /sermons/
 - title: Live Services
   url: /live/
-  mobileOnly: true # only in the phone/tablet menu; the desktop menu is full
 - title: Weekly Bulletin
   url: /weekly-bulletin/
 - title: Missions
