@@ -26,6 +26,7 @@ export type SermonInput = {
 // Refresh the archive and the sermon's page (under its old address too, if the title changed).
 function refresh(...sermons: (Pick<Sermon, "id" | "title"> | undefined)[]) {
   revalidatePath("/sermons");
+  revalidatePath("/"); // the home page shows the latest sermon
   for (const sermon of sermons) if (sermon) revalidatePath(sermonPath(sermon).replace(/\/$/, ""));
   revalidatePath("/admin/sermons");
 }
@@ -132,6 +133,7 @@ export async function syncLivestreamsNow(): Promise<{ message: string; ok: boole
   try {
     const { count, changedPaths } = await syncLivestreams();
     revalidatePath("/sermons");
+    revalidatePath("/");
     for (const path of changedPaths) revalidatePath(path);
     revalidatePath("/admin/sermons");
     return { ok: true, message: `Found ${count} past livestream${count === 1 ? "" : "s"} on YouTube.` };

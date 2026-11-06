@@ -3,8 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 import SocialLinks from "@/components/SocialLinks";
+import ThisWeek from "@/components/ThisWeek";
 import { site } from "@/lib/content";
 import { pageMetadata } from "@/lib/seo";
+
+// Refreshed when a sermon or bulletin changes in the admin panel, and hourly as a fallback.
+export const revalidate = 3600;
 
 export const metadata: Metadata = pageMetadata("/", { title: { absolute: `${site.title}, Inverness` } });
 
@@ -110,6 +114,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <ThisWeek />
 
       <section className="section section-tight">
         <div className="container info-cards">

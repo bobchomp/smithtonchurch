@@ -12,7 +12,10 @@ import { describeStorageError } from "@/lib/supabase";
 async function refreshPages(kind: DocumentKind, date?: string) {
   revalidatePath(DOCUMENT_TYPES[kind].publicPath);
   revalidatePath(DOCUMENT_TYPES[kind].adminPath);
-  if (kind === "bulletin") revalidatePath("/live");
+  if (kind === "bulletin") {
+    revalidatePath("/live");
+    revalidatePath("/"); // the home page shows this week's bulletin
+  }
   if (kind !== "bulletin" || !date) return;
   const sermons = await loadSermons().catch(() => []);
   for (const s of sermons) if (s.date === date) revalidatePath(sermonPath(s).replace(/\/$/, ""));
