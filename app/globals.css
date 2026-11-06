@@ -296,6 +296,11 @@ p { margin: 0 0 1em; }
 }
 .livestream p { margin: 0.75rem 0 0; font-size: 0.95rem; color: var(--muted); }
 
+/* ---------- Privacy notice ---------- */
+
+.privacy h2 { font-size: 1.35rem; margin-top: 2.25rem; }
+.privacy-updated { color: var(--muted); font-size: 0.95rem; }
+
 /* ---------- Page not found (components/LostPage.tsx) ---------- */
 
 .lost { background: var(--bg-alt); padding: clamp(3rem, 8vw, 6rem) 0; text-align: center; }
