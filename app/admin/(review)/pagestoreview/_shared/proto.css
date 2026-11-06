@@ -112,3 +112,7 @@
   .pc-bar-inner { flex-direction: column; gap: 0.4rem; }
   .pc-bar .button { margin-top: 0.4rem; }
 }
+
+/* ---------- D: C's opening, as tall as C's photo and service bar together ---------- */
+.pd-hero { min-height: clamp(376px, calc(48vh + 76px), 536px); }
+@media (max-width: 760px) { .pd-hero { min-height: clamp(376px, calc(48vh + 76px), 460px); } }

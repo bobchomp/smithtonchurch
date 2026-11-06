@@ -1,6 +1,12 @@
 // The pages listed in Admin → Pages to Review. Each slug is the random folder name of its page.
 export const REVIEW_PAGES = [
   {
+    slug: "acqxddpkhpgwyn",
+    title: "Home page: option D, mix of A, B and C",
+    summary:
+      "C’s opening photo and welcome (taller, without the service-times strip), A’s “You found us” section with the church photo, This week at Smithton, B’s Find us section with the map, then the contact form.",
+  },
+  {
     slug: "srvdphhloawpna",
     title: "Home page: option A, “Welcome & essentials”",
     summary:
