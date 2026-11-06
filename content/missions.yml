@@ -2,6 +2,8 @@
 # "name" is the heading (just the people or organisation); "subtitle" is the line under it
 # (their organisation and/or where they are).
 # Images live in public/images/missions/. Everything except "name" is optional.
+# "map" is a location map in public/images/missions/maps/ shown under the photo; "map_place" describes it
+# for people who can't see it (e.g. "Kampala, Uganda").
 # "links" can point to websites, videos or newsletters (PDFs go in public/docs/missions/); each
 # is shown as a button, using "title" as its text.
 
@@ -27,6 +29,8 @@
 - name: Dwelling Places
   subtitle: Uganda
   image: dwelling-places.jpg
+  map: dwelling-places.jpg
+  map_place: Kampala, Uganda
   description: |-
     Dwelling Places began in 2002 and is a Christian NGO dedicated to the rescue and rehabilitation of street children, abandoned babies and high-risk slum families in Uganda.
 
@@ -44,6 +48,8 @@
 - name: Cheptebo Rural Development Centre
   subtitle: Kerio Valley, Kenya
   image: cheptebo.jpg
+  map: cheptebo.jpg
+  map_place: the Kerio Valley, Kenya
   description: |-
     Set in the beautiful Kerio Valley of Western Kenya, the Cheptebo Rural Development Centre stands as a testimony to God’s faithfulness. Started in 1986 under the auspices of Africa Inland Mission to promote the spiritual and physical welfare of the community, it now features a demonstration farm and animal husbandry skills to aid sustainable agriculture. The centre also includes a conference facility for 100 guests and a new residential.
   prayer:
@@ -59,6 +65,8 @@
 - name: Invergordon Seafarers Centre
   subtitle: Port of Invergordon
   image: seafarers.jpg
+  map: seafarers.jpg
+  map_place: Invergordon, Scotland
   description: |-
     The Invergordon Seafarers Centre, led by Port Chaplain Drew Anderson and his wife Liz, assisted by volunteers, welcomes thousands of crew members annually. The centre provides tea, coffee, shortbread, woollen hats, internet access, pastoral care, and warm clothing, while gifting Bibles and booklets in multiple languages. Crew members on incoming vessels also receive parcels with essential items and a New Testament in their native language, which are gratefully received.
   prayer:
@@ -72,6 +80,8 @@
 - name: Argyris and Dina Petrou
   subtitle: Community House Damaris, Athens, Greece
   image: petrou.jpg
+  map: petrou.jpg
+  map_place: Athens, Greece
   description: |-
     Argyris was previously the Principal of the Greek Bible College in Athens (the only Bible college in Greece). He still lectures extensively, but has now stepped down from leadership to help provide the ever-increasing logistical support required by the work of Damaris House.
 
@@ -88,6 +98,8 @@
 - name: Dan Sempungu
   subtitle: Kisozi Community Church, near Kampala, Uganda
   image: dan.jpg
+  map: dan.jpg
+  map_place: near Kampala, Uganda
   description: |-
     Born in 1990 into a Muslim household, Dan faced hardship from a young age, living in Kampala’s slums and streets after his father’s death when he was just 3.
 
@@ -104,6 +116,8 @@
 - name: Merkinch Free Church
   subtitle: Merkinch & South Kessock, Inverness
   image: merkinch.jpg
+  map: merkinch.jpg
+  map_place: Merkinch, Inverness
   description: |-
     Merkinch Free Church is a church plant serving the communities of Merkinch and South Kessock in Inverness. Despite the strong sense of community, this area is now classified by the government as the 8th most deprived area in Scotland.
 
@@ -119,6 +133,8 @@
 - name: Suraj Kasula
   subtitle: Shekinah Evangelical Church, Bhaktapur, Nepal
   image: suraj.jpg
+  map: suraj.jpg
+  map_place: Bhaktapur, Nepal
   description: |-
     Suraj Kasula is the pastor of Shekinah Evangelical Church in Bhaktapur, Nepal, and a lecturer at Bhaktapur Theological Seminary. He is dedicated to making the seminary a centre for reformed theology in Nepal and is involved in constructing a multi-storey building for the church and seminary. Suraj is also active in supporting church plants in Eastern Nepal, providing essential aid and fostering inclusive worship communities. Alongside his wife Roshani and their two daughters, Hadassah and Esther, he works tirelessly to spread the gospel and support his community amidst challenging conditions.
 
@@ -136,6 +152,8 @@
 - name: Wakisa Ministries
   subtitle: Uganda
   image: wakisa.jpg
+  map: wakisa.jpg
+  map_place: Buyera, Wakiso District, Uganda
   description: |-
     Wakisa is a pregnancy crisis centre focused on love, faith, and hope in the heart of Uganda. At its core, Wakisa stands for “The promotion of dignity and self esteem of young girls in Uganda with crisis pregnancy while addressing their emotional, physical and spiritual well being. This is achieved by providing temporary shelter, counselling and care services, providing opportunities for Christian growth and discipleship and equipping them with life and vocational skills, thus transforming lives of this vulnerable group.”
   prayer:
@@ -152,6 +170,8 @@
 - name: Manuel and Alba Franco
   subtitle: Almuñécar, Spain
   image: franco.jpg
+  map: franco.jpg
+  map_place: Almuñécar, Spain
   description: |-
     Meet Manuel and Alba Franco, our mission partners in Almuñécar, located in the south of Spain. Together with their son Teo, aged 7, they serve their community fervently.
 

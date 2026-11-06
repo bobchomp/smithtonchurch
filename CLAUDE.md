@@ -34,6 +34,8 @@
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
 - Home page "This week at Smithton" (`components/ThisWeek.tsx`): the latest sermon (thumbnail, no player, links to its
   page) and this week's bulletin (links to /weekly-bulletin/). The home page revalidates hourly and on sermon/bulletin changes.
+- Missions: partners with a specific place have a location map (`map`/`map_place` in content/missions.yml, images in
+  public/images/missions/maps/, 1000×750, made from Natural Earth data in the site's colours) shown under their photo.
 - Each Sunday sermon's page links to that Sunday's bulletin (`bulletinForDate` in lib/documents.ts; weekday services get none);
   uploading or deleting a bulletin refreshes that Sunday's sermon pages.
 - Sermons record only Bible books (no chapter/verse), by the owner's choice. A sermon can have several: `books` (array,

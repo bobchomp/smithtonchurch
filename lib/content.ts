@@ -50,6 +50,8 @@ export type MissionPartner = {
   name: string;
   subtitle?: string;
   image?: string;
+  map?: string; // public/images/missions/maps/
+  map_place?: string;
   description?: string;
   prayer?: string[];
   links?: { title: string; url: string }[];

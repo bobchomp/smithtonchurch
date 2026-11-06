@@ -67,16 +67,31 @@ export default function Missions() {
       {missions.map((partner, i) => (
         <section className={`section partner${i % 2 ? " section-alt" : ""}`} id={slugify(partner.name)} key={partner.name}>
           <div className="container partner-inner">
-            {partner.image && (
-              <Image
-                className="partner-image"
-                src={`/images/missions/${partner.image}`}
-                alt=""
-                width={1000}
-                height={1000}
-                sizes="(max-width: 800px) 360px, 320px"
-                style={{ height: "auto" }}
-              />
+            {(partner.image || partner.map) && (
+              <div className="partner-media">
+                {partner.image && (
+                  <Image
+                    className="partner-image"
+                    src={`/images/missions/${partner.image}`}
+                    alt=""
+                    width={1000}
+                    height={1000}
+                    sizes="(max-width: 800px) 360px, 320px"
+                    style={{ height: "auto" }}
+                  />
+                )}
+                {partner.map && (
+                  <Image
+                    className="partner-image partner-map"
+                    src={`/images/missions/maps/${partner.map}`}
+                    alt={`Map showing ${partner.map_place ?? "where they are"}`}
+                    width={1000}
+                    height={750}
+                    sizes="(max-width: 800px) 360px, 320px"
+                    style={{ height: "auto" }}
+                  />
+                )}
+              </div>
             )}
             <div className="prose">
               <h2>{partner.name}</h2>

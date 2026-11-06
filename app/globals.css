@@ -627,6 +627,7 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 
 .partner-inner { display: grid; grid-template-columns: 320px 1fr; gap: 2.5rem; align-items: start; }
 .partner-image { width: 100%; border-radius: var(--radius); box-shadow: var(--shadow); }
+.partner-media { display: grid; gap: 1rem; }
 .partner .prose { max-width: 720px; }
 .partner h2 { margin-bottom: 0.25rem; }
 .partner .eyebrow { margin-bottom: 1rem; }
@@ -643,6 +644,7 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 @media (max-width: 800px) {
   .mission-intro, .partner-inner { grid-template-columns: 1fr; gap: 1.5rem; }
   .partner-image { max-width: 360px; }
+  .partner-media { justify-items: start; }
 }
 
 /* ---------- Venue ---------- */
