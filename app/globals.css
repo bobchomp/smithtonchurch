@@ -676,6 +676,14 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 /* ---------- Admin panel ---------- */
 
 .admin { min-height: 100vh; background: var(--bg-alt); }
+.review-page { background: var(--bg); }
+.review-badge {
+  position: fixed; left: 50%; bottom: 1rem; transform: translateX(-50%); z-index: 60; white-space: nowrap;
+  background: #b42318; color: #fff; font: 600 0.85rem var(--font-head); padding: 0.45rem 1rem; border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); text-decoration: none;
+}
+.review-badge:hover { color: #fff; background: #8f1c13; }
+.admin-review-open { margin-top: 0.75rem !important; color: var(--blue) !important; font-weight: 600; }
 
 .admin-login { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 1.25rem; }
 .admin-login-card {

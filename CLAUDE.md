@@ -13,6 +13,9 @@
 - Admin auth: a single `ADMIN_PIN` env var (`lib/admin-auth.ts`). Pages inside `app/admin/(panel)/`
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` itself.
 - Add each new admin tool as a card on `app/admin/(panel)/page.tsx`.
+- Admin → Pages to Review (`app/admin/(panel)/pagestoreview/`): drafts for the owner to look at before they go live, at
+  `/admin/pagestoreview/<random slug>/` (`app/admin/(review)/pagestoreview/`, listed in `_shared/options.ts`). They render with the public
+  header/footer behind `requireAdmin()` and noindex. Keep slugs random (not guessable). The live pages are untouched by them.
 - Uploaded PDFs (weekly bulletin, Marsali's newsletter) share one system: `lib/document-types.ts` (kinds, dated by
   day or month), `lib/documents.ts` (storage), `app/admin/(panel)/_documents/` (admin) and
   `components/Document*.tsx` (public). Add a new kind to DOCUMENT_TYPES rather than copying code.

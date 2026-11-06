@@ -49,6 +49,10 @@ export default async function AdminDashboard() {
           </h2>
           <p>Show a message or image above the player on the Watch Live page, between the times you choose.</p>
         </Link>
+        <Link className="admin-tool" href="/admin/pagestoreview/">
+          <h2>Pages to Review</h2>
+          <p>Draft page designs to look over before they go live on the website.</p>
+        </Link>
         <Link className="admin-tool" href="/admin/marsalis-newsletter/">
           <h2>Marsali’s Newsletter</h2>
           <p>Upload Marsali’s monthly newsletter to her page on the website.</p>
