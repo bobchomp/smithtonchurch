@@ -10,6 +10,15 @@ export default function Footer() {
         <div className="footer-brand">
           <Image src="/images/logo-white.png" alt="Smithton Church" width={600} height={123} />
           <SocialLinks />
+          <a className="footer-freechurch" href="https://freechurch.org/" target="_blank" rel="noopener noreferrer">
+            <Image
+              src="/images/freechurch-logos/FC%20Logo_Horizontal%20-%20Solid%20White.png"
+              alt="Free Church of Scotland"
+              width={1500}
+              height={302}
+            />
+            <span className="visually-hidden"> (opens in a new tab)</span>
+          </a>
         </div>
         <div>
           <h2>Visit us</h2>
