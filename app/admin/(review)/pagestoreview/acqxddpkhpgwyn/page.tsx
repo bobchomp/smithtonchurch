@@ -56,6 +56,33 @@ export default function ProtoD() {
         </div>
       </section>
 
+      <section className="section section-alt pd-freechurch">
+        <div className="container pd-freechurch-inner">
+          <Image
+            src="/images/freechurch-logos/FC%20Logo_Vertical%20-%20Color.png"
+            alt="Free Church of Scotland"
+            width={1500}
+            height={958}
+          />
+          <div>
+            <h2>Part of the Free Church of Scotland</h2>
+            <p>
+              Smithton Church, known formally as Smithton &amp; Culloden Free Church, is a congregation of the Free Church
+              of Scotland, a family of churches across Scotland and beyond. We share its belief that the Bible is the
+              true Word of God, and that through trusting in Jesus as Lord our wrongdoing is forgiven and we receive the
+              gift of new and everlasting life.
+            </p>
+            <p>As a Church, our beliefs are summarised in the Westminster Confession of Faith.</p>
+            <p className="actions">
+              <Link className="button" href="/about-us/#what-we-believe">What we believe</Link>
+              <a className="button button-outline" href="https://freechurch.org/" target="_blank" rel="noopener noreferrer">
+                Free Church of Scotland<span className="visually-hidden"> (opens in a new tab)</span>
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <ContactForm />
     </>
   );

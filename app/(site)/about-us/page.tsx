@@ -45,7 +45,7 @@ export default function AboutUs() {
 
       <section className="section section-alt">
         <div className="container narrow prose">
-          <h2 className="section-title">What we believe</h2>
+          <h2 className="section-title" id="what-we-believe">What we believe</h2>
           <p>
             We believe that the Bible clearly teaches us about God’s plan for the world, about the root cause of all of
             the problems and challenges in life (sin), and that God sent his son Jesus to the world with a message of
