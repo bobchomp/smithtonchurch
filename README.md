@@ -65,8 +65,8 @@ Everyone who looks after the website has their own login (email and password), k
 - New people get an email invitation with a link to choose their password. "Forgot your
   password?" on the sign-in page sends a reset link. These emails are sent through Resend, so
   `RESEND_API_KEY` must be set.
-- The shared **backup PIN** (`ADMIN_PIN` in Vercel) still works from "Use the backup PIN" on the
-  sign-in page, with owner access. Use at least 8 digits. Changing it signs everyone out.
+- The shared **backup PIN** (`ADMIN_PIN` in Vercel) still works, with owner access. It's hidden:
+  tap the Smithton Church logo on the sign-in page ten times quickly to show the PIN box. Use at least 8 digits. Changing it signs everyone out.
 
 Getting started: sign in with the backup PIN, open **Users**, and invite yourself as an owner.
 

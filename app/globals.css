@@ -705,6 +705,7 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 .admin-login-form .button:disabled { opacity: 0.7; cursor: wait; }
 .admin-login-form input[type="email"], .admin-login-form input[name="password"], .admin-login-form input[name="confirm"] { letter-spacing: normal; font-size: 1rem; }
 .admin-login-form .admin-muted { font-weight: 400; font-size: 0.85rem; }
+.admin-login-logo { user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .admin-login-help { margin: 0; color: var(--muted); font-size: 0.95rem; }
 .admin-login-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
 .admin-login-switch { background: none; border: 0; padding: 0.25rem 0; font: inherit; font-size: 0.9rem; color: var(--blue); text-decoration: underline; cursor: pointer; }
