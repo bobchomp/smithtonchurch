@@ -13,6 +13,11 @@ export default async function PagesToReview() {
         Draft designs to look over before anything changes on the website. Each opens in a new tab, exactly as it would
         look on the site, with the real sermons and bulletins. Only people signed in to the admin panel can see them.
       </p>
+      {REVIEW_PAGES.length === 0 && (
+        <section className="admin-panel">
+          <p className="admin-muted">There are no pages to review at the moment.</p>
+        </section>
+      )}
       <div className="admin-tools">
         {REVIEW_PAGES.map((p) => (
           <a key={p.slug} className="admin-tool" href={`/admin/pagestoreview/${p.slug}/`} target="_blank" rel="noopener noreferrer">

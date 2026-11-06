@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
+import ExternalIcon from "@/components/ExternalIcon";
 import SocialLinks from "@/components/SocialLinks";
 import ThisWeek from "@/components/ThisWeek";
 import { site } from "@/lib/content";
@@ -44,12 +45,17 @@ function churchDetails() {
   };
 }
 
-const infoCards = [
-  { accent: "#00bc87", title: "Drop us a line", href: "#contact", lines: [`Fill out the contact form below or call ${site.phone}`] },
-  { accent: "#00bca9", title: "Find us", href: site.maps_link, lines: site.address_lines },
-  { accent: "#9956a0", title: "Office hours", lines: ["Monday–Friday", "9am–5pm"] },
-  { accent: "#dd972e", title: "Meet us", href: "/team/", lines: ["Ministry Team", "Support Team"] },
-];
+const icon = (d: string) => (
+  <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d={d} />
+  </svg>
+);
+const ICONS = {
+  pin: "M12 21s-6-5.5-6-11a6 6 0 0 1 12 0c0 5.5-6 11-6 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  phone: "M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z",
+  mail: "M3 6h18v12H3zM3 7l9 6 9-6",
+  clock: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2",
+};
 
 export default function Home() {
   return (
@@ -59,108 +65,98 @@ export default function Home() {
         // JSON.stringify output with "<" escaped, so it can't close the script tag.
         dangerouslySetInnerHTML={{ __html: JSON.stringify(churchDetails()).replace(/</g, "\\u003c") }}
       />
-      <section className="hero">
+
+      <section className="home-hero">
         <Image
           src="/images/hero-aerial.jpg"
           alt="Aerial view of Smithton Church and the surrounding area"
-          width={2400}
-          height={1350}
-          sizes="100vw"
+          fill
           priority
+          sizes="100vw"
         />
-      </section>
-
-      <section className="section welcome">
-        <div className="container narrow">
+        <div className="home-hero-inner">
           <h1>Welcome to Smithton Church!</h1>
-          <p className="lead">You found us! We are delighted that you did.</p>
-          <p>
-            Whether you are looking for a spiritual home to learn more about Jesus and what it means to live for him,
-            or for a place to worship while on holiday in the Highland capital, we hope you will find the information
-            you need on this site.
-          </p>
-          <p>
-            If you don’t find what you are looking for, please do <a href="#contact">get in touch</a>.
-          </p>
-          <p>We look forward to welcoming you to Smithton Church.</p>
+          <p>{site.tagline.replace(" - ", " – ")}</p>
         </div>
       </section>
 
-      <section className="section section-tight">
-        <div className="container services-row">
-          <div className="service-times">
-            <h2>Service Times</h2>
-            <dl>
-              <div><dt>Morning Service</dt><dd>10:30am</dd></div>
-              <div><dt>Evening Service</dt><dd>5:30pm</dd></div>
-            </dl>
-            <hr />
-            <dl>
-              <div><dt>1st, 3rd &amp; 5th Wednesday<br />Church Night</dt><dd>7:30pm</dd></div>
-              <div><dt>2nd &amp; 4th Wednesday<br />Community Groups</dt><dd>7:30pm</dd></div>
-            </dl>
+      <section className="section">
+        <div className="container home-welcome">
+          <div>
+            <h2>You found us! We are delighted that you did.</h2>
+            <p>
+              Whether you are looking for a spiritual home to learn more about Jesus and what it means to live for him,
+              or for a place to worship while on holiday in the Highland capital, we hope you will find the information
+              you need on this site.
+            </p>
+            <p>We look forward to welcoming you to Smithton Church.</p>
+            <p className="actions">
+              <Link className="button" href="/about-us/">About us</Link>
+              <Link className="button button-outline" href="/team/">Meet the team</Link>
+            </p>
           </div>
-          <div className="watch-online">
-            <h2>Watch online</h2>
-            <p>Can’t make it in person? Our Sunday services are streamed live, so you can join us from wherever you are.</p>
-            <div className="actions">
-              <Link className="button" href="/live/">
-                Watch live
-              </Link>
-              <Link className="button button-outline" href="/sermons/">
-                Past sermons
-              </Link>
-            </div>
-          </div>
+          <Image
+            className="home-welcome-img"
+            src="/images/venue/church.jpg"
+            alt="Smithton Church from the car park"
+            width={900}
+            height={540}
+            sizes="(max-width: 900px) 100vw, 540px"
+          />
         </div>
       </section>
 
       <ThisWeek />
 
-      <section className="section section-tight">
-        <div className="container info-cards">
-          {infoCards.map((card, i) => {
-            const body = (
-              <>
-                <span className="info-num">{i + 1}</span>
-                <h3>{card.title}</h3>
-                <p>
-                  {card.lines.map((line, j) => (
-                    <span key={line}>
-                      {j > 0 && <br />}
-                      {line}
-                    </span>
-                  ))}
-                </p>
-              </>
-            );
-            const style = { "--accent": card.accent } as React.CSSProperties;
-            if (!card.href) return <div className="info-card" style={style} key={card.title}>{body}</div>;
-            if (card.href.startsWith("/"))
-              return <Link className="info-card" style={style} href={card.href} key={card.title}>{body}</Link>;
-            return <a className="info-card" style={style} href={card.href} key={card.title}>{body}</a>;
-          })}
+      <section className="section">
+        <div className="container home-find">
+          <div>
+            <h2>Find us</h2>
+            <ul className="home-find-list">
+              <li>{icon(ICONS.pin)}<span>{site.address_lines.join(", ")}</span></li>
+              <li>{icon(ICONS.phone)}<a href={`tel:${site.phone_link}`}>{site.phone}</a></li>
+              <li>{icon(ICONS.mail)}<a href={`mailto:${site.email}`}>{site.email}</a></li>
+              <li>{icon(ICONS.clock)}<span>Office: {site.office_hours}</span></li>
+            </ul>
+            <SocialLinks />
+          </div>
+          <iframe
+            className="home-map"
+            src={site.maps_embed}
+            title="Map showing Smithton Church, Murray Road, Inverness"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      </section>
+
+      <section className="section section-alt">
+        <div className="container home-freechurch">
+          <Image
+            src="/images/freechurch-logos/FC%20Logo_Vertical%20-%20Color.png"
+            alt="Free Church of Scotland"
+            width={1500}
+            height={958}
+          />
+          <div>
+            <h2>We are part of the Free Church of Scotland</h2>
+            <p>
+              Smithton Church, known formally as Smithton &amp; Culloden Free Church, is a congregation of the Free Church
+              of Scotland, a denomination of churches across Scotland and beyond.
+            </p>
+            <p className="actions">
+              <Link className="button" href="/about-us/#what-we-believe">What we believe</Link>
+              <a className="button button-outline" href="https://freechurch.org/" target="_blank" rel="noopener noreferrer">
+                <ExternalIcon />
+                Free Church of Scotland
+                <span className="visually-hidden"> (opens in a new tab)</span>
+              </a>
+            </p>
+          </div>
         </div>
       </section>
 
       <ContactForm />
-
-      <section className="section section-tight follow">
-        <div className="container">
-          <h2 className="section-title">Follow us</h2>
-          <SocialLinks />
-        </div>
-      </section>
-
-      <section className="map">
-        <iframe
-          src={site.maps_embed}
-          title="Map showing Smithton Church, Murray Road, Inverness"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          allowFullScreen
-        />
-      </section>
     </>
   );
 }

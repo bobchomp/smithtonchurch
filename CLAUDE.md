@@ -14,7 +14,7 @@
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` itself.
 - Add each new admin tool as a card on `app/admin/(panel)/page.tsx`.
 - Admin → Pages to Review (`app/admin/(panel)/pagestoreview/`): drafts for the owner to look at before they go live, at
-  `/admin/pagestoreview/<random slug>/` (`app/admin/(review)/pagestoreview/`, listed in `_shared/options.ts`). They render with the public
+  `/admin/pagestoreview/<random slug>/` (`app/admin/(review)/pagestoreview/`, listed in `_shared/options.ts`; empty when there's nothing to review). They render with the public
   header/footer behind `requireAdmin()` and noindex. Keep slugs random (not guessable). The live pages are untouched by them.
 - Uploaded PDFs (weekly bulletin, Marsali's newsletter) share one system: `lib/document-types.ts` (kinds, dated by
   day or month), `lib/documents.ts` (storage), `app/admin/(panel)/_documents/` (admin) and
@@ -27,11 +27,13 @@
   http-only, which this environment can't reach). The old site's sermon pages don't show passages, so the import
   gets each sermon's Bible book from its `?book=` filter lists (or the title).
 - The livestream player (site.yml `livestream_embed`) is on its own page, /live/ (with this week's bulletin via
-  `components/BulletinBox.tsx`); the home page has a "Watch online" card linking to it, and the footer has a "Live Services" button to it, and the menu has "Live Services" (the full desktop menu shows from 1366px; below that the Menu button. Items can be `mobileOnly` in navigation.yml).
+  `components/BulletinBox.tsx`); the footer has a "Live Services" button to it, and the menu has "Live Services" (the full desktop menu shows from 1366px; below that the Menu button. Items can be `mobileOnly` in navigation.yml).
 - Live Notices (Admin → Live Notices, `lib/live-notices.ts`, `lib/live-notice-types.ts`): scheduled text/image notices above the
   player on /live/. Stored in the private bucket (`live-notices/index.json`, so future ones stay hidden), images in
   `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
+- Home page (`app/(site)/page.tsx`, styles under "Home" in globals.css): photo hero, welcome with the church photo, This week,
+  Find us (contact details + Google map), Free Church of Scotland section, contact form; plus the Church JSON-LD.
 - Home page "This week at Smithton" (`components/ThisWeek.tsx`): the latest sermon (thumbnail, no player, links to its
   page) and this week's bulletin (links to /weekly-bulletin/). The home page revalidates hourly and on sermon/bulletin changes.
 - Missions: partners with a specific place have a location map (`map`/`map_place` in content/missions.yml, images in
