@@ -5,6 +5,7 @@ import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
 import { isExternal, missions, site, slugify } from "@/lib/content";
 import { Markdown } from "@/lib/markdown";
+import ExternalIcon from "@/components/ExternalIcon";
 
 export const metadata: Metadata = pageMetadata("/missions/", {
   title: "Missions",
@@ -100,6 +101,7 @@ export default function Missions() {
                   {partner.links?.map((link) =>
                     isExternal(link.url) ? (
                       <a key={link.url} className="button" href={link.url} target="_blank" rel="noopener noreferrer">
+                        <ExternalIcon />
                         {link.title}
                         <span className="visually-hidden"> (opens in a new tab)</span>
                       </a>

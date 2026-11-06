@@ -9,6 +9,7 @@ import ThisWeek from "@/components/ThisWeek";
 import { site } from "@/lib/content";
 import { ICONS, icon, MapEmbed, WELCOME } from "../_shared/shared";
 import "../_shared/proto.css";
+import ExternalIcon from "@/components/ExternalIcon";
 
 export const metadata: Metadata = { title: "Home page option D (draft)", robots: { index: false, follow: false } };
 
@@ -65,7 +66,7 @@ export default function ProtoD() {
             height={958}
           />
           <div>
-            <h2>Part of the Free Church of Scotland</h2>
+            <h2>We are part of the Free Church of Scotland</h2>
             <p>
               Smithton Church, known formally as Smithton &amp; Culloden Free Church, is a congregation of the Free Church
               of Scotland, a denomination of churches across Scotland and beyond.
@@ -73,6 +74,7 @@ export default function ProtoD() {
             <p className="actions">
               <Link className="button" href="/about-us/#what-we-believe">What we believe</Link>
               <a className="button button-outline" href="https://freechurch.org/" target="_blank" rel="noopener noreferrer">
+                <ExternalIcon />
                 Free Church of Scotland<span className="visually-hidden"> (opens in a new tab)</span>
               </a>
             </p>

@@ -5,12 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { NavItem } from "@/lib/content";
+import ExternalIcon from "./ExternalIcon";
 
 function NavLink({ item, current }: { item: NavItem; current: string }) {
   // Links to other websites (e.g. Sermons on YouTube) open in a new tab.
   if (/^https?:\/\//.test(item.url)) {
     return (
       <a href={item.url} target="_blank" rel="noopener noreferrer">
+        <ExternalIcon />
         {item.title}
         <span className="visually-hidden"> (opens in a new tab)</span>
       </a>
@@ -95,6 +97,7 @@ export default function Header({ navigation, churchsuiteLink }: { navigation: Na
             })}
             <li className="nav-cta">
               <a href={churchsuiteLink} target="_blank" rel="noopener noreferrer">
+                <ExternalIcon />
                 My ChurchSuite<span className="visually-hidden"> (opens in a new tab)</span>
               </a>
             </li>

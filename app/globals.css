@@ -64,6 +64,9 @@ p { margin: 0 0 1em; }
 /* Jump links (#…) land below the sticky header rather than under it. */
 [id] { scroll-margin-top: 88px; }
 
+/* ↗ before the text of buttons that open another website (components/ExternalIcon.tsx). */
+.external-icon { display: inline-block; vertical-align: -0.12em; margin-right: 0.4em; flex-shrink: 0; }
+
 .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 1.25rem; }
 .container.narrow { max-width: 820px; }
 .center { text-align: center; }

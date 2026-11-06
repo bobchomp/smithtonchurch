@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import PageBanner from "@/components/PageBanner";
+import ExternalIcon from "@/components/ExternalIcon";
 
 export const metadata: Metadata = pageMetadata("/about-us/", {
   title: "About Us",
@@ -78,6 +79,7 @@ export default function AboutUs() {
             <Link className="button button-outline" href="/our-vision/">Our Vision</Link>
             {beliefLinks.map((link) => (
               <a className="button button-outline" href={link.href} target="_blank" rel="noopener noreferrer" key={link.href}>
+                <ExternalIcon />
                 {link.label}
                 <span className="visually-hidden"> (opens in a new tab)</span>
               </a>

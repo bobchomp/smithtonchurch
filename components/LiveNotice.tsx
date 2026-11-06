@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { PublicLiveNotice } from "@/lib/live-notice-types";
+import ExternalIcon from "./ExternalIcon";
 
 // The notice set in Admin → Live Notices, above the player. Checked when the page opens and every
 // minute after, so it appears and disappears on time for people already watching.
@@ -49,6 +50,7 @@ export default function LiveNotice() {
               href={notice.link.url}
               {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
             >
+              {external && <ExternalIcon />}
               {notice.link.label}
               {external && <span className="visually-hidden"> (opens in a new tab)</span>}
             </a>

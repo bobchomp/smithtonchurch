@@ -117,13 +117,13 @@
 .pd-hero { min-height: clamp(376px, calc(48vh + 76px), 536px); }
 @media (max-width: 760px) { .pd-hero { min-height: clamp(376px, calc(48vh + 76px), 460px); } }
 
-.pd-freechurch-inner { display: flex; align-items: center; justify-content: center; gap: 3rem; max-width: 920px; }
+.pd-freechurch-inner { display: flex; align-items: center; justify-content: center; gap: 5rem; max-width: 980px; }
 .pd-freechurch-inner img { width: 220px; height: auto; flex-shrink: 0; }
 .pd-freechurch-inner h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
 .pd-freechurch-inner p { color: var(--muted); }
 .pd-freechurch-inner .actions { margin: 1.25rem 0 0; }
 @media (max-width: 700px) {
-  .pd-freechurch-inner { flex-direction: column; text-align: center; gap: 1.5rem; }
+  .pd-freechurch-inner { flex-direction: column; text-align: center; gap: 2.25rem; }
   .pd-freechurch-inner img { width: 170px; }
   .pd-freechurch-inner .actions { justify-content: center; }
 }
