@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { requireAdmin } from "@/lib/admin-auth";
 import { listMessages } from "@/lib/messages";
 import { currentNotice } from "@/lib/live-notice-types";
 import { loadNotices } from "@/lib/live-notices";
@@ -9,7 +10,9 @@ import { loadSermons } from "@/lib/sermons";
 export const metadata: Metadata = { title: "Dashboard" };
 
 // The admin home page. New tools get a card in the grid below.
-export default async function AdminDashboard() {
+export default async function AdminDashboard({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+  const me = await requireAdmin();
+  const welcome = (await searchParams).welcome;
   const [messages, sermons, notices] = await Promise.all([
     listMessages().catch(() => []),
     loadSermons().catch(() => []),
@@ -21,7 +24,11 @@ export default async function AdminDashboard() {
   return (
     <>
       <h1>Dashboard</h1>
-      <p className="admin-intro">Welcome to the Smithton Church admin panel.</p>
+      <p className="admin-intro">
+        {me.kind === "pin" ? "Signed in with the backup PIN." : `Welcome, ${me.name}.`}{" "}
+        <Link href="/admin/account/">My account</Link>
+      </p>
+      {welcome && <p className="admin-success admin-notice-spaced">Your password is saved and you’re signed in.</p>}
       <div className="admin-tools">
         <Link className="admin-tool" href="/admin/messages/">
           <h2>
@@ -57,6 +64,12 @@ export default async function AdminDashboard() {
           <h2>Marsali’s Newsletter</h2>
           <p>Upload Marsali’s monthly newsletter to her page on the website.</p>
         </Link>
+        {me.role === "owner" && (
+          <Link className="admin-tool" href="/admin/users/">
+            <h2>Users</h2>
+            <p>Give people their own login to the admin panel, and remove logins.</p>
+          </Link>
+        )}
       </div>
     </>
   );

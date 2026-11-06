@@ -28,6 +28,27 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
+// A simple email from the website (e.g. admin invitations), from "Smithton Church Website".
+export async function sendSiteEmail(to: string, subject: string, text: string, html: string): Promise<void> {
+  if (!emailIsConfigured()) throw new Error("RESEND_API_KEY isn’t set");
+  const configured = process.env.CONTACT_FROM?.trim();
+  const address = configured?.match(/<([^>]+)>/)?.[1] ?? (configured || DEFAULT_FROM_ADDRESS);
+  const response = await fetch(process.env.RESEND_API_BASE?.replace(/\/+$/, "") || "https://api.resend.com/emails", {
+    method: "POST",
+    headers: { authorization: `Bearer ${process.env.RESEND_API_KEY!.trim()}`, "content-type": "application/json" },
+    body: JSON.stringify({ from: `"Smithton Church Website" <${address}>`, to: [to], subject, text, html }),
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as { message?: string };
+    throw new Error(`Resend said: ${body.message ?? response.statusText}`);
+  }
+}
+
+export function escapeEmailHtml(text: string): string {
+  return escapeHtml(text);
+}
+
 export async function sendMessageNotification(message: ContactMessage, to: string[], adminUrl: string): Promise<void> {
   if (!emailIsConfigured()) throw new Error("RESEND_API_KEY isn’t set");
   if (!to.length) throw new Error("no one is set to receive messages");

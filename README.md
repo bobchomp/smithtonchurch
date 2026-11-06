@@ -57,17 +57,21 @@ submitted instantly. Messages are only ever emailed to the addresses in the admi
 
 ## Admin panel
 
-The admin panel lives at **admin.rossmdev.co.uk** (or `/admin/` on a Vercel preview address)
-and is protected by a PIN. It's a starting point; tools for managing the site will be added to it.
+The admin panel lives at **admin.rossmdev.co.uk** (or `/admin/` on a Vercel preview address).
+Everyone who looks after the website has their own login (email and password), kept in Supabase.
 
-To set it up:
+- **Owners** can use every tool and add or remove logins in **Admin → Users**. **Admins** can use
+  every tool except Users.
+- New people get an email invitation with a link to choose their password. "Forgot your
+  password?" on the sign-in page sends a reset link. These emails are sent through Resend, so
+  `RESEND_API_KEY` must be set.
+- The shared **backup PIN** (`ADMIN_PIN` in Vercel) still works from "Use the backup PIN" on the
+  sign-in page, with owner access. Use at least 8 digits. Changing it signs everyone out.
 
-1. In Vercel, open the project's **Settings → Environment Variables** and add `ADMIN_PIN` with
-   the PIN you want. Use at least 8 digits; a short PIN is easy to guess. Then redeploy.
-2. In **Settings → Domains**, add `admin.rossmdev.co.uk` and add the DNS record Vercel shows
-   at the domain registrar.
+Getting started: sign in with the backup PIN, open **Users**, and invite yourself as an owner.
 
-Signing in lasts 12 hours. Changing `ADMIN_PIN` signs everyone out.
+Recommended in Supabase (**Authentication → Sign In / Providers**): turn off **Allow new users to
+sign up**, as logins are only created by invitation. Signing in lasts 12 hours.
 
 ### File storage (Supabase)
 

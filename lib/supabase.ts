@@ -70,6 +70,14 @@ export function supabaseAdmin(): SupabaseClient {
   return client;
 }
 
+// A separate client with no shared state, for one-off sign-in checks (so one person's sign-in can
+// never affect the shared client above).
+export function supabaseAuthClient(): SupabaseClient {
+  const { url, key } = settings();
+  if (!url || !key) throw new Error("Supabase isn’t set up: add SUPABASE_URL and SUPABASE_SECRET_KEY in Vercel.");
+  return createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+}
+
 // The public "website" bucket holds files shown on the site (bulletins, and more later).
 export function storage() {
   return supabaseAdmin().storage.from(STORAGE_BUCKET);

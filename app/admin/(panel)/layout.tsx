@@ -3,7 +3,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { signOut } from "../actions";
 
-// Everything inside (panel) needs the admin PIN. Server actions must call requireAdmin() too.
+// Everything inside (panel) needs a signed-in admin. Server actions must call requireAdmin() too.
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
   return (
