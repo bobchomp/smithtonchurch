@@ -34,7 +34,7 @@ export default function AboutUs() {
             just speak to a member of our Welcome Team – they’ll be happy to help.
           </p>
           <p>
-            We’re so glad you’re here. Our aim is to support you in whatever way you need, so you can feel relaxed and
+            Our aim is to support you in whatever way you need, so you can feel relaxed and
             fully able to take part.
           </p>
           <p>
