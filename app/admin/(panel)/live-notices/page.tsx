@@ -41,9 +41,6 @@ export default async function LiveNoticesAdmin({ searchParams }: { searchParams:
 
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / Live Notices
-      </p>
       <h1>Live Notices</h1>
       <p className="admin-intro">
         A notice shows above the player on the <Link href="/live/">Watch Live page</Link> between the times you choose.

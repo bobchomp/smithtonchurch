@@ -105,9 +105,6 @@ export default async function DocumentsAdmin({ kind, findDate }: { kind: Documen
 
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / {title}
-      </p>
       <h1>{title}</h1>
       <p className="admin-intro">
         On the website now: <a href={current.url}>{current.label}</a>

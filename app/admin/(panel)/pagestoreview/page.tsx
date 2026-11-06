@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { REVIEW_PAGES } from "../../(review)/pagestoreview/_shared/options";
 
@@ -9,9 +8,6 @@ export default async function PagesToReview() {
   await requireAdmin();
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / Pages to Review
-      </p>
       <h1>Pages to Review</h1>
       <p className="admin-intro">
         Draft designs to look over before anything changes on the website. Each opens in a new tab, exactly as it would

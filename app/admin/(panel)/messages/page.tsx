@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { emailIsConfigured } from "@/lib/email";
 import { getRecipients, listMessages, messagesAreConfigured } from "@/lib/messages";
@@ -19,9 +18,6 @@ export default async function MessagesAdmin() {
 
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / Messages
-      </p>
       <h1>Messages</h1>
       <p className="admin-intro">
         Messages sent through the website’s contact forms.

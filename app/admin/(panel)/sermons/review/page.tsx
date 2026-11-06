@@ -26,15 +26,9 @@ export default async function ReviewSermons({
   await requireAdmin();
   const params = await searchParams;
   const loaded = await Promise.all([loadSermons(), loadLivestreams()]).catch((error: Error) => error);
-  const breadcrumb = (
-    <p className="admin-breadcrumb">
-      <Link href="/admin/">Dashboard</Link> / <Link href="/admin/sermons/">Sermons</Link> / Fill in details
-    </p>
-  );
   if (loaded instanceof Error) {
     return (
       <>
-        {breadcrumb}
         <h1>Fill in sermon details</h1>
         <p className="admin-error">Couldn’t load the sermons from storage. {describeStorageError(loaded)}</p>
       </>
@@ -57,7 +51,6 @@ export default async function ReviewSermons({
   if (!sermon) {
     return (
       <>
-        {breadcrumb}
         <h1>Fill in sermon details</h1>
         {savedNote}
         <section className="admin-panel admin-panel-narrow">
@@ -89,7 +82,6 @@ export default async function ReviewSermons({
 
   return (
     <>
-      {breadcrumb}
       <h1>Fill in sermon details</h1>
       <p className="admin-intro">
         Sermons since the old media site’s last one ({cutoff}), oldest first. Sermon {index + 1} of {queue.length} still

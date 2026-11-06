@@ -41,9 +41,6 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / Sermons
-      </p>
       <h1>Sermons</h1>
       <p className="admin-intro">
         {sermons instanceof Error ? "" : `${sermons.length} sermon${sermons.length === 1 ? "" : "s"} on the website. `}

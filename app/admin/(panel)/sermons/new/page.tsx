@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireAdmin } from "@/lib/admin-auth";
 import { bookFromTitle, sortBooks } from "@/lib/bible";
 import { streamSlot } from "@/lib/livestream-match";
@@ -20,9 +19,6 @@ export default async function NewSermon({ searchParams }: { searchParams: Promis
   const prefill = stream && { title: stream.title, ...streamSlot(stream), video: stream.id, preacher: stream.preacher ?? "", books: sortBooks([bookFromTitle(stream.title)]) };
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / <Link href="/admin/sermons/">Sermons</Link> / Add
-      </p>
       <h1>Add a sermon</h1>
       <section className="admin-panel admin-panel-narrow">
         <SermonForm

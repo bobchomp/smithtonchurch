@@ -36,9 +36,6 @@ export default async function EditSermon({
 
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / <Link href="/admin/sermons/">Sermons</Link> / Edit
-      </p>
       <h1>{sermon.title}</h1>
       <p className="admin-intro">
         {formatSermonDate(sermon.date)} · <Link href={sermonPath(sermon)}>View on the website</Link>

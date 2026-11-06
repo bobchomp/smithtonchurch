@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteButton from "../../_documents/DeleteButton";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -18,9 +17,6 @@ export default async function MessagePage({ params }: { params: Promise<{ id: st
   const reply = `mailto:${encodeURIComponent(message.email)}?subject=${encodeURIComponent(`Re: ${message.subject || "Your message to Smithton Church"}`)}`;
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / <Link href="/admin/messages/">Messages</Link> / Message
-      </p>
       <h1>{message.subject || "(no subject)"}</h1>
       <section className="admin-panel admin-message">
         <dl className="admin-message-details">

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-auth";
 import { loadNotices, noticeImageUrl } from "@/lib/live-notices";
@@ -14,9 +13,6 @@ export default async function EditNotice({ params }: { params: Promise<{ id: str
   if (!notice) notFound();
   return (
     <>
-      <p className="admin-breadcrumb">
-        <Link href="/admin/">Dashboard</Link> / <Link href="/admin/live-notices/">Live Notices</Link> / Edit
-      </p>
       <h1>Edit notice</h1>
       <section className="admin-panel admin-panel-narrow">
         <NoticeForm notice={notice} imageUrl={notice.image ? noticeImageUrl(notice.image.path) : undefined} />
