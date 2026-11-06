@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { bookFromTitle, sortBooks } from "@/lib/bible";
 import { streamSlot } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
@@ -11,7 +11,7 @@ import { lastSunday, namesByUse } from "../shared";
 export const metadata: Metadata = { title: "Add a sermon" };
 
 export default async function NewSermon({ searchParams }: { searchParams: Promise<{ video?: string }> }) {
-  await requireAdmin();
+  await requireTool("sermons");
   const [sermons, { streams }] = await Promise.all([loadSermons().catch(() => []), loadLivestreams()]);
   // "Create sermon" from a livestream fills in its date, service, title and video.
   const videoId = (await searchParams).video;

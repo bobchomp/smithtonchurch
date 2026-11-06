@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { bookFromTitle, isBibleBook, sortBooks } from "@/lib/bible";
 import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
@@ -43,7 +43,7 @@ export async function startAudioUpload(
   title: string,
   preacher: string,
 ): Promise<{ upload?: { url: string; headers: Record<string, string> }; key?: string; error?: string }> {
-  await requireAdmin();
+  await requireTool("sermons", "sermon-details"); // Sermon Details can add audio too
   if (!r2IsConfigured()) return { error: "Audio storage (Cloudflare R2) isn’t set up yet." };
   if (!isSermonDate(date)) return { error: "Please choose the date first." };
   const key = audioKeyFor(date, service, title);
@@ -84,7 +84,9 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
 
 // Step 2: save the sermon's details (after any audio has finished uploading).
 export async function saveSermon(id: number | null, input: SermonInput): Promise<{ id?: number; error?: string }> {
-  await requireAdmin();
+  // Sermon Details may only update existing sermons as it goes through them; everything else needs Sermons.
+  if (id === null || !input.detailsChecked) await requireTool("sermons");
+  else await requireTool("sermons", "sermon-details");
   const problem = validate(input);
   if (problem) return { error: problem };
   try {
@@ -117,7 +119,7 @@ export async function saveSermon(id: number | null, input: SermonInput): Promise
 }
 
 export async function deleteSermon(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requireTool("sermons");
   const id = Number(formData.get("id"));
   const sermons = await loadSermons();
   const sermon = sermons.find((s) => s.id === id);
@@ -129,7 +131,7 @@ export async function deleteSermon(formData: FormData): Promise<void> {
 
 // "Check YouTube now" in the admin panel.
 export async function syncLivestreamsNow(): Promise<{ message: string; ok: boolean }> {
-  await requireAdmin();
+  await requireTool("sermons");
   try {
     const { count, changedPaths } = await syncLivestreams();
     revalidatePath("/sermons");
@@ -146,7 +148,7 @@ export async function syncLivestreamsNow(): Promise<{ message: string; ok: boole
 // "Create sermons" for the ticked livestreams: one sermon each, with the stream's title, date,
 // service, video and preacher (from the stream's description).
 export async function createSermonsFromLivestreams(streamIds: string[]): Promise<{ created?: number; error?: string }> {
-  await requireAdmin();
+  await requireTool("sermons");
   try {
     const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);
     // Only streams that still have no sermon, so pressing the button twice can't make duplicates.

@@ -759,6 +759,15 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 .button-danger:hover { background: #8f1c13; border-color: #8f1c13; }
 .button-danger:disabled { opacity: 0.45; cursor: default; }
 .admin-messages li { justify-content: flex-start; align-items: flex-start; gap: 0.75rem; }
+.admin-tool-checklist { border: 0; margin: 0; padding: 0; display: grid; gap: 0.55rem; min-width: 0; }
+.admin-tool-checklist legend { font-weight: 600; font-size: 0.95rem; padding: 0; margin-bottom: 0.5rem; }
+.admin-tool-checklist .admin-checkbox { font-weight: 600; align-items: flex-start; }
+.admin-tool-checklist .admin-checkbox input { margin-top: 0.2rem; }
+.admin-tool-hint { display: block; font-weight: 400; font-size: 0.85rem; color: var(--muted); }
+.admin-tools-edit { margin-top: 0.35rem; font-size: 0.92rem; }
+.admin-tools-edit summary { cursor: pointer; color: var(--muted); }
+.admin-tools-change { color: var(--blue); text-decoration: underline; margin-left: 0.25rem; }
+.admin-tools-edit form { display: grid; gap: 1rem; justify-items: start; margin: 0.9rem 0 0.5rem; padding: 1rem; background: var(--bg-alt); border-radius: 6px; }
 .admin-messages .admin-checkbox { padding-top: 0.15rem; }
 .admin-message-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.15rem; flex: 1; min-width: 0; color: var(--text); text-decoration: none; }
 .admin-message-row:hover .admin-message-subject { text-decoration: underline; }
@@ -909,3 +918,9 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
   .admin-login-card { padding: 1.5rem 1.25rem; }
 }
 @media (max-width: 360px) { .admin-brand img { width: 100px; } .admin-bar-start { gap: 0.5rem; } .admin-bar-inner { gap: 0.5rem; } }
+
+/* Tool tick boxes (Admin → Users): override the stacked label layout of .admin-form. */
+fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
+.admin-tool-checklist label.admin-checkbox { display: flex; flex-direction: row; align-items: flex-start; gap: 0.6rem; }
+.admin-users-list li { flex-wrap: wrap; }
+.admin-users-list .admin-tools-edit { flex-basis: 100%; margin-top: -0.25rem; }

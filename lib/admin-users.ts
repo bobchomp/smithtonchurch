@@ -1,6 +1,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { ROLE_KEY, roleOf, type AdminRole } from "./admin-auth";
+import { TOOLS_KEY, toolsOf, type AdminTool } from "./admin-tools";
 import { ADMIN_HOST } from "./domains";
 import { escapeEmailHtml as esc, sendSiteEmail } from "./email";
 import { supabaseAdmin, supabaseAuthClient } from "./supabase";
@@ -15,6 +16,7 @@ export type AdminUser = {
   email: string;
   name: string;
   role: AdminRole;
+  tools: AdminTool[]; // what an admin can use (owners can use everything)
   invited: boolean; // hasn't set a password yet
   lastSignIn?: string;
 };
@@ -35,6 +37,7 @@ export async function listAdminUsers(): Promise<AdminUser[]> {
         email: u.email,
         name: String(u.user_metadata?.name ?? "").trim(),
         role,
+        tools: toolsOf(u.app_metadata),
         invited: !u.last_sign_in_at && !u.user_metadata?.password_set,
         lastSignIn: u.last_sign_in_at ?? undefined,
       };
@@ -85,13 +88,13 @@ async function emailLink(kind: "invite" | "recovery", email: string, name: strin
   await sendSiteEmail(email, subject, text, html);
 }
 
-export async function inviteAdmin(email: string, name: string, role: AdminRole): Promise<void> {
+export async function inviteAdmin(email: string, name: string, role: AdminRole, tools: AdminTool[]): Promise<void> {
   const { data, error } = await supabaseAdmin().auth.admin.generateLink({ type: "invite", email, options: { data: { name } } });
   if (error) {
     if (/already|registered|exists/i.test(error.message)) throw new Error("There’s already a login for that email address.");
     throw error;
   }
-  const updated = await supabaseAdmin().auth.admin.updateUserById(data.user.id, { app_metadata: { [ROLE_KEY]: role } });
+  const updated = await supabaseAdmin().auth.admin.updateUserById(data.user.id, { app_metadata: { [ROLE_KEY]: role, [TOOLS_KEY]: tools } });
   if (updated.error) throw updated.error;
   await emailLink("invite", email, name, data.properties.hashed_token);
 }
@@ -123,6 +126,11 @@ export async function setPassword(userId: string, password: string): Promise<voi
 
 export async function setAdminRole(userId: string, role: AdminRole): Promise<void> {
   const { error } = await supabaseAdmin().auth.admin.updateUserById(userId, { app_metadata: { [ROLE_KEY]: role } });
+  if (error) throw error;
+}
+
+export async function setAdminTools(userId: string, tools: AdminTool[]): Promise<void> {
+  const { error } = await supabaseAdmin().auth.admin.updateUserById(userId, { app_metadata: { [TOOLS_KEY]: tools } });
   if (error) throw error;
 }
 

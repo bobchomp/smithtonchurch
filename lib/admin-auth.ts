@@ -3,6 +3,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
+import { ALL_TOOLS, toolsOf, type AdminTool } from "./admin-tools";
 import { supabaseAdmin, supabaseIsConfigured } from "./supabase";
 
 // Signing in to the admin panel. Each person has their own login (email and password, kept by
@@ -25,6 +26,7 @@ export type Admin = {
   email?: string;
   name: string;
   role: AdminRole;
+  tools: AdminTool[]; // owners: every tool
 };
 
 function secret(): string | undefined {
@@ -93,7 +95,7 @@ export const currentAdmin = cache(async (): Promise<Admin | null> => {
   const subject = await sessionSubject();
   if (!subject) return null;
   if (subject === "pin") {
-    return adminPinIsSet() ? { kind: "pin", id: "pin", name: "Backup PIN", role: "owner" } : null;
+    return adminPinIsSet() ? { kind: "pin", id: "pin", name: "Backup PIN", role: "owner", tools: ALL_TOOLS } : null;
   }
   if (!supabaseIsConfigured()) return null;
   const { data, error } = await supabaseAdmin().auth.admin.getUserById(subject);
@@ -102,7 +104,8 @@ export const currentAdmin = cache(async (): Promise<Admin | null> => {
   const banned = user?.banned_until && Date.parse(user.banned_until) > Date.now();
   if (error || !user || !role || banned) return null;
   const name = String(user.user_metadata?.name ?? "").trim() || user.email || "Admin";
-  return { kind: "user", id: user.id, email: user.email, name, role };
+  const tools = role === "owner" ? ALL_TOOLS : toolsOf(user.app_metadata);
+  return { kind: "user", id: user.id, email: user.email, name, role, tools };
 });
 
 export async function isSignedIn(): Promise<boolean> {
@@ -120,5 +123,16 @@ export async function requireAdmin(): Promise<Admin> {
 export async function requireOwner(): Promise<Admin> {
   const admin = await requireAdmin();
   if (admin.role !== "owner") redirect("/admin/");
+  return admin;
+}
+
+export function canUse(admin: Admin, tool: AdminTool): boolean {
+  return admin.role === "owner" || admin.tools.includes(tool);
+}
+
+// For a tool's pages and actions: the admin must have been given this tool (or any of several).
+export async function requireTool(...tools: AdminTool[]): Promise<Admin> {
+  const admin = await requireAdmin();
+  if (!tools.some((tool) => canUse(admin, tool))) redirect("/admin/");
   return admin;
 }

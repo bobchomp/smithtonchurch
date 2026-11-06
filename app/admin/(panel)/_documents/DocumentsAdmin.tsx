@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { DOCUMENT_TYPES, formatDocumentDate, isDocumentDate, type DocumentKind } from "@/lib/document-types";
 import { getPublicDocuments, listDocuments, type UploadedDocument } from "@/lib/documents";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
@@ -94,7 +94,7 @@ function FindDocument({ kind, uploads, date }: { kind: DocumentKind; uploads: Up
 }
 
 export default async function DocumentsAdmin({ kind, findDate }: { kind: DocumentKind; findDate?: string }) {
-  await requireAdmin();
+  await requireTool(kind === "bulletin" ? "bulletin" : "newsletter");
   const { title, singular, precision } = DOCUMENT_TYPES[kind];
   const date = findDate && isDocumentDate(kind, findDate) ? findDate : undefined;
   const configured = supabaseIsConfigured();

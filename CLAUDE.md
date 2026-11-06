@@ -11,7 +11,9 @@
 - `app/admin/` is the admin panel. `proxy.ts` keeps it on admin.rossmdev.co.uk and redirects
   `/admin` on the main domain there. Domains are set in `lib/domains.ts` (site is on rossmdev.co.uk during development). While SITE_HOST isn't smithtonchurch.com, the whole site is noindex (meta tag + X-Robots-Tag header). Addresses keep the `/admin/` prefix on the subdomain too.
 - Admin auth (`lib/admin-auth.ts`, `lib/admin-users.ts`): individual logins in Supabase Auth (email + password). Only users
-  with `app_metadata.smithton_role` "owner" or "admin" get in; owners also manage logins (Admin → Users). The shared `ADMIN_PIN`
+  with `app_metadata.smithton_role` "owner" or "admin" get in; owners also manage logins (Admin → Users) and choose which tools each admin can use (`lib/admin-tools.ts`,
+  `app_metadata.smithton_tools`; missing = all tools). Guard each tool's pages and actions with `requireTool("…")`; new tools
+  need adding to ADMIN_TOOLS and a `canUse` check on their dashboard tile. The shared `ADMIN_PIN`
   still works as a backup (counts as an owner; its box is hidden until the login logo is tapped 10 times). Sessions are our own signed cookie (`ADMIN_SESSION_SECRET` or ADMIN_PIN), and the
   user is re-checked in Supabase on each request. Invite/reset emails are sent by us via Resend with links to
   `/admin/set-password/` (token verified with verifyOtp on submit), not by Supabase. Pages inside `app/admin/(panel)/`

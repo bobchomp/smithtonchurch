@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { REVIEW_PAGES } from "../../(review)/pagestoreview/_shared/options";
 
 export const metadata: Metadata = { title: "Pages to Review" };
 
 export default async function PagesToReview() {
-  await requireAdmin();
+  await requireTool("pages-to-review");
   return (
     <>
       <h1>Pages to Review</h1>

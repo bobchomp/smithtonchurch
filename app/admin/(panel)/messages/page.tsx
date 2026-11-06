@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { emailIsConfigured } from "@/lib/email";
 import { getRecipients, listMessages, messagesAreConfigured } from "@/lib/messages";
 import { describeStorageError } from "@/lib/supabase";
@@ -9,7 +9,7 @@ import RecipientsPanel from "./RecipientsPanel";
 export const metadata: Metadata = { title: "Messages" };
 
 export default async function MessagesAdmin() {
-  await requireAdmin();
+  await requireTool("messages");
   const configured = messagesAreConfigured();
   const [messages, recipients] = configured
     ? await Promise.all([listMessages().catch((e: Error) => e), getRecipients().catch(() => [])])

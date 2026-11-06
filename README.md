@@ -61,7 +61,8 @@ The admin panel lives at **admin.rossmdev.co.uk** (or `/admin/` on a Vercel prev
 Everyone who looks after the website has their own login (email and password), kept in Supabase.
 
 - **Owners** can use every tool and add or remove logins in **Admin → Users**. **Admins** can use
-  every tool except Users.
+  only the tools an owner ticks for them (chosen when inviting, and changeable any time under
+  their name in Users); their dashboard only shows those tools.
 - New people get an email invitation with a link to choose their password. "Forgot your
   password?" on the sign-in page sends a reset link. These emails are sent through Resend, so
   `RESEND_API_KEY` must be set.

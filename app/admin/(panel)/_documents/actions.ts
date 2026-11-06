@@ -1,12 +1,16 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireAdmin, requireTool } from "@/lib/admin-auth";
+import type { AdminTool } from "@/lib/admin-tools";
 import { DOCUMENT_TYPES, isDocumentDate, isDocumentKind, type DocumentKind } from "@/lib/document-types";
 import { createDocumentUploadUrls, deleteDocuments, listDocuments, removeReplacedDocuments } from "@/lib/documents";
 import { sermonPath } from "@/lib/sermon-types";
 import { loadSermons } from "@/lib/sermons";
 import { describeStorageError } from "@/lib/supabase";
+
+// The admin tool each kind of document belongs to.
+const TOOL: Record<DocumentKind, AdminTool> = { bulletin: "bulletin", newsletter: "newsletter" };
 
 // Refreshes the document's pages, and for a bulletin the pages of that Sunday's sermons (which link to it).
 async function refreshPages(kind: DocumentKind, date?: string) {
@@ -28,6 +32,7 @@ export async function startDocumentUpload(
 ): Promise<{ uploadUrls?: { pdf: string; cover: string }; error?: string }> {
   await requireAdmin();
   if (!isDocumentKind(kind)) return { error: "Unknown document type." };
+  await requireTool(TOOL[kind]);
   if (!isDocumentDate(kind, date)) return { error: "Please choose a valid date." };
   try {
     return { uploadUrls: await createDocumentUploadUrls(kind, date) };
@@ -41,6 +46,7 @@ export async function startDocumentUpload(
 export async function finishDocumentUpload(kind: string, date?: string): Promise<void> {
   await requireAdmin();
   if (!isDocumentKind(kind)) return;
+  await requireTool(TOOL[kind]);
   await removeReplacedDocuments(kind);
   await refreshPages(kind, date && isDocumentDate(kind, date) ? date : undefined);
 }
@@ -50,6 +56,7 @@ export async function deleteDocument(formData: FormData): Promise<void> {
   const kind = String(formData.get("kind") ?? "");
   const path = String(formData.get("path") ?? "");
   if (!isDocumentKind(kind)) return;
+  await requireTool(TOOL[kind]);
   // Only delete files that really are documents of this kind.
   const found = (await listDocuments(kind)).find((d) => d.path === path);
   if (found) await deleteDocuments([found]);

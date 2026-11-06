@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import YouTubePlayer from "@/components/YouTubePlayer";
-import { requireAdmin } from "@/lib/admin-auth";
+import { canUse, requireTool } from "@/lib/admin-auth";
 import { videoForSermons } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { audioUrl, r2IsConfigured } from "@/lib/r2";
@@ -23,7 +23,7 @@ export default async function ReviewSermons({
 }: {
   searchParams: Promise<{ id?: string; saved?: string; end?: string }>;
 }) {
-  await requireAdmin();
+  const me = await requireTool("sermon-details");
   const params = await searchParams;
   const loaded = await Promise.all([loadSermons(), loadLivestreams()]).catch((error: Error) => error);
   if (loaded instanceof Error) {
@@ -44,7 +44,8 @@ export default async function ReviewSermons({
 
   const savedNote = saved && (
     <p className="admin-success admin-notice-spaced">
-      Saved “{saved.title}”. <Link href={`/admin/sermons/${saved.id}/`}>Edit it again</Link>
+      Saved “{saved.title}”.{" "}
+      {canUse(me, "sermons") && <Link href={`/admin/sermons/${saved.id}/`}>Edit it again</Link>}
     </p>
   );
 

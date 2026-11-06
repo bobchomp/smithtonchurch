@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireAdmin } from "@/lib/admin-auth";
+import { canUse, requireTool } from "@/lib/admin-auth";
 import { unmatchedStreams } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { youtubeIsConfigured } from "@/lib/youtube";
@@ -22,7 +22,7 @@ function matches(sermon: Sermon, query: string): boolean {
 }
 
 export default async function SermonsAdmin({ searchParams }: { searchParams: Promise<{ q?: string; missing?: string }> }) {
-  await requireAdmin();
+  const me = await requireTool("sermons");
   const params = await searchParams;
   const query = (params.q ?? "").trim();
   const missingBook = params.missing === "book";
@@ -75,7 +75,7 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
           <button className="button button-outline" type="submit">Search</button>
         </form>
       </div>
-      {toReview.length > 0 && (
+      {toReview.length > 0 && canUse(me, "sermon-details") && (
         <p className="admin-notice admin-notice-spaced">
           {toReview.length} sermon{toReview.length === 1 ? "" : "s"} since the old media site need{toReview.length === 1 ? "s" : ""} their
           details filling in. <Link href="/admin/sermons/review/">Fill in details</Link>

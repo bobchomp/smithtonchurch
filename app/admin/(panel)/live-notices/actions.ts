@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { ukTimeToIso, type LiveNotice } from "@/lib/live-notice-types";
 import {
   createNoticeImageUpload,
@@ -28,7 +28,7 @@ export type NoticeInput = {
 
 // Step 1 of adding an image: a one-off address for the browser to upload it to.
 export async function startNoticeImageUpload(contentType: string, size: number): Promise<{ url?: string; path?: string; error?: string }> {
-  await requireAdmin();
+  await requireTool("live-notices");
   if (!NOTICE_IMAGE_TYPES[contentType]) return { error: "The image needs to be a JPG, PNG or WebP file." };
   if (size > MAX_IMAGE_MEGABYTES * 1024 * 1024) return { error: `That image is too big. The limit is ${MAX_IMAGE_MEGABYTES} MB.` };
   try {
@@ -70,7 +70,7 @@ function clean(input: NoticeInput): { notice?: Omit<LiveNotice, "id" | "createdA
 
 // Step 2: save the notice (new when id is null).
 export async function saveNotice(id: string | null, input: NoticeInput): Promise<{ error?: string }> {
-  await requireAdmin();
+  await requireTool("live-notices");
   const { notice, error } = clean(input);
   if (!notice) return { error };
   try {
@@ -98,7 +98,7 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
 
 // The on/off switch in the list of notices.
 export async function setNoticeOn(id: string, on: boolean): Promise<{ error?: string }> {
-  await requireAdmin();
+  await requireTool("live-notices");
   try {
     const notices = await loadNotices();
     const notice = notices.find((n) => n.id === id);
@@ -115,7 +115,7 @@ export async function setNoticeOn(id: string, on: boolean): Promise<{ error?: st
 }
 
 export async function deleteNotice(formData: FormData): Promise<void> {
-  await requireAdmin();
+  await requireTool("live-notices");
   const id = String(formData.get("id") ?? "");
   const notices = await loadNotices();
   const notice = notices.find((n) => n.id === id);

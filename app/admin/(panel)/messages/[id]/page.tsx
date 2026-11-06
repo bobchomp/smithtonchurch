@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import DeleteButton from "../../_documents/DeleteButton";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { getMessage, updateMessage } from "@/lib/messages";
 import { deleteOneMessage, setMessageRead } from "../actions";
 
 export const metadata: Metadata = { title: "Message" };
 
 export default async function MessagePage({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireTool("messages");
   const message = await getMessage((await params).id);
   if (!message) notFound();
   // Opening a message marks it as read.

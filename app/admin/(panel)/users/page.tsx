@@ -4,7 +4,9 @@ import { requireOwner } from "@/lib/admin-auth";
 import { listAdminUsers } from "@/lib/admin-users";
 import { emailIsConfigured } from "@/lib/email";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
-import { changeRole, remove, resendInvite } from "./actions";
+import { ADMIN_TOOLS, ALL_TOOLS } from "@/lib/admin-tools";
+import { changeRole, changeTools, remove, resendInvite } from "./actions";
+import ToolChecklist from "./ToolChecklist";
 import InviteForm from "./InviteForm";
 
 export const metadata: Metadata = { title: "Users" };
@@ -23,7 +25,7 @@ export default async function Users() {
     <>
       <h1>Users</h1>
       <p className="admin-intro">
-        Everyone who looks after the website has their own login. <strong>Admins</strong> can use all the admin tools;{" "}
+        Everyone who looks after the website has their own login. <strong>Admins</strong> can use the tools you choose for them;{" "}
         <strong>owners</strong> can also add and remove logins here.
       </p>
       {!emailIsConfigured() && (
@@ -38,7 +40,7 @@ export default async function Users() {
           ) : users.length === 0 ? (
             <p className="admin-muted">No one has a login yet. Invite yourself first, as an owner.</p>
           ) : (
-            <ul className="admin-list">
+            <ul className="admin-list admin-users-list">
               {users.map((u) => {
                 const lastOwner = u.role === "owner" && owners === 1;
                 return (
@@ -73,6 +75,23 @@ export default async function Users() {
                         </form>
                       )}
                     </div>
+                    {u.role === "admin" && (
+                      <details className="admin-tools-edit">
+                        <summary>
+                          {u.tools.length === ALL_TOOLS.length
+                            ? "All tools"
+                            : u.tools.length === 0
+                              ? "No tools"
+                              : ADMIN_TOOLS.filter((t) => u.tools.includes(t.key)).map((t) => t.label).join(", ")}{" "}
+                          <span className="admin-tools-change">Change</span>
+                        </summary>
+                        <form action={changeTools}>
+                          <input type="hidden" name="id" value={u.id} />
+                          <ToolChecklist selected={u.tools} />
+                          <button className="button" type="submit">Save tools</button>
+                        </form>
+                      </details>
+                    )}
                   </li>
                 );
               })}

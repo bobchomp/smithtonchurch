@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { loadNotices, noticeImageUrl } from "@/lib/live-notices";
 import NoticeForm from "../NoticeForm";
 
 export const metadata: Metadata = { title: "Edit live notice" };
 
 export default async function EditNotice({ params }: { params: Promise<{ id: string }> }) {
-  await requireAdmin();
+  await requireTool("live-notices");
   const id = (await params).id;
   const notice = (await loadNotices()).find((n) => n.id === id);
   if (!notice) notFound();

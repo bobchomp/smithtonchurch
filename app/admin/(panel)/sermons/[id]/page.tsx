@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DeleteButton from "../../_documents/DeleteButton";
 import YouTubePlayer from "@/components/YouTubePlayer";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { videoForSermons } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { audioUrl, r2IsConfigured } from "@/lib/r2";
@@ -22,7 +22,7 @@ export default async function EditSermon({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ added?: string }>;
 }) {
-  await requireAdmin();
+  await requireTool("sermons");
   const id = Number((await params).id);
   const added = (await searchParams).added;
   const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);

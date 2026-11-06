@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOwner, type AdminRole } from "@/lib/admin-auth";
-import { inviteAdmin, listAdminUsers, removeAdminUser, sendPasswordLink, setAdminRole } from "@/lib/admin-users";
+import { isAdminTool } from "@/lib/admin-tools";
+import { inviteAdmin, listAdminUsers, removeAdminUser, sendPasswordLink, setAdminRole, setAdminTools } from "@/lib/admin-users";
 import { describeStorageError } from "@/lib/supabase";
 
 export type UserFormState = { error?: string; done?: string };
@@ -18,7 +19,7 @@ export async function invite(_state: UserFormState, formData: FormData): Promise
   if (!name) return { error: "Please enter their name." };
   if (!isRole(role)) return { error: "Please choose what they can do." };
   try {
-    await inviteAdmin(email, name, role);
+    await inviteAdmin(email, name, role, formData.getAll("tools").filter(isAdminTool));
   } catch (error) {
     return { error: `Couldn’t send the invitation. ${describeStorageError(error)}` };
   }
@@ -39,6 +40,13 @@ export async function changeRole(formData: FormData): Promise<void> {
   if (!isRole(role)) return;
   if (role === "admin" && (await wouldLeaveNoOwner(id))) return;
   await setAdminRole(id, role);
+  revalidatePath("/admin/users");
+}
+
+export async function changeTools(formData: FormData): Promise<void> {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "");
+  await setAdminTools(id, [...new Set(formData.getAll("tools").filter(isAdminTool))]);
   revalidatePath("/admin/users");
 }
 

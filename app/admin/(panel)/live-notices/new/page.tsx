@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import NoticeForm from "../NoticeForm";
 
 export const metadata: Metadata = { title: "Add a live notice" };
 
 export default async function NewNotice() {
-  await requireAdmin();
+  await requireTool("live-notices");
   return (
     <>
       <h1>Add a notice</h1>

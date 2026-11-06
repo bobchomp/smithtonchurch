@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import DeleteButton from "../_documents/DeleteButton";
-import { requireAdmin } from "@/lib/admin-auth";
+import { requireTool } from "@/lib/admin-auth";
 import { formatNoticeTime, noticeStatus, type LiveNotice, type NoticeStatus } from "@/lib/live-notice-types";
 import { loadNotices } from "@/lib/live-notices";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
@@ -25,7 +25,7 @@ function when(n: LiveNotice): string {
 }
 
 export default async function LiveNoticesAdmin({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  await requireAdmin();
+  await requireTool("live-notices");
   const saved = (await searchParams).saved;
   const loaded = supabaseIsConfigured() ? await loadNotices().catch((e: Error) => e) : [];
   const notices = loaded instanceof Error ? [] : loaded;
