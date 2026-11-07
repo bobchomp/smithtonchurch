@@ -5,6 +5,7 @@ import { getPublicDocuments, listDocuments, type UploadedDocument } from "@/lib/
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import { deleteDocument } from "./actions";
 import DeleteButton from "./DeleteButton";
+import AllDocuments from "./AllDocuments";
 import UploadForm from "./UploadForm";
 
 // The admin page for one kind of document (weekly bulletin, Marsali's newsletter...).
@@ -105,10 +106,30 @@ export default async function DocumentsAdmin({ kind, findDate }: { kind: Documen
 
   return (
     <>
-      <h1>{title}</h1>
-      <p className="admin-intro">
-        On the website now: <a href={current.url}>{current.label}</a>
-      </p>
+      <div className="admin-page-head">
+        <div>
+          <h1>{title}</h1>
+          <p className="admin-intro">
+            On the website now: <a href={current.url}>{current.label}</a>
+          </p>
+        </div>
+        {Array.isArray(uploads) && uploads.length > 0 && (
+          <AllDocuments label={`All ${singular}s`} title={`All ${singular}s (${uploads.length})`}>
+            {[...new Set(uploads.map((d) => d.date.slice(0, 4)))].map((year) => (
+              <section key={year}>
+                <h3 className="admin-all-docs-year">{year}</h3>
+                <ul className="admin-list">
+                  {uploads
+                    .filter((d) => d.date.startsWith(year))
+                    .map((d) => (
+                      <DocumentRow key={d.path} kind={kind} doc={d} live={d === uploads[0]} />
+                    ))}
+                </ul>
+              </section>
+            ))}
+          </AllDocuments>
+        )}
+      </div>
 
       <div className="admin-columns">
         <section className="admin-panel">
