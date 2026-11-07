@@ -1,4 +1,5 @@
-import verses from "@/content/holding-video-verses.json";
+import versesV1 from "@/content/holding-video-verses-v1.json";
+import versesV2 from "@/content/holding-video-verses-v2.json";
 
 // The holding slides made for the live stream (shown in the player before and after services),
 // with every revision. Shown in Admin → Holding Slides. The images are in holding-slides/ (not
@@ -77,30 +78,44 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
 
 // Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's
 // own file route), with a poster picture. See scripts/holding-video/README.md for how they're made.
-export type HoldingVideo = {
-  key: string;
-  title: string;
-  use: string;
+export type VideoRevision = {
   version: number;
-  date: string;
+  date: string; // UK time, "YYYY-MM-DDTHH:MM"
   file: string;
   poster: string;
-  details: string;
+  changes: string;
   verses?: { ref: string; text: string }[];
+  seconds?: number; // how long each verse shows
 };
+export type HoldingVideo = { key: string; title: string; use: string; revisions: VideoRevision[] };
 
 export const HOLDING_VIDEOS: HoldingVideo[] = [
   {
     key: "service-starting-shortly-verses",
     title: "The service will start shortly, with Bible verses",
     use: "Playing for the 15 minutes before the service",
-    version: 1,
-    date: "2026-11-07T14:30",
-    file: "/holding-videos/service-starting-shortly-verses-v1.mp4",
-    poster: "/holding-videos/service-starting-shortly-verses-v1.jpg",
-    details:
-      "15 minutes, 1920×1080. The logo and title stay in place, moved up a little, while 45 Bible verses (NIV) change underneath, each for 20 seconds with a gentle fade. It loops smoothly if it’s left running.",
-    verses,
+    revisions: [
+      {
+        version: 1,
+        date: "2026-11-07T14:30",
+        file: "/holding-videos/service-starting-shortly-verses-v1.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-v1.jpg",
+        changes:
+          "First version: 15 minutes, 1920×1080. The logo and title stay in place, moved up a little, while 45 Bible verses (NIV) change underneath, each for 20 seconds with a one-second fade. It loops smoothly.",
+        verses: versesV1,
+        seconds: 20,
+      },
+      {
+        version: 2,
+        date: "2026-11-07T15:30",
+        file: "/holding-videos/service-starting-shortly-verses-v2.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-v2.jpg",
+        changes:
+          "Each verse now shows for 10 seconds, so there are 90 verses (the first 45 plus 45 shorter ones), with quicker fades. Still 15 minutes, and it still loops smoothly.",
+        verses: versesV2,
+        seconds: 10,
+      },
+    ],
   },
 ];
 

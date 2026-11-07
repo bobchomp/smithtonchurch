@@ -7,7 +7,7 @@ for ref in refs:
     start = page.index('<div class="passage-text">')
     end = page.index('<a class="full-chap-link"', start)
     body = page[start:end]
-    body = re.sub(r'<h[34][^>]*>.*?</h[34]>', ' ', body, flags=re.S)          # chapter and psalm headings
+    body = re.sub(r'<h[2-6][^>]*>.*?</h[2-6]>', ' ', body, flags=re.S)          # chapter and psalm headings
     body = re.sub(r'<sup[^>]*>.*?</sup>', '', body, flags=re.S)                 # verse numbers, footnotes
     body = re.sub(r'<span class="chapternum">.*?</span>', '', body, flags=re.S)
     body = re.sub(r'<span class="indent-1-breaks">.*?</span>', '', body, flags=re.S)

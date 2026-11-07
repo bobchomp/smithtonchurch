@@ -32,6 +32,22 @@ function Images({ slide, revision, size }: { slide: HoldingSlide; revision: Slid
   );
 }
 
+function VerseList({ verses, seconds }: { verses: { ref: string; text: string }[]; seconds: number }) {
+  return (
+    <ol className="slides-verses">
+      {verses.map((v, i) => (
+        <li key={v.ref}>
+          <span className="slides-verse-time">{Math.floor((i * seconds) / 60)}:{String((i * seconds) % 60).padStart(2, "0")}</span>
+          <span>
+            {v.text.split(/\{([^}]+)\}/).map((part, j) => (j % 2 ? <span key={j} className="slides-small-caps">{part}</span> : part))}{" "}
+            <strong>{v.ref}</strong>
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default async function HoldingSlides() {
   await requireTool("holding-slides");
   return (
@@ -42,40 +58,65 @@ export default async function HoldingSlides() {
         1920×1080; download the PNG to use it in the streaming software, or click a picture to see it full size.
       </p>
       <div className="slides-list">
-        {HOLDING_VIDEOS.map((video) => (
-          <section key={video.key} className="admin-panel slides-slide">
-            <div className="slides-head">
-              <h2>{video.title}</h2>
-              <span className="admin-badge admin-status-showing">Video · version {video.version} (current)</span>
-            </div>
-            <p className="admin-muted slides-use">{video.use}</p>
-            <video className="slides-video" controls preload="none" poster={video.poster} width={1920} height={1080}>
-              <source src={video.file} type="video/mp4" />
-            </video>
-            <p className="slides-video-actions">
-              <a className="button" href={video.file} download>Download MP4</a>
-            </p>
-            <p className="slides-changes">
-              <strong>{when(video.date)}:</strong> {video.details}
-            </p>
-            {video.verses && (
-              <details className="slides-history">
-                <summary>The verses, in order ({video.verses.length})</summary>
-                <ol className="slides-verses">
-                  {video.verses.map((v, i) => (
-                    <li key={v.ref}>
-                      <span className="slides-verse-time">{Math.floor((i * 20) / 60)}:{String((i * 20) % 60).padStart(2, "0")}</span>
-                      <span>
-                        {v.text.split(/\{([^}]+)\}/).map((part, j) => (j % 2 ? <span key={j} className="slides-small-caps">{part}</span> : part))}{" "}
-                        <strong>{v.ref}</strong>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-            )}
-          </section>
-        ))}
+        {HOLDING_VIDEOS.map((video) => {
+          const current = video.revisions[video.revisions.length - 1];
+          const past = video.revisions.slice(0, -1).reverse();
+          return (
+            <section key={video.key} className="admin-panel slides-slide">
+              <div className="slides-head">
+                <h2>{video.title}</h2>
+                <span className="admin-badge admin-status-showing">Video · version {current.version} (current)</span>
+              </div>
+              <p className="admin-muted slides-use">{video.use}</p>
+              <video className="slides-video" controls preload="none" poster={current.poster} width={1920} height={1080}>
+                <source src={current.file} type="video/mp4" />
+              </video>
+              <p className="slides-video-actions">
+                <a className="button" href={current.file} download>Download MP4</a>
+              </p>
+              <p className="slides-changes">
+                <strong>{when(current.date)}:</strong> {current.changes}
+              </p>
+              {current.verses && (
+                <details className="slides-history">
+                  <summary>The verses, in order ({current.verses.length})</summary>
+                  <VerseList verses={current.verses} seconds={current.seconds ?? 20} />
+                </details>
+              )}
+              {past.length > 0 && (
+                <details className="slides-history">
+                  <summary>Earlier versions ({past.length})</summary>
+                  <ol className="slides-revisions">
+                    {past.map((r) => (
+                      <li key={r.version}>
+                        <div className="slides-images slides-images-small">
+                          <figure>
+                            <a href={r.file} target="_blank" rel="noopener">
+                              <img src={r.poster} alt={`${video.title}, version ${r.version}`} width={1280} height={720} loading="lazy" />
+                            </a>
+                            <figcaption>
+                              <a className="slides-download" href={r.file} download>Download MP4</a>
+                            </figcaption>
+                          </figure>
+                        </div>
+                        <div>
+                          <p className="slides-version">Version {r.version} · {when(r.date)}</p>
+                          <p className="slides-changes">{r.changes}</p>
+                          {r.verses && (
+                            <details className="slides-history slides-history-inner">
+                              <summary>Its verses ({r.verses.length})</summary>
+                              <VerseList verses={r.verses} seconds={r.seconds ?? 20} />
+                            </details>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </details>
+              )}
+            </section>
+          );
+        })}
         {HOLDING_SLIDES.map((slide) => {
           const current = slide.revisions[slide.revisions.length - 1];
           const past = slide.revisions.slice(0, -1).reverse();

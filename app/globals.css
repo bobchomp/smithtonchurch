@@ -1155,3 +1155,4 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .slides-verses li { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.75rem; }
 .slides-verse-time { color: var(--muted); font-variant-numeric: tabular-nums; }
 .slides-small-caps { font-variant: small-caps; }
+.slides-history-inner { border-top: 0; padding-top: 0; margin-top: 0.6rem; }
