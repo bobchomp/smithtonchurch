@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import type { TrackEvent } from "@/lib/track";
 
 // Website analytics for the public pages: page views, time on page, scroll depth and clicks,
 // sent to /api/collect. Visitors are told in a small card and can choose "Don't count me".
@@ -28,7 +29,7 @@ function writeCookie(name: string, value: string, maxAge: number) {
 
 const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`);
 
-type Event = Record<string, string | number | boolean | undefined>;
+type Event = Record<string, string | number | boolean | undefined | Record<string, string>>;
 
 function excluded() {
   return readCookie("sc_consent") === "no" || readCookie("sc_admin") === "1";
@@ -56,7 +57,8 @@ function describeClick(target: Element): Event | null {
   return { t: "click", k: "button", l: label };
 }
 
-export default function Analytics() {
+// notFound: this is the "page not found" page, so the address is reported as a missing page.
+export default function Analytics({ notFound = false }: { notFound?: boolean }) {
   const pathname = usePathname();
   const [showCard, setShowCard] = useState(false);
   const state = useRef({ on: false, visitor: "", session: "", page: "", started: 0, active: 0, visibleSince: 0, scroll: 0 });
@@ -106,6 +108,10 @@ export default function Analytics() {
     const params = new URLSearchParams(location.search);
     const timer = setTimeout(() => {
       const event: Event = { t: "pageview", p: pathname, ti: document.title, w: window.innerWidth, en: entry };
+      if (notFound) {
+        event.nf = true;
+        event.fr = document.referrer || undefined;
+      }
       if (entry) {
         event.r = document.referrer || undefined;
         event.us = params.get("utm_source") ?? undefined;
@@ -156,11 +162,18 @@ export default function Analytics() {
       if (click) send([{ ...click, p: location.pathname }], true);
       touchVisit();
     };
+    // Sermon plays, searches and so on, from track() in lib/track.ts.
+    const onTrack = (event: globalThis.Event) => {
+      const detail = (event as CustomEvent<TrackEvent>).detail;
+      if (s.on && detail) send([{ ...detail, p: location.pathname }], true);
+    };
+    window.addEventListener("sc-track", onTrack);
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     document.addEventListener("click", onClick, { capture: true });
     window.addEventListener("pagehide", sendLeave);
     return () => {
+      window.removeEventListener("sc-track", onTrack);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("click", onClick, { capture: true });

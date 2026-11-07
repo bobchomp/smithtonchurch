@@ -12,12 +12,16 @@ export const dynamic = "force-dynamic";
 const countries = new Intl.DisplayNames(["en-GB"], { type: "region" });
 const MAX_EVENTS = 25;
 const ID = /^[a-z0-9-]{8,40}$/i;
-const TYPES = new Set(["pageview", "leave", "click"]);
+const TYPES = new Set(["pageview", "leave", "click", "media", "search"]);
+const MEDIA = new Set(["audio", "video"]);
+const FILTERS = ["preacher", "book", "year", "service"];
+const MILESTONES = [0, 25, 50, 75, 95];
 const KINDS = new Set(["internal", "outbound", "download", "phone", "email", "button"]);
 
 type Incoming = {
   t?: string; p?: string; ti?: string; en?: boolean; r?: string; w?: number;
   us?: string; um?: string; uc?: string; d?: number; sc?: number; k?: string; h?: string; l?: string;
+  pc?: number; n?: number; f?: Record<string, unknown>; nf?: boolean; fr?: string;
 };
 
 const text = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -36,6 +40,35 @@ function refDomain(referrer: string | null): string | null {
   } catch {
     return null;
   }
+}
+
+// Where someone came to a missing page from: a page on this website, or another website's address.
+function cameFrom(referrer: string | null): string | null {
+  if (!referrer) return null;
+  try {
+    const url = new URL(referrer);
+    return refDomain(referrer) ?? url.pathname.slice(0, 300);
+  } catch {
+    return null;
+  }
+}
+
+// The extra details kept for sermon plays, sermon searches and missing pages.
+function propsFor(e: Incoming): Record<string, unknown> | null {
+  if (e.t === "media") {
+    const pct = whole(e.pc, 0, 100);
+    return { pct: MILESTONES.filter((m) => m <= (pct ?? 0)).pop() ?? 0 };
+  }
+  if (e.t === "search") {
+    const filters: Record<string, string> = {};
+    for (const key of FILTERS) {
+      const value = text(e.f?.[key], 100);
+      if (value) filters[key] = value;
+    }
+    return { results: whole(e.n, 0, 100_000) ?? 0, ...(Object.keys(filters).length ? { filters } : {}) };
+  }
+  if (e.t === "pageview" && e.nf) return { nf: true, from: cameFrom(text(e.fr, 500)) };
+  return null;
 }
 
 function decode(value: string | null): string | null {
@@ -81,6 +114,8 @@ export async function POST(request: Request) {
     const path = text(e.p, 300);
     if (!e.t || !TYPES.has(e.t) || !path || !path.startsWith("/") || path.startsWith("/admin")) continue;
     const width = whole(e.w, 100, 10_000);
+    if (e.t === "media" && (!e.k || !MEDIA.has(e.k) || !text(e.h, 300)?.startsWith("/"))) continue;
+    if (e.t === "search" && !text(e.l, 100) && !e.f) continue;
     const referrer = e.en ? text(e.r, 500) : null;
     rows.push({
       type: e.t as EventRow["type"],
@@ -99,9 +134,10 @@ export async function POST(request: Request) {
       screen_w: width,
       duration_ms: e.t === "leave" ? whole(e.d, 0, 6 * 60 * 60 * 1000) : null,
       scroll_pct: e.t === "leave" ? whole(e.sc, 0, 100) : null,
-      target: e.t === "click" ? text(e.h, 500) : null,
-      target_kind: e.t === "click" && e.k && KINDS.has(e.k) ? e.k : null,
-      target_label: e.t === "click" ? text(e.l, 120) : null,
+      target: e.t === "click" ? text(e.h, 500) : e.t === "media" ? text(e.h, 300) : null,
+      target_kind: e.t === "click" && e.k && KINDS.has(e.k) ? e.k : e.t === "media" ? e.k! : null,
+      target_label: e.t === "click" || e.t === "media" ? text(e.l, 200) : e.t === "search" ? text(e.l, 100) : null,
+      props: propsFor(e),
     });
   }
   try {

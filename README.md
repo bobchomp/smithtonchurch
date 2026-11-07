@@ -79,13 +79,17 @@ sign up**, as logins are only created by invitation. Signing in lasts 12 hours.
 
 **Admin → Analytics** shows how people use the website: visitors, visits and page views over time,
 each page's time on page and scroll depth, where visits start and end, where visitors came from
-(other websites and `?utm_campaign=` links), towns and countries, and devices. The website keeps
+(other websites and `?utm_campaign=` links), towns and countries, and devices. Further tabs show
+routes through the website and individual (anonymous) visits, clicks and downloads, sermon plays
+and how far people listen or watch, sermon archive searches, and addresses that weren't found.
+Every report can be downloaded as a CSV file. The website keeps
 these statistics itself, in the Supabase database; nothing is sent to Google or anyone else.
 
 To set it up:
 
 1. Open **Admin → Analytics**, press **Copy the setup script**, then in Supabase open **SQL Editor →
-   New query**, paste it and press **Run**. (It's safe to run again after updates.)
+   New query**, paste it and press **Run**. (It's safe to run again; when new reports are added,
+   the page shows the script again to run.)
 2. Publish the privacy notice (it explains the statistics and how to opt out).
 3. Back in **Admin → Analytics**, tick **Record visits to the website** and save.
 

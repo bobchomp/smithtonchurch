@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { track } from "@/lib/track";
 import { BIBLE_BOOKS } from "@/lib/bible";
 import { formatDuration, formatSermonDate, serviceLabel, type PublicSermon } from "@/lib/sermon-types";
 
@@ -56,6 +57,23 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
   }, [filters, page]);
 
   const results = useMemo(() => sermons.filter((s) => matches(s, filters)), [sermons, filters]);
+
+  // For the website statistics: what people search for, once they've stopped typing for a moment.
+  const lastSearch = useRef("");
+  useEffect(() => {
+    const q = filters.q.trim();
+    const chosen: Record<string, string> = {};
+    for (const key of FILTERS) if (key !== "q" && filters[key]) chosen[key] = filters[key];
+    if (q.length < 2 && !Object.keys(chosen).length) return;
+    const key = JSON.stringify([q.toLowerCase(), chosen]);
+    if (key === lastSearch.current) return;
+    const timer = setTimeout(() => {
+      lastSearch.current = key;
+      track({ t: "search", l: q || undefined, n: results.length, f: chosen });
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [filters, results.length]);
+
   const pages = Math.max(1, Math.ceil(results.length / PER_PAGE));
   const shown = results.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 

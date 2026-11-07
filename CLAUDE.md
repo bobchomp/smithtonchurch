@@ -74,6 +74,11 @@
   Cookies: `sc_v` visitor (1y), `sc_s` visit (30 min), `sc_consent` ok/no, `sc_admin` (set on admin sign-in: never counted).
   Not counted: "Don't count me", Sec-GPC, admins, bots (`lib/analytics-ua.ts`). No IPs stored; town/country from Vercel headers.
   The cookie card links to /privacy/, which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
+  Phase 2: `track()` in lib/track.ts sends extra events from public components ('media' from `SermonAudio`/`YouTubePlayer trackAs`,
+  progress milestones 0/25/50/75/95 in props.pct; 'search' from SermonBrowser, debounced; 404s are pageviews with props.nf).
+  Admin → Analytics has tabs (`?view=`: overview, pages, clicks, sermons, searches, missing; views.tsx, parts.tsx) and CSV
+  downloads (`analytics/export/route.ts`, `?report=…`, "events" streams every row). New reports need their SQL function in
+  supabase/analytics.sql; the owner re-runs it (the page shows the setup panel when a function is missing).
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

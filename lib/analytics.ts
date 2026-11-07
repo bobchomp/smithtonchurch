@@ -26,7 +26,7 @@ export async function saveAnalyticsSettings(settings: AnalyticsSettings): Promis
 }
 
 export type EventRow = {
-  type: "pageview" | "leave" | "click";
+  type: "pageview" | "leave" | "click" | "media" | "search";
   visitor_id: string;
   session_id: string;
   entry?: boolean;
@@ -49,6 +49,7 @@ export type EventRow = {
   target?: string | null;
   target_kind?: string | null;
   target_label?: string | null;
+  props?: Record<string, unknown> | null;
 };
 
 export async function recordEvents(rows: EventRow[]): Promise<void> {
@@ -126,4 +127,115 @@ export async function live(): Promise<{ path: string; visitors: number }[]> {
 export async function storageUsed(): Promise<{ bytes: number; events: number; since: string | null }> {
   const [row] = await rpc<Record<string, unknown>>("analytics_storage");
   return { bytes: Number(row?.bytes ?? 0), events: Number(row?.events ?? 0), since: row?.since ? String(row.since) : null };
+}
+
+// ---------- Phase 2 reports ----------
+
+const n0 = (v: unknown) => Number(v ?? 0);
+const str = (v: unknown) => (v === null || v === undefined ? null : String(v));
+
+export type ClickKind = "internal" | "outbound" | "download" | "phone" | "email" | "button";
+export type ClickRow = { kind: string; target: string | null; label: string | null; clicks: number; visitors: number; pages: number };
+
+export async function clicks(r: Range, kind: ClickKind | null, limit = 50): Promise<ClickRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_clicks", { ...span(r), p_kind: kind, p_limit: limit });
+  return rows.map((x) => ({ kind: String(x.kind), target: str(x.target), label: str(x.label), clicks: n0(x.clicks), visitors: n0(x.visitors), pages: n0(x.pages) }));
+}
+
+export async function clickKinds(r: Range): Promise<{ kind: string; clicks: number; visitors: number }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_click_kinds", span(r));
+  return rows.map((x) => ({ kind: String(x.kind), clicks: n0(x.clicks), visitors: n0(x.visitors) }));
+}
+
+export type SermonPlays = { plays: number; audio: number; video: number; listeners: number; avg_progress: number | null; finished: number };
+export type SermonRow = SermonPlays & { path: string; title: string | null };
+
+const plays = (x: Record<string, unknown>): SermonPlays => ({
+  plays: n0(x.plays),
+  audio: n0(x.audio),
+  video: n0(x.video),
+  listeners: n0(x.listeners),
+  avg_progress: num(x.avg_progress),
+  finished: n0(x.finished),
+});
+
+export async function sermonPlays(r: Range, limit = 50): Promise<SermonRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_sermons", { ...span(r), p_limit: limit });
+  return rows.map((x) => ({ path: String(x.path), title: str(x.title), ...plays(x) }));
+}
+
+export async function sermonTotals(r: Range): Promise<SermonPlays> {
+  const [row] = await rpc<Record<string, unknown>>("analytics_sermon_totals", span(r));
+  return plays(row ?? {});
+}
+
+export type SearchRow = { term: string; searches: number; visitors: number; avg_results: number | null; no_results: number };
+
+export async function searches(r: Range, limit = 50): Promise<SearchRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_searches", { ...span(r), p_limit: limit });
+  return rows.map((x) => ({ term: String(x.term), searches: n0(x.searches), visitors: n0(x.visitors), avg_results: num(x.avg_results), no_results: n0(x.no_results) }));
+}
+
+export async function searchFilters(r: Range, limit = 50): Promise<{ filter: string; value: string; uses: number }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_search_filters", { ...span(r), p_limit: limit });
+  return rows.map((x) => ({ filter: String(x.filter), value: String(x.value), uses: n0(x.uses) }));
+}
+
+export type MissingRow = { path: string; views: number; visitors: number; last_seen: string; came_from: string | null };
+
+export async function notFound(r: Range, limit = 100): Promise<MissingRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_not_found", { ...span(r), p_limit: limit });
+  return rows.map((x) => ({ path: String(x.path), views: n0(x.views), visitors: n0(x.visitors), last_seen: String(x.last_seen), came_from: str(x.came_from) }));
+}
+
+export type FlowRow = { direction: "from" | "to"; label: string; visits: number };
+
+export async function pageFlow(r: Range, path: string, limit = 10): Promise<FlowRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_page_flow", { ...span(r), p_path: path, p_limit: limit });
+  return rows.map((x) => ({ direction: x.direction === "to" ? "to" : "from", label: String(x.label), visits: n0(x.visits) }));
+}
+
+export async function journeys(r: Range, steps = 4, limit = 20): Promise<{ journey: string; visits: number; visitors: number }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_journeys", { ...span(r), p_steps: steps, p_limit: limit });
+  return rows.map((x) => ({ journey: String(x.journey), visits: n0(x.visits), visitors: n0(x.visitors) }));
+}
+
+export type VisitRow = {
+  started: string; source: string | null; place: string | null; device: string | null; browser: string | null;
+  pages: string[]; seconds: number | null; returning: boolean;
+};
+
+export async function visits(r: Range, limit = 30, offset = 0): Promise<VisitRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_visits", { ...span(r), p_limit: limit, p_offset: offset });
+  return rows.map((x) => ({
+    started: String(x.started),
+    source: str(x.source),
+    place: str(x.place),
+    device: str(x.device),
+    browser: str(x.browser),
+    pages: Array.isArray(x.pages) ? x.pages.map(String) : [],
+    seconds: num(x.seconds),
+    returning: Boolean(x.returning_visitor),
+  }));
+}
+
+// Every event in a period, oldest first, a page at a time (for the CSV download).
+export async function* allEvents(r: Range): AsyncGenerator<Record<string, unknown>[]> {
+  const size = 1000;
+  for (let from = 0; ; from += size) {
+    const { data, error } = await withTimeout(
+      supabaseAdmin()
+        .from("analytics_events")
+        .select("*")
+        .gte("created_at", r.from.toISOString())
+        .lt("created_at", r.to.toISOString())
+        .order("id")
+        .range(from, from + size - 1),
+      20_000,
+    );
+    if (error) throw error;
+    if (!data?.length) return;
+    yield data as Record<string, unknown>[];
+    if (data.length < size) return;
+  }
 }

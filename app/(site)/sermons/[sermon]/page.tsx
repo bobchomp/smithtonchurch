@@ -3,6 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import BulletinBox from "@/components/BulletinBox";
+import SermonAudio from "@/components/SermonAudio";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import { bulletinForDate } from "@/lib/documents";
 import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
@@ -81,14 +82,12 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             ) : null}
           </dl>
 
-          {sermon.youtubeId && <YouTubePlayer id={sermon.youtubeId} title={sermon.title} />}
+          {sermon.youtubeId && <YouTubePlayer id={sermon.youtubeId} title={sermon.title} trackAs={sermon.title} />}
 
           {sermon.audioUrl ? (
             <div className="sermon-player">
               {sermon.youtubeId && <h2 className="sermon-audio-heading">Listen to the audio</h2>}
-              <audio controls preload="metadata" src={sermon.audioUrl}>
-                <a href={sermon.audioUrl}>Download the sermon audio</a>
-              </audio>
+              <SermonAudio src={sermon.audioUrl} title={sermon.title} />
               <div className="sermon-actions">
                 <a className="button button-outline" href={sermon.audioUrl} download>
                   Download MP3

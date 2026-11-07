@@ -18,7 +18,7 @@ export default function NotFound() {
         <LostPage />
       </main>
       <Footer />
-      <Analytics />
+      <Analytics notFound />
     </>
   );
 }

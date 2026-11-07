@@ -6,80 +6,30 @@ import { requireTool } from "@/lib/admin-auth";
 import {
   analyticsSettings,
   breakdown,
+  clickKinds,
+  clicks,
   isMissingSetup,
+  journeys,
   live,
+  notFound,
   overview,
+  pageFlow,
   pages,
+  searches,
+  searchFilters,
+  sermonPlays,
+  sermonTotals,
   series,
   storageUsed,
-  type BreakdownRow,
+  visits,
 } from "@/lib/analytics";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
-import { setTracking } from "./actions";
-import Chart from "./Chart";
 import CopySql from "./CopySql";
-import { bucketKey, buckets, RANGES, rangeFor, type RangeKey } from "./ranges";
+import { analyticsHref, VIEWS, type ViewKey } from "./parts";
+import { RANGES, rangeFor, type RangeKey } from "./ranges";
+import { ClicksView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
 
 export const metadata: Metadata = { title: "Analytics" };
-
-const nf = new Intl.NumberFormat("en-GB");
-
-function duration(seconds: number | null): string {
-  if (seconds === null || Number.isNaN(seconds)) return "–";
-  const s = Math.round(seconds);
-  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${pad(s % 60)}s`;
-}
-const pad = (n: number) => String(n).padStart(2, "0");
-
-function change(now: number | null, before: number | null, lowerIsBetter = false) {
-  if (now === null || before === null || before === 0) return null;
-  const pct = Math.round(((now - before) / before) * 100);
-  if (pct === 0) return <span className="analytics-change">no change</span>;
-  const good = lowerIsBetter ? pct < 0 : pct > 0;
-  return <span className={`analytics-change ${good ? "is-up" : "is-down"}`}>{pct > 0 ? "▲" : "▼"} {Math.abs(pct)}%</span>;
-}
-
-function Stat({ label, value, delta }: { label: string; value: string; delta: React.ReactNode }) {
-  return (
-    <div className="analytics-stat">
-      <span className="analytics-stat-label">{label}</span>
-      <strong>{value}</strong>
-      {delta}
-    </div>
-  );
-}
-
-function Table({ title, rows, col = "Visitors", unit = "visitors", empty = "Nothing yet." }: { title: string; rows: BreakdownRow[]; col?: string; unit?: "visitors" | "pageviews"; empty?: string }) {
-  const max = Math.max(1, ...rows.map((r) => r[unit]));
-  return (
-    <section className="admin-panel analytics-table">
-      <h2>{title}</h2>
-      {rows.length === 0 ? (
-        <p className="admin-muted">{empty}</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th scope="col" className="visually-hidden">Name</th>
-              <th scope="col">{col}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => (
-              <tr key={r.label}>
-                <td>
-                  <span className="analytics-bar" style={{ width: `${(r[unit] / max) * 100}%` }} />
-                  <span className="analytics-label">{r.label}</span>
-                </td>
-                <td>{nf.format(r[unit])}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
-  );
-}
 
 function Setup({ error }: { error?: unknown }) {
   let sql = "";
@@ -90,8 +40,11 @@ function Setup({ error }: { error?: unknown }) {
   }
   return (
     <section className="admin-panel admin-panel-narrow analytics-setup">
-      <h2>Set up the analytics database</h2>
-      <p>The analytics are kept in your Supabase database. It needs setting up once:</p>
+      <h2>Set up (or update) the analytics database</h2>
+      <p>
+        The analytics are kept in your Supabase database. It needs setting up once, and again when new reports are
+        added (running it again keeps everything already recorded):
+      </p>
       <ol>
         <li>Press <strong>Copy the setup script</strong> below.</li>
         <li>In the Supabase dashboard, open your project, then <strong>SQL Editor</strong> → <strong>New query</strong>.</li>
@@ -104,78 +57,122 @@ function Setup({ error }: { error?: unknown }) {
   );
 }
 
-export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<{ range?: string }> }) {
+type Params = { range?: string; view?: string; page?: string; older?: string };
+
+export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const me = await requireTool("analytics");
-  const wanted = (await searchParams).range;
-  const key = (RANGES.find((r) => r.key === wanted)?.key ?? "30d") as RangeKey;
+  const params = await searchParams;
+  const key = (RANGES.find((r) => r.key === params.range)?.key ?? "30d") as RangeKey;
+  const view = (VIEWS.find((v) => v.key === params.view)?.key ?? "overview") as ViewKey;
   const { current, previous } = rangeFor(key);
 
-  if (!supabaseIsConfigured()) {
-    return (
-      <>
-        <h1>Analytics</h1>
-        <p className="admin-error">Supabase isn’t set up yet.</p>
-      </>
-    );
-  }
-
-  let data;
-  try {
-    const [now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, onNow, storage] =
-      await Promise.all([
-        overview(current),
-        overview(previous),
-        series(current),
-        pages(current, 50),
-        breakdown(current, "source"),
-        breakdown(current, "campaign"),
-        breakdown(current, "country"),
-        breakdown(current, "city"),
-        breakdown(current, "device"),
-        breakdown(current, "browser"),
-        breakdown(current, "os"),
-        breakdown(current, "screen"),
-        live(),
-        storageUsed(),
-      ]);
-    data = { now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, onNow, storage };
-  } catch (error) {
-    if (isMissingSetup(error)) {
-      return (
-        <>
-          <h1>Analytics</h1>
-          <p className="admin-intro">See how people find and use the website.</p>
-          <Setup error={error} />
-        </>
-      );
-    }
-    return (
-      <>
-        <h1>Analytics</h1>
-        <p className="admin-error">Couldn’t load the analytics. {describeStorageError(error)}</p>
-      </>
-    );
-  }
-
-  const { enabled } = await analyticsSettings(true);
-  const { now, before, chart, top, onNow, storage } = data;
-  const byBucket = new Map(chart.map((p) => [bucketKey(p.bucket, current.unit), p]));
-  const points = buckets(current).map((b) => ({ label: b.label, pageviews: byBucket.get(b.key)?.pageviews ?? 0, visitors: byBucket.get(b.key)?.visitors ?? 0 }));
-  const liveTotal = onNow.reduce((n, r) => n + r.visitors, 0);
-  const comparedWith = key === "today" ? "yesterday" : "the previous " + RANGES.find((r) => r.key === key)!.label.toLowerCase();
-
-  return (
+  const heading = (
     <>
       <h1>Analytics</h1>
       <p className="admin-intro">
         How people find and use the website. Visits from signed-in admins aren’t counted, and nor are people who chose
         “Don’t count me”.
       </p>
+    </>
+  );
 
+  if (!supabaseIsConfigured()) {
+    return (
+      <>
+        {heading}
+        <p className="admin-error">Supabase isn’t set up yet.</p>
+      </>
+    );
+  }
+
+  let body: React.ReactNode;
+  let onNow: { path: string; visitors: number }[] = [];
+  try {
+    onNow = await live();
+    if (view === "overview") {
+      const [now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, storage, settings] =
+        await Promise.all([
+          overview(current),
+          overview(previous),
+          series(current),
+          pages(current, 10),
+          breakdown(current, "source"),
+          breakdown(current, "campaign"),
+          breakdown(current, "country"),
+          breakdown(current, "city"),
+          breakdown(current, "device"),
+          breakdown(current, "browser"),
+          breakdown(current, "os"),
+          breakdown(current, "screen"),
+          storageUsed(),
+          analyticsSettings(true),
+        ]);
+      body = (
+        <OverviewView
+          range={key}
+          current={current}
+          data={{ now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, storage }}
+          enabled={settings.enabled}
+          isOwner={me.role === "owner"}
+        />
+      );
+    } else if (view === "pages") {
+      const offset = Math.max(0, Math.min(10_000, Number(params.older) || 0));
+      const [all, routes, recent] = await Promise.all([pages(current, 100), journeys(current, 4, 20), visits(current, 30, offset)]);
+      const chosen = params.page && params.page.startsWith("/") ? params.page : all[0]?.path;
+      const flow = chosen ? await pageFlow(current, chosen, 10) : [];
+      body = <PagesView range={key} pages={all} chosen={chosen} flow={flow} journeys={routes} visits={recent} offset={offset} />;
+    } else if (view === "clicks") {
+      const [kinds, downloads, outbound, contact, internal, buttons] = await Promise.all([
+        clickKinds(current),
+        clicks(current, "download", 30),
+        clicks(current, "outbound", 30),
+        Promise.all([clicks(current, "phone", 15), clicks(current, "email", 15)]).then(([a, b]) => [...a, ...b].sort((x, y) => y.clicks - x.clicks)),
+        clicks(current, "internal", 30),
+        clicks(current, "button", 30),
+      ]);
+      body = <ClicksView range={key} kinds={kinds} downloads={downloads} outbound={outbound} contact={contact} internal={internal} buttons={buttons} />;
+    } else if (view === "sermons") {
+      const [totals, rows] = await Promise.all([sermonTotals(current), sermonPlays(current, 100)]);
+      body = <SermonsView range={key} totals={totals} rows={rows} />;
+    } else if (view === "searches") {
+      const [terms, filters] = await Promise.all([searches(current, 1000), searchFilters(current, 50)]);
+      body = <SearchesView range={key} terms={terms} filters={filters} />;
+    } else {
+      body = <MissingView range={key} rows={await notFound(current, 100)} />;
+    }
+  } catch (error) {
+    if (isMissingSetup(error)) {
+      return (
+        <>
+          {heading}
+          <Setup error={error} />
+        </>
+      );
+    }
+    return (
+      <>
+        {heading}
+        <p className="admin-error">Couldn’t load the analytics. {describeStorageError(error)}</p>
+      </>
+    );
+  }
+
+  const liveTotal = onNow.reduce((n, r) => n + r.visitors, 0);
+  return (
+    <>
+      {heading}
+      <nav className="analytics-views" aria-label="Reports">
+        {VIEWS.map((v) => (
+          <Link key={v.key} href={analyticsHref(v.key, key)} aria-current={v.key === view ? "page" : undefined}>
+            {v.label}
+          </Link>
+        ))}
+      </nav>
       <div className="analytics-bar-top">
         <nav className="analytics-ranges" aria-label="Date range">
           {RANGES.map((r) => (
-            <Link key={r.key} href={`/admin/analytics/?range=${r.key}`} aria-current={r.key === key ? "page" : undefined}>
+            <Link key={r.key} href={analyticsHref(view, r.key)} aria-current={r.key === key ? "page" : undefined}>
               {r.label}
             </Link>
           ))}
@@ -184,107 +181,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           <span className="analytics-live-dot" aria-hidden="true" /> {liveTotal} on the site now
         </div>
       </div>
-
-      {!enabled && (
-        <div className="admin-notice admin-notice-spaced">
-          <p>
-            <strong>Tracking is switched off</strong>, so nothing new is being recorded
-            {me.role === "owner" ? ". Switch it on below once the privacy notice is published." : ". An owner can switch it on."}
-          </p>
-        </div>
-      )}
-
-      <div className="analytics-stats">
-        <Stat label="Visitors" value={nf.format(now.visitors)} delta={change(now.visitors, before.visitors)} />
-        <Stat label="Visits" value={nf.format(now.sessions)} delta={change(now.sessions, before.sessions)} />
-        <Stat label="Page views" value={nf.format(now.pageviews)} delta={change(now.pageviews, before.pageviews)} />
-        <Stat
-          label="Bounce rate"
-          value={now.bounce_rate === null ? "–" : `${Math.round(now.bounce_rate)}%`}
-          delta={change(now.bounce_rate, before.bounce_rate, true)}
-        />
-        <Stat label="Average visit" value={duration(now.avg_visit_seconds)} delta={change(now.avg_visit_seconds, before.avg_visit_seconds)} />
-      </div>
-      <p className="analytics-compare">Changes are compared with {comparedWith}. A “bounce” is a visit that only looked at one page.</p>
-
-      <section className="admin-panel">
-        <Chart points={points} />
-      </section>
-
-      <section className="admin-panel analytics-table analytics-pages">
-        <h2>Pages</h2>
-        {top.length === 0 ? (
-          <p className="admin-muted">Nothing yet.</p>
-        ) : (
-          <div className="analytics-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Page</th>
-                  <th scope="col">Views</th>
-                  <th scope="col">Visitors</th>
-                  <th scope="col">Time on page</th>
-                  <th scope="col">Scrolled</th>
-                  <th scope="col">Entries</th>
-                  <th scope="col">Exits</th>
-                </tr>
-              </thead>
-              <tbody>
-                {top.map((p) => (
-                  <tr key={p.path}>
-                    <td>
-                      <span className="analytics-bar" style={{ width: `${(p.pageviews / top[0].pageviews) * 100}%` }} />
-                      <span className="analytics-label">{p.path}</span>
-                    </td>
-                    <td>{nf.format(p.pageviews)}</td>
-                    <td>{nf.format(p.visitors)}</td>
-                    <td>{duration(p.avg_seconds)}</td>
-                    <td>{p.avg_scroll === null ? "–" : `${Math.round(p.avg_scroll)}%`}</td>
-                    <td>{nf.format(p.entries)}</td>
-                    <td>{nf.format(p.exits)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      <div className="analytics-grid">
-        <Table title="Where visitors came from" rows={data.sources} col="Visits" unit="pageviews" />
-        <Table title="Campaigns" rows={data.campaigns} col="Visits" unit="pageviews" empty="No campaign links used yet (links with ?utm_campaign=…)." />
-        <Table title="Countries" rows={data.countries} />
-        <Table title="Towns and cities" rows={data.cities} />
-        <Table title="Devices" rows={data.devices.map((r) => ({ ...r, label: r.label[0].toUpperCase() + r.label.slice(1) }))} />
-        <Table title="Screen sizes" rows={data.screens} />
-        <Table title="Browsers" rows={data.browsers} />
-        <Table title="Operating systems" rows={data.systems} />
-      </div>
-
-      <div className="admin-columns">
-        <section className="admin-panel">
-          <h2>Tracking</h2>
-          {me.role === "owner" ? (
-            <form action={setTracking} className="admin-form analytics-tracking">
-              <label className="admin-checkbox">
-                <input type="checkbox" name="enabled" defaultChecked={enabled} />
-                Record visits to the website (shows the cookie card to visitors)
-              </label>
-              <button className="button" type="submit">Save</button>
-            </form>
-          ) : (
-            <p className="admin-muted">Tracking is {enabled ? "on" : "off"}. Owners can change this.</p>
-          )}
-        </section>
-        <section className="admin-panel">
-          <h2>Storage</h2>
-          <p className="admin-muted">
-            {nf.format(storage.events)} events recorded
-            {storage.since ? ` since ${new Date(storage.since).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}` : ""},
-            using {(storage.bytes / 1024 / 1024).toFixed(1)} MB of the database (the free Supabase plan includes 500 MB).
-          </p>
-        </section>
-      </div>
+      {body}
     </>
   );
 }
