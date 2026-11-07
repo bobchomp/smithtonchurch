@@ -1100,3 +1100,51 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .slides-revisions .slides-changes { margin-top: 0.3rem; color: var(--muted); }
 .slides-download { font-size: 0.88rem; }
 @media (max-width: 700px) { .slides-revisions li { grid-template-columns: minmax(0, 1fr); } }
+
+/* Admin → Branding */
+.brand { display: grid; gap: 1.5rem; }
+.brand h3 { font-size: 1rem; margin: 1.25rem 0 0.75rem; }
+.brand-logos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; }
+.brand-logos figure, .brand-photos figure { margin: 0; display: grid; gap: 0.6rem; min-width: 0; }
+.brand-tile { display: grid; place-items: center; height: 170px; padding: 2rem; border-radius: 8px; border: 1px solid var(--border); }
+.brand-tile img { max-width: min(100%, 300px); max-height: 120px; width: auto; height: auto; }
+.brand-tile-light { background: #fff; }
+.brand-tile-blue { background: var(--blue); border-color: var(--blue); }
+.brand figcaption { display: grid; gap: 0.15rem; font-size: 0.92rem; }
+.brand figcaption span { color: var(--muted); }
+.brand-download { font-weight: 600; font-size: 0.9rem; justify-self: start; }
+.brand-rules { margin: 1.25rem 0 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.95rem; }
+.brand-favicon { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.92rem; }
+.brand-favicon img { image-rendering: auto; border-radius: 4px; }
+.brand-colour-group:first-of-type h3 { margin-top: 0.25rem; }
+.brand-swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr)); gap: 1rem; }
+.brand-swatches li { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0.9rem; align-items: start; }
+.brand-swatch { display: grid; place-items: center; height: 88px; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.08); font: 600 1.6rem var(--font-head); }
+.brand-swatches strong { display: block; }
+.brand-codes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.6rem; font-size: 0.85rem; color: var(--muted); margin: 0.1rem 0 0.25rem; }
+.brand-copy { font: 600 0.85rem ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--blue); background: var(--blue-light); border: 0; border-radius: 4px; padding: 0.1rem 0.4rem; cursor: pointer; }
+.brand-copy:hover { background: #dde5f0; }
+.brand-use, .brand-contrast { display: block; font-size: 0.85rem; color: var(--muted); }
+.brand-contrast { margin-top: 0.15rem; font-style: italic; }
+.brand-note { font-size: 0.9rem; margin: 1rem 0 0; }
+.brand-fonts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 1.5rem 2.5rem; }
+.brand-fonts p { margin: 0 0 0.6rem; }
+.brand-font-name { font: 600 2rem/1.2 var(--font-head); color: var(--blue); }
+.brand-font-body { font-family: var(--font-body); font-weight: 600; }
+.brand-font-use { color: var(--muted); font-size: 0.92rem; }
+.brand-sample-head { font: 600 1.7rem/1.25 var(--font-head); color: var(--blue); }
+.brand-weights { display: flex; gap: 1.25rem; font-family: var(--font-head); font-size: 1.1rem; }
+.brand-sample-body { line-height: 1.65; }
+.brand-tagline { font: italic 1.6rem var(--font-head); color: var(--blue); margin: 0 0 0.5rem; }
+.brand-buttons { display: flex; flex-wrap: wrap; gap: 1.25rem 1.75rem; align-items: flex-start; }
+.brand-buttons > span { display: grid; gap: 0.4rem; justify-items: start; }
+.brand-buttons small { color: var(--muted); font-size: 0.82rem; max-width: 190px; }
+.brand-pill { border-radius: 999px; padding: 0.45rem 1.2rem; font-size: 0.92rem; }
+.brand-on-blue { background: var(--blue); padding: 0.9rem 1rem; border-radius: 8px; }
+.brand-on-blue small { color: #e7edf5; }
+.brand-on-blue .footer-button { display: inline-block; background: #fff; color: var(--blue); border-radius: 999px; padding: 0.45rem 1.1rem; font: 600 0.92rem var(--font-head); text-decoration: none; }
+.brand-photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1.25rem; }
+.brand-photos img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+.brand-more { margin-top: 1.25rem; }
+.brand-more summary { cursor: pointer; font-weight: 600; color: var(--blue); }
+.brand-more ul { columns: 2 220px; margin: 0.75rem 0 0; padding-left: 1.2rem; font-size: 0.92rem; }

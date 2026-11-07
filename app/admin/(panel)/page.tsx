@@ -134,6 +134,14 @@ export default async function AdminDashboard({
             </p>
           </Link>
         )}
+        {canUse(me, "branding") && (
+          <Link className="admin-tool" href="/admin/branding/">
+            <h2>Branding</h2>
+            <p>
+              The church’s logos, colours, fonts and styles, with downloads.
+            </p>
+          </Link>
+        )}
         {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/users/">
             <h2>Users</h2>

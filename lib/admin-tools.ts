@@ -11,6 +11,7 @@ export const ADMIN_TOOLS = [
   { key: "pages-to-review", label: "Pages to Review", hint: "See draft pages before they go live" },
   { key: "analytics", label: "Analytics", hint: "See how people find and use the website" },
   { key: "holding-slides", label: "Holding Slides", hint: "See and download the live stream’s holding slides" },
+  { key: "branding", label: "Branding", hint: "The church’s logos, colours and fonts" },
 ] as const;
 
 export type AdminTool = (typeof ADMIN_TOOLS)[number]["key"];
