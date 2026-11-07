@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dateFromFileName, DOCUMENT_TYPES, formatDocumentDate, type DocumentKind } from "@/lib/document-types";
 import { renderPdfCover } from "@/lib/pdf-cover";
-import { finishDocumentUpload, startDocumentUpload } from "./actions";
+import { finishDocumentUpload, startDocumentUpload, type ExistingDocument } from "./actions";
 import MonthYearSelect from "./MonthYearSelect";
 
 const MAX_MEGABYTES = 25;
@@ -48,10 +48,53 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
   }
   const notSunday = precision === "day" && /^\d{4}-\d{2}-\d{2}$/.test(date) && new Date(`${date}T12:00:00Z`).getUTCDay() !== 0;
 
+  const form = useRef<HTMLFormElement>(null);
+  const dialog = useRef<HTMLDialogElement>(null);
+  // A document already uploaded for the same date: the admin chooses which one to keep.
+  const [clash, setClash] = useState<{ date: string; file: File; cover: Blob | null; coverUrl?: string; existing: ExistingDocument } | null>(null);
+  useEffect(() => {
+    if (clash) dialog.current?.showModal();
+    return () => {
+      if (clash?.coverUrl) URL.revokeObjectURL(clash.coverUrl);
+    };
+  }, [clash]);
+
+  function finished() {
+    form.current?.reset();
+    setDate(defaultDate);
+    setFromName(null);
+    setDateKey((k) => k + 1);
+  }
+
+  async function upload(date: string, file: File, cover: Blob | null, replace: boolean) {
+    setProgress(0);
+    try {
+      const { uploadUrls, existing, error } = await startDocumentUpload(kind, date, replace);
+      if (existing) {
+        setProgress(null);
+        setClash({ date, file, cover, coverUrl: cover ? URL.createObjectURL(cover) : undefined, existing });
+        return;
+      }
+      if (!uploadUrls) throw new Error(error);
+      await uploadFile(uploadUrls.pdf, file, setProgress);
+      if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
+      await finishDocumentUpload(kind, date);
+      finished();
+      setMessage({
+        kind: "success",
+        text: `${singular[0].toUpperCase()}${singular.slice(1)} ${replace ? "replaced" : "uploaded"}. It’s now live on the website.`,
+      });
+      router.refresh();
+    } catch (error) {
+      setMessage({ kind: "error", text: `The upload didn’t work: ${(error as Error).message}` });
+    } finally {
+      setProgress(null);
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
+    const data = new FormData(event.currentTarget);
     const date = precision === "day" ? String(data.get("date")) : `${data.get("year")}-${data.get("month")}`;
     const file = data.get("file") as File | null;
     setMessage(null);
@@ -61,35 +104,36 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
     if (file.size > MAX_MEGABYTES * 1024 * 1024) {
       return setMessage({ kind: "error", text: `That file is too big. The limit is ${MAX_MEGABYTES} MB.` });
     }
-
     setProgress(0);
-    try {
-      // Picture of the first page for the website. Not essential: without it a standard image is shown.
-      const cover = await renderPdfCover(file).catch((error) => {
-        console.warn("Couldn’t make a cover picture from the PDF", error);
-        return null;
-      });
-      const { uploadUrls, error } = await startDocumentUpload(kind, date);
-      if (!uploadUrls) throw new Error(error);
-      await uploadFile(uploadUrls.pdf, file, setProgress);
-      if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
-      await finishDocumentUpload(kind, date);
-      form.reset();
-      setDate(defaultDate);
-      setFromName(null);
-      setDateKey((k) => k + 1);
-      setMessage({ kind: "success", text: `${singular[0].toUpperCase()}${singular.slice(1)} uploaded. It’s now live on the website.` });
-      router.refresh();
-    } catch (error) {
-      setMessage({ kind: "error", text: `The upload didn’t work: ${(error as Error).message}` });
-    } finally {
-      setProgress(null);
+    // Picture of the first page for the website. Not essential: without it a standard image is shown.
+    const cover = await renderPdfCover(file).catch((error) => {
+      console.warn("Couldn’t make a cover picture from the PDF", error);
+      return null;
+    });
+    await upload(date, file, cover, false);
+  }
+
+  function choose(keepNew: boolean) {
+    const c = clash;
+    dialog.current?.close();
+    setClash(null);
+    if (!c) return;
+    if (keepNew) {
+      void upload(c.date, c.file, c.cover, true);
+    } else {
+      finished();
+      setMessage({ kind: "success", text: `Kept the ${singular} that was already uploaded. The new file wasn’t uploaded.` });
     }
   }
 
+  const megabytes = (bytes: number) => `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+  const when = (iso: string) =>
+    new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+
   const uploading = progress !== null;
   return (
-    <form className="admin-form" onSubmit={handleSubmit}>
+    <>
+    <form ref={form} className="admin-form" onSubmit={handleSubmit}>
       <label>
         {`${singular[0].toUpperCase()}${singular.slice(1)} PDF`}
         <input type="file" name="file" accept="application/pdf,.pdf" required onChange={(e) => fileChosen(e.target.files?.[0])} />
@@ -113,8 +157,52 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
         </p>
       )}
       <button className="button" type="submit" disabled={uploading}>
-        {uploading ? `Uploading… ${progress}%` : `Upload ${singular}`}
+        {uploading ? (progress ? `Uploading… ${progress}%` : "Checking…") : `Upload ${singular}`}
       </button>
     </form>
+
+    <dialog ref={dialog} className="admin-dialog" aria-labelledby="clash-title" onCancel={() => choose(false)}>
+      {clash && (
+        <>
+          <h2 id="clash-title">
+            There’s already a {singular} for {formatDocumentDate(kind, clash.date)}
+          </h2>
+          <p>
+            Only one {singular} can be assigned to each {precision === "day" ? "Sunday" : "month"}. Which one should it be?
+          </p>
+          <div className="admin-dialog-choices">
+            <div className="admin-dialog-choice">
+              <h3>Already uploaded</h3>
+              {clash.existing.coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={clash.existing.coverUrl} alt="" />
+              ) : (
+                <div className="admin-dialog-nocover">PDF</div>
+              )}
+              <p className="admin-muted">
+                Uploaded {when(clash.existing.uploadedAt)} · {megabytes(clash.existing.size)} ·{" "}
+                <a href={clash.existing.url} target="_blank" rel="noopener noreferrer">Open</a>
+              </p>
+              <button type="button" className="button button-outline" onClick={() => choose(false)}>Keep this one</button>
+            </div>
+            <div className="admin-dialog-choice">
+              <h3>New file</h3>
+              {clash.coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={clash.coverUrl} alt="" />
+              ) : (
+                <div className="admin-dialog-nocover">PDF</div>
+              )}
+              <p className="admin-muted">
+                {clash.file.name} · {megabytes(clash.file.size)}
+              </p>
+              <button type="button" className="button" onClick={() => choose(true)} autoFocus>Use this one</button>
+            </div>
+          </div>
+          <p className="admin-muted admin-dialog-note">The one you don’t choose is deleted.</p>
+        </>
+      )}
+    </dialog>
+    </>
   );
 }

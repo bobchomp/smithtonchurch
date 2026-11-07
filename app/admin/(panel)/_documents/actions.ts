@@ -25,16 +25,25 @@ async function refreshPages(kind: DocumentKind, date?: string) {
   for (const s of sermons) if (s.date === date) revalidatePath(sermonPath(s).replace(/\/$/, ""));
 }
 
+export type ExistingDocument = { url: string; coverUrl?: string; size: number; uploadedAt: string };
+
 // Step 1 of an upload: get one-off addresses for the browser to send the PDF and cover to.
+// Only one document can be shown for each date: if there's already one, it's returned instead (as
+// `existing`) so the admin can choose, unless `replace` says they've chosen the new one.
 export async function startDocumentUpload(
   kind: string,
   date: string,
-): Promise<{ uploadUrls?: { pdf: string; cover: string }; error?: string }> {
+  replace = false,
+): Promise<{ uploadUrls?: { pdf: string; cover: string }; existing?: ExistingDocument; error?: string }> {
   await requireAdmin();
   if (!isDocumentKind(kind)) return { error: "Unknown document type." };
   await requireTool(TOOL[kind]);
   if (!isDocumentDate(kind, date)) return { error: "Please choose a valid date." };
   try {
+    if (!replace) {
+      const found = (await listDocuments(kind)).find((d) => d.date === date);
+      if (found) return { existing: { url: found.url, coverUrl: found.coverUrl, size: found.size, uploadedAt: found.uploadedAt.toISOString() } };
+    }
     return { uploadUrls: await createDocumentUploadUrls(kind, date) };
   } catch (error) {
     console.error(`Could not start ${kind} upload`, error);
