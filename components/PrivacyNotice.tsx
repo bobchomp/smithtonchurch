@@ -2,7 +2,7 @@ import Link from "next/link";
 import AnalyticsOptOut from "@/components/AnalyticsOptOut";
 import { site } from "@/lib/content";
 
-// The website privacy notice (/privacy/). Keep "Last updated" current when it changes.
+// The website privacy & cookies policy (/privacy/). Keep "Last updated" current when it changes.
 export default function PrivacyNotice() {
   return (
     <section className="section">
@@ -16,7 +16,7 @@ export default function PrivacyNotice() {
           the personal information collected through this website.
         </p>
         <p>
-          If you have any questions about this notice or how we use your information, please contact the church office
+          If you have any questions about this policy or how we use your information, please contact the church office
           at <a href={`mailto:${site.email}`}>{site.email}</a> or on <a href={`tel:${site.phone_link}`}>{site.phone}</a>.
         </p>
 
@@ -157,8 +157,8 @@ export default function PrivacyNotice() {
           ).
         </p>
 
-        <h2>Changes to this notice</h2>
-        <p>We may update this notice from time to time. The date at the top shows when it was last changed.</p>
+        <h2>Changes to this policy</h2>
+        <p>We may update this policy from time to time. The date at the top shows when it was last changed.</p>
       </div>
     </section>
   );

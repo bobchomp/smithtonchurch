@@ -4,7 +4,7 @@ import PrivacyNotice from "@/components/PrivacyNotice";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata("/privacy/", {
-  title: "Privacy Notice",
+  title: "Privacy & Cookies Policy",
   description:
     "How Smithton Church uses the information collected through this website: contact form messages, website statistics and cookies, and your rights.",
 });
@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata("/privacy/", {
 export default function Privacy() {
   return (
     <>
-      <PageBanner title="Privacy Notice" />
+      <PageBanner title="Privacy & Cookies Policy" />
       <PrivacyNotice />
     </>
   );

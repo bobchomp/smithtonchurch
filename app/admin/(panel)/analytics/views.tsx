@@ -93,7 +93,7 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
         <div className="admin-notice admin-notice-spaced">
           <p>
             <strong>Tracking is switched off</strong>, so nothing new is being recorded
-            {isOwner ? ". Switch it on below once the privacy notice is published." : ". An owner can switch it on."}
+            {isOwner ? ". Switch it on below once the privacy & cookies policy is published." : ". An owner can switch it on."}
           </p>
         </div>
       )}

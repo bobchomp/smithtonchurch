@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-// On the privacy notice: lets a visitor stop (or restart) the website counting their visits.
+// On the privacy & cookies policy: lets a visitor stop (or restart) the website counting their visits.
 export default function AnalyticsOptOut() {
   const [optedOut, setOptedOut] = useState<boolean | null>(null);
   useEffect(() => setOptedOut(/(?:^|;\s*)sc_consent=no(?:;|$)/.test(document.cookie)), []);
