@@ -26,6 +26,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip Next's own files and the public images and documents.
-  matcher: ["/((?!_next/|images/|docs/|sitemap.xml|robots.txt).*)"],
+  // Skip Next's own files and the public images, documents and holding videos.
+  matcher: ["/((?!_next/|images/|docs/|holding-videos/|sitemap.xml|robots.txt).*)"],
 };

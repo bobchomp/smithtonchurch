@@ -1,3 +1,5 @@
+import verses from "@/content/holding-video-verses.json";
+
 // The holding slides made for the live stream (shown in the player before and after services),
 // with every revision. Shown in Admin → Holding Slides. The images are in holding-slides/ (not
 // public): <slide>/<file>.png at 1920×1080, with a smaller .jpg preview of each.
@@ -70,6 +72,35 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
       { version: 1, date: "2026-11-05T12:52", changes: "First version, with “Join us again next week at 10:30 and 17:30” underneath.", files: [{ file: "v1" }] },
       { version: 2, date: "2026-11-05T13:05", changes: "Moved the logo and text higher, like the others.", files: [{ file: "v2" }] },
     ],
+  },
+];
+
+// Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's
+// own file route), with a poster picture. See scripts/holding-video/README.md for how they're made.
+export type HoldingVideo = {
+  key: string;
+  title: string;
+  use: string;
+  version: number;
+  date: string;
+  file: string;
+  poster: string;
+  details: string;
+  verses?: { ref: string; text: string }[];
+};
+
+export const HOLDING_VIDEOS: HoldingVideo[] = [
+  {
+    key: "service-starting-shortly-verses",
+    title: "The service will start shortly, with Bible verses",
+    use: "Playing for the 15 minutes before the service",
+    version: 1,
+    date: "2026-11-07T14:30",
+    file: "/holding-videos/service-starting-shortly-verses-v1.mp4",
+    poster: "/holding-videos/service-starting-shortly-verses-v1.jpg",
+    details:
+      "15 minutes, 1920×1080. The logo and title stay in place, moved up a little, while 45 Bible verses (NIV) change underneath, each for 20 seconds with a gentle fade. It loops smoothly if it’s left running.",
+    verses,
   },
 ];
 

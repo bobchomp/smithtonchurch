@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element -- the images are served to signed-in admins only, so not through next/image */
 import type { Metadata } from "next";
 import { requireTool } from "@/lib/admin-auth";
-import { HOLDING_SLIDES, slideFileUrl, type HoldingSlide, type SlideRevision } from "@/lib/holding-slides";
+import { HOLDING_SLIDES, HOLDING_VIDEOS, slideFileUrl, type HoldingSlide, type SlideRevision } from "@/lib/holding-slides";
 
 export const metadata: Metadata = { title: "Holding Slides" };
 
@@ -42,6 +42,40 @@ export default async function HoldingSlides() {
         1920×1080; download the PNG to use it in the streaming software, or click a picture to see it full size.
       </p>
       <div className="slides-list">
+        {HOLDING_VIDEOS.map((video) => (
+          <section key={video.key} className="admin-panel slides-slide">
+            <div className="slides-head">
+              <h2>{video.title}</h2>
+              <span className="admin-badge admin-status-showing">Video · version {video.version} (current)</span>
+            </div>
+            <p className="admin-muted slides-use">{video.use}</p>
+            <video className="slides-video" controls preload="none" poster={video.poster} width={1920} height={1080}>
+              <source src={video.file} type="video/mp4" />
+            </video>
+            <p className="slides-video-actions">
+              <a className="button" href={video.file} download>Download MP4</a>
+            </p>
+            <p className="slides-changes">
+              <strong>{when(video.date)}:</strong> {video.details}
+            </p>
+            {video.verses && (
+              <details className="slides-history">
+                <summary>The verses, in order ({video.verses.length})</summary>
+                <ol className="slides-verses">
+                  {video.verses.map((v, i) => (
+                    <li key={v.ref}>
+                      <span className="slides-verse-time">{Math.floor((i * 20) / 60)}:{String((i * 20) % 60).padStart(2, "0")}</span>
+                      <span>
+                        {v.text.split(/\{([^}]+)\}/).map((part, j) => (j % 2 ? <span key={j} className="slides-small-caps">{part}</span> : part))}{" "}
+                        <strong>{v.ref}</strong>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </details>
+            )}
+          </section>
+        ))}
         {HOLDING_SLIDES.map((slide) => {
           const current = slide.revisions[slide.revisions.length - 1];
           const past = slide.revisions.slice(0, -1).reverse();
