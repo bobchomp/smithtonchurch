@@ -138,7 +138,7 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
             <form action={setTracking} className="admin-form analytics-tracking">
               <label className="admin-checkbox">
                 <input type="checkbox" name="enabled" defaultChecked={enabled} />
-                Record visits to the website (shows the cookie card to visitors)
+                Record visits to the website
               </label>
               <button className="button" type="submit">Save</button>
             </form>
@@ -154,8 +154,8 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
             </p>
           )}
           <p className="admin-muted analytics-last-note">
-            Not counted: signed-in admins, anyone who chose “Don’t count me”, and browsers that send a Global Privacy
-            Control signal (Firefox private windows do by default). To test, use a normal window in another browser or a phone.
+            Not counted: signed-in admins, anyone who chose “Don’t count me” on the privacy page, and search engine robots.
+            To test, use a browser you haven’t signed in to the admin panel with, or a phone.
           </p>
         </section>
         <section className="admin-panel">

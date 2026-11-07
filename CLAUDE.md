@@ -74,9 +74,9 @@
   page views, leave events (active time + scroll %) and clicks to `/api/collect/` (text/plain JSON), which writes rows to the
   Supabase Postgres table `analytics_events` (`lib/analytics.ts`, setup SQL in `supabase/analytics.sql`, run once by the owner
   in the SQL editor; reports are SQL functions called with `rpc`). Off until switched on (`private/settings/analytics.json`).
-  Cookies: `sc_v` visitor (1y), `sc_s` visit (30 min), `sc_consent` ok/no, `sc_admin` (set on admin sign-in: never counted).
-  Not counted: "Don't count me", Sec-GPC, admins, bots (`lib/analytics-ua.ts`). No IPs stored; town/country from Vercel headers.
-  The cookie card links to /privacy/ (`app/(site)/privacy/`, linked in the footer), which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
+  Cookies: `sc_v` visitor (1y), `sc_s` visit (30 min), `sc_consent` "no" = opted out, `sc_admin` (set on admin sign-in: never counted).
+  Not counted: "Don't count me", admins, bots (Global Privacy Control is deliberately not honoured, by the owner's choice) (`lib/analytics-ua.ts`). No IPs stored; town/country from Vercel headers.
+  No cookie banner (owner's choice, relying on the PECR statistics exemption): the footer's "Privacy & Cookies Policy" link goes to /privacy/ (`app/(site)/privacy/`), which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
   Phase 2: `track()` in lib/track.ts sends extra events from public components ('media' from `SermonAudio`/`YouTubePlayer trackAs`,
   progress milestones 0/25/50/75/95 in props.pct; 'search' from SermonBrowser, debounced; 404s are pageviews with props.nf).
   Admin → Analytics has tabs (`?view=`: overview, pages, clicks, sermons, searches, missing; views.tsx, parts.tsx) and CSV

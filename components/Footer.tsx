@@ -53,7 +53,7 @@ export default function Footer() {
       <div className="container footer-bottom">
         <p>
           &copy; {new Date().getFullYear()} Smithton Church. All rights reserved.{" "}
-          <Link className="footer-privacy" href="/privacy/">Privacy notice</Link>
+          <Link className="footer-privacy" href="/privacy/">Privacy &amp; Cookies Policy</Link>
         </p>
         <p className="footer-tagline">{site.tagline}</p>
         <p className="footer-charity">

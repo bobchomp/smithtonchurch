@@ -4,8 +4,7 @@ import { describeAgent, isBot } from "@/lib/analytics-ua";
 import { MAIN_HOSTS } from "@/lib/domains";
 
 // Receives analytics events from the public pages (components/Analytics.tsx). Nothing is recorded
-// when tracking is off, for people who chose "Don't count me" (or whose browser sends Global Privacy
-// Control), for signed-in admins, or for bots. IP addresses are never stored: the visitor's town
+// when tracking is off, for people who chose "Don't count me", for signed-in admins, or for bots. IP addresses are never stored: the visitor's town
 // comes from Vercel's location headers.
 
 export const dynamic = "force-dynamic";
@@ -96,7 +95,7 @@ export async function POST(request: Request) {
   if (!enabled) return off();
   const cookies = request.headers.get("cookie");
   const ua = request.headers.get("user-agent") ?? "";
-  if (cookie(cookies, "sc_consent") === "no" || cookie(cookies, "sc_admin") === "1" || request.headers.get("sec-gpc") === "1") return off();
+  if (cookie(cookies, "sc_consent") === "no" || cookie(cookies, "sc_admin") === "1") return off();
   if (isBot(ua)) return Response.json({ on: true });
 
   let body: { v?: string; s?: string; e?: Incoming[] };

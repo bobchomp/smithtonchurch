@@ -1,18 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { TrackEvent } from "@/lib/track";
 import HeatmapOverlay from "./HeatmapOverlay";
 
 // Website analytics for the public pages: page views, time on page, scroll depth and clicks,
-// sent to /api/collect. Visitors are told in a small card and can choose "Don't count me".
+// sent to /api/collect/. The privacy page explains it, with a "Don't count me" button.
 //
 // Cookies (first-party, only used for these statistics):
 //   sc_v        a random visitor ID, so returning visitors can be recognised (1 year)
 //   sc_s        the current visit; ends after 30 minutes without activity
-//   sc_consent  "ok" once the card is dismissed, or "no" for "Don't count me" (1 year)
+//   sc_consent  "no" once someone chooses "Don't count me" on the privacy page (1 year)
 //   sc_admin    set when signing in to the admin panel: never count this browser
 // Cookies are only written once the server confirms tracking is switched on.
 
@@ -66,7 +65,7 @@ function clickPosition(event: MouseEvent): Event {
 // The kind of thing that was clicked, for the click reports.
 function describeClick(target: Element): Event | null {
   const el = target.closest("a, button, [role=button], summary");
-  if (!el || el.closest(".cookie-card")) return null;
+  if (!el) return null;
   const label = (el.getAttribute("aria-label") || (el as HTMLElement).innerText || el.getAttribute("title") || "")
     .replace(/\s+/g, " ")
     .trim()
@@ -88,7 +87,6 @@ function describeClick(target: Element): Event | null {
 // notFound: this is the "page not found" page, so the address is reported as a missing page.
 export default function Analytics({ notFound = false }: { notFound?: boolean }) {
   const pathname = usePathname();
-  const [showCard, setShowCard] = useState(false);
   const [heatmap, setHeatmap] = useState(false);
   useEffect(() => setHeatmap(heatmapMode()), []);
   const state = useRef({ on: false, visitor: "", session: "", page: "", started: 0, active: 0, visibleSince: 0, scroll: 0 });
@@ -157,7 +155,6 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
         s.on = true;
         writeCookie("sc_v", s.visitor, YEAR);
         touchVisit();
-        if (!readCookie("sc_consent")) setShowCard(true);
       });
     }, 0);
     return () => clearTimeout(timer);
@@ -188,7 +185,7 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
       }
     };
     const onClick = (event: MouseEvent) => {
-      if (!s.on || !(event.target instanceof Element) || event.target.closest(".cookie-card")) return;
+      if (!s.on || !(event.target instanceof Element)) return;
       // Links and buttons for the click reports; anything else only for the heatmaps.
       const click = describeClick(event.target) ?? { t: "click", k: "none" };
       send([{ ...click, ...clickPosition(event), p: location.pathname }], true);
@@ -214,37 +211,5 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (heatmap) return <HeatmapOverlay />;
-  if (!showCard) return null;
-  return (
-    <div className="cookie-card" role="region" aria-label="Cookies">
-      <p>
-        <span aria-hidden="true">🍪 </span>We use cookies to understand how the website is used, so we can improve it.{" "}
-        <Link href="/privacy/">Privacy notice</Link>
-      </p>
-      <button
-        type="button"
-        className="button"
-        onClick={() => {
-          writeCookie("sc_consent", "ok", YEAR);
-          setShowCard(false);
-        }}
-      >
-        Got it
-      </button>
-      <button
-        type="button"
-        className="cookie-card-optout"
-        onClick={() => {
-          writeCookie("sc_consent", "no", YEAR);
-          writeCookie("sc_v", "", 0);
-          writeCookie("sc_s", "", 0);
-          state.current.on = false;
-          setShowCard(false);
-        }}
-      >
-        Don’t count me
-      </button>
-    </div>
-  );
+  return heatmap ? <HeatmapOverlay /> : null;
 }

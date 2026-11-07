@@ -88,8 +88,8 @@ export default function PrivacyNotice() {
           them on the basis of our legitimate interest in running and improving the website.
         </p>
         <p>
-          You can choose not to be counted at any time, here or with “Don’t count me” on the cookie message. We also
-          don’t count you if your browser sends a Global Privacy Control signal.
+          You can choose not to be counted at any time with the button below. It applies to the browser and device
+          you’re using, so press it on each one you use.
         </p>
         <AnalyticsOptOut />
 
@@ -107,8 +107,7 @@ export default function PrivacyNotice() {
             <strong>sc_s</strong> (30 minutes): groups the pages you look at in one visit.
           </li>
           <li>
-            <strong>sc_consent</strong> (1 year): remembers that you’ve seen the cookie message, or that you’ve asked not
-            to be counted.
+            <strong>sc_consent</strong> (1 year): remembers that you’ve asked not to be counted.
           </li>
           <li>
             <strong>sc_admin</strong> and a sign-in cookie: only for people who look after the website, so their own

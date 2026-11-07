@@ -97,9 +97,11 @@ To set it up:
 2. Check the privacy notice at `/privacy/` (it explains the statistics and how to opt out).
 3. Back in **Admin → Analytics**, tick **Record visits to the website** and save.
 
-Visitors see a small cookie message with **Got it** and **Don't count me**. Signed-in admins,
-people who chose "Don't count me", browsers sending Global Privacy Control and search engine robots
-are never counted. Records are kept until deleted.
+There's no cookie banner: the statistics are only for improving the site, so under UK law
+(PECR, as changed by the Data (Use and Access) Act 2025) visitors just need to be told about them
+and given a simple way to object. The footer's **Privacy & Cookies Policy** link explains them, with a
+**Don't count me** button. Signed-in admins, people who chose "Don't count me" and search engine
+robots are never counted. Records are kept until deleted.
 
 ### Holding slides
 
