@@ -1030,3 +1030,4 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .analytics-visit-pages span + span::before { content: "→ "; color: var(--muted); }
 .analytics-pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.75rem; font-weight: 600; font-size: 0.92rem; }
 .analytics-pager a:only-child { margin-left: auto; }
+.footer-privacy { color: inherit; white-space: nowrap; }

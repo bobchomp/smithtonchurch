@@ -90,7 +90,7 @@ To set it up:
 1. Open **Admin → Analytics**, press **Copy the setup script**, then in Supabase open **SQL Editor →
    New query**, paste it and press **Run**. (It's safe to run again; when new reports are added,
    the page shows the script again to run.)
-2. Publish the privacy notice (it explains the statistics and how to opt out).
+2. Check the privacy notice at `/privacy/` (it explains the statistics and how to opt out).
 3. Back in **Admin → Analytics**, tick **Record visits to the website** and save.
 
 Visitors see a small cookie message with **Got it** and **Don't count me**. Signed-in admins,

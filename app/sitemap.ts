@@ -18,6 +18,7 @@ const pages = [
   "missions/marsalis-newsletter",
   "giving",
   "conferencing-venue",
+  "privacy",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

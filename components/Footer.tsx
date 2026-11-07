@@ -51,7 +51,10 @@ export default function Footer() {
         </div>
       </div>
       <div className="container footer-bottom">
-        <p>&copy; {new Date().getFullYear()} Smithton Church. All rights reserved.</p>
+        <p>
+          &copy; {new Date().getFullYear()} Smithton Church. All rights reserved.{" "}
+          <Link className="footer-privacy" href="/privacy/">Privacy notice</Link>
+        </p>
         <p className="footer-tagline">{site.tagline}</p>
         <p className="footer-charity">
           Smithton &amp; Culloden Free Church (known as Smithton Church) is a Scottish Charity (SC012271) regulated by
