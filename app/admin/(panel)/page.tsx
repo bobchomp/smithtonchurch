@@ -125,6 +125,15 @@ export default async function AdminDashboard({
             </p>
           </Link>
         )}
+        {canUse(me, "holding-slides") && (
+          <Link className="admin-tool" href="/admin/holding-slides/">
+            <h2>Holding Slides</h2>
+            <p>
+              The live stream’s holding slides, ready to download, with every
+              earlier version.
+            </p>
+          </Link>
+        )}
         {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/users/">
             <h2>Users</h2>

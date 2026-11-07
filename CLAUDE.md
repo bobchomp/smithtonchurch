@@ -85,6 +85,10 @@
   header in next.config.ts allows only self + admin). Goals & funnels (`lib/analytics-goals.ts`, saved in
   `private/settings/analytics-goals.json`) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
   'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys.
+- Admin → Holding Slides (tool "holding-slides"): the live stream's holding slides with every revision, listed in
+  `lib/holding-slides.ts`; images in `holding-slides/<slide>/<file>.png|.jpg` (not public, served by
+  `app/admin/(panel)/holding-slides/file/[...path]/route.ts` behind requireTool). Made with `scripts/render-holding-slides.cjs`;
+  add new revisions there and at the end of the slide's `revisions`.
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

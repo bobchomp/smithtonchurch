@@ -2,8 +2,12 @@ import type { NextConfig } from "next";
 import { ADMIN_HOST, HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
 
 const nextConfig: NextConfig = {
-  // The analytics setup script is shown in Admin → Analytics, so include it with that page.
-  outputFileTracingIncludes: { "/admin/analytics": ["./supabase/analytics.sql"] },
+  // Files read at run time: the analytics setup script (shown in Admin → Analytics) and the holding slides.
+  outputFileTracingIncludes: {
+    "/admin/analytics": ["./supabase/analytics.sql"],
+    // The holding slides (not public: served to signed-in admins by this route).
+    "/admin/holding-slides/file/[...path]": ["./holding-slides/**/*"],
+  },
   // Keep the trailing slash so page addresses match the old WordPress site (e.g. /about-us/).
   trailingSlash: true,
   // Also covers PDFs and images, which can't carry a noindex tag. See lib/domains.ts.

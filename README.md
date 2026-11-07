@@ -101,6 +101,12 @@ Visitors see a small cookie message with **Got it** and **Don't count me**. Sign
 people who chose "Don't count me", browsers sending Global Privacy Control and search engine robots
 are never counted. Records are kept until deleted.
 
+### Holding slides
+
+**Admin → Holding Slides** shows the slides used in the live stream player before and after
+services ("The service will be broadcast shortly" and so on). Each one shows its current version,
+ready to download as a 1920×1080 PNG, and every earlier version with what changed.
+
 ### File storage (Supabase)
 
 Files uploaded in the admin panel, such as the weekly bulletin, are stored in
