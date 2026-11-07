@@ -1,6 +1,7 @@
 // Renders the holding slides (Admin → Holding Slides) as 1920×1080 PNGs, every revision, from the
 // designs below. Needs the site running on port 3930 (npm run build, then PORT=3930 npx next start)
 // and Playwright. Usage: node scripts/render-holding-slides.cjs holding-slides
+// Add a slide name prefix to render just that one: ... holding-slides thank-you-evening-sunday
 // Then make each preview: convert <file>.png -resize 960x -quality 82 <file>.jpg
 // For a new revision: add a job here, its files to holding-slides/, and an entry in lib/holding-slides.ts.
 const { chromium } = require('playwright'); const OUT = process.argv[2];
@@ -38,12 +39,16 @@ const jobs = [
   ['thank-you-morning/v2', photo({ title: M[0], sub: M[1], raised: true, balance: true })],
   ['thank-you-evening/v1', photo({ title: E[0], sub: E[1], balance: true })],
   ['thank-you-evening/v2', photo({ title: E[0], sub: E[1], raised: true, balance: true })],
+  ['thank-you-evening-sunday/v1', photo({ title: E[0], sub: 'Join us on Sunday at 10:30 and 17:30', raised: true, balance: true })],
 ];
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
-  await p.goto('http://localhost:3930/'); await p.evaluate(() => document.fonts.ready);
-  for (const [name, html] of jobs) {
-    await p.evaluate((html) => { document.body.innerHTML = html; }, html); await p.waitForTimeout(700);
+  await p.goto('http://localhost:3930/', { waitUntil: 'networkidle' }); await p.evaluate(() => document.fonts.ready);
+  await p.waitForTimeout(1500); // let the page finish starting up, so it doesn't redraw itself over the slide
+  // Optional third argument: only render slides whose name starts with it, e.g. thank-you-evening-sunday.
+  for (const [name, html] of jobs.filter(([n]) => !process.argv[3] || n.startsWith(process.argv[3]))) {
+    await p.evaluate((html) => { document.body.innerHTML = `<div id="holding-slide">${html}</div>`; }, html); await p.waitForTimeout(700);
+    if (!(await p.$('#holding-slide'))) throw new Error(`The page replaced slide ${name}; try again`);
     await p.screenshot({ path: `${OUT}/${name}.png`, clip: { x: 0, y: 0, width: 1920, height: 1080 } });
   }
   await b.close();

@@ -74,6 +74,19 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
       { version: 2, date: "2026-11-05T13:05", changes: "Moved the logo and text higher, like the others.", files: [{ file: "v2" }] },
     ],
   },
+  {
+    key: "thank-you-evening-sunday",
+    title: "Thank you for joining our service this evening (next: Sunday)",
+    use: "After an evening service during the week (“Join us on Sunday at 10:30 and 17:30”)",
+    revisions: [
+      {
+        version: 1,
+        date: "2026-11-07T18:15",
+        changes: "First version: the same as the evening slide, with “Join us on Sunday at 10:30 and 17:30” underneath.",
+        files: [{ file: "v1" }],
+      },
+    ],
+  },
 ];
 
 // Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's
