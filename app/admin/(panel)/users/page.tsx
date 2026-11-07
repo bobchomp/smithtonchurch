@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import DeleteButton from "../_documents/DeleteButton";
 import { requireOwner } from "@/lib/admin-auth";
 import { listAdminUsers } from "@/lib/admin-users";
 import { emailIsConfigured } from "@/lib/email";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import { ADMIN_TOOLS, ALL_TOOLS } from "@/lib/admin-tools";
-import { changeRole, changeTools, remove, resendInvite, sendPasswordReset } from "./actions";
-import ToolChecklist from "./ToolChecklist";
+import { remove, resendInvite, sendPasswordReset } from "./actions";
 import InviteForm from "./InviteForm";
 
 export const metadata: Metadata = { title: "Users" };
@@ -26,8 +26,8 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
     <>
       <h1>Users</h1>
       <p className="admin-intro">
-        Everyone who looks after the website has their own login. <strong>Admins</strong> can use the tools you choose for them;{" "}
-        <strong>owners</strong> can also add and remove logins here.
+        Everyone who looks after the website has their own login. Add, reset and remove logins here; choose what each
+        person can do in <Link href="/admin/user-permissions/">User Permissions</Link>.
       </p>
       {!emailIsConfigured() && (
         <p className="admin-error admin-notice-spaced">Invitations are sent by email, which isn’t set up yet (RESEND_API_KEY).</p>
@@ -75,15 +75,6 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
                           <button className="admin-link-button admin-link-plain" type="submit">Reset password</button>
                         </form>
                       )}
-                      {!lastOwner && (
-                        <form action={changeRole}>
-                          <input type="hidden" name="id" value={u.id} />
-                          <input type="hidden" name="role" value={u.role === "owner" ? "admin" : "owner"} />
-                          <button className="admin-link-button admin-link-plain" type="submit">
-                            {u.role === "owner" ? "Make admin" : "Make owner"}
-                          </button>
-                        </form>
-                      )}
                       {u.id !== me.id && !lastOwner && (
                         <form action={remove}>
                           <input type="hidden" name="id" value={u.id} />
@@ -91,23 +82,16 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
                         </form>
                       )}
                     </div>
-                    {u.role === "admin" && (
-                      <details className="admin-tools-edit">
-                        <summary>
-                          {u.tools.length === ALL_TOOLS.length
-                            ? "All tools"
-                            : u.tools.length === 0
-                              ? "No tools"
-                              : ADMIN_TOOLS.filter((t) => u.tools.includes(t.key)).map((t) => t.label).join(", ")}{" "}
-                          <span className="admin-tools-change">Change</span>
-                        </summary>
-                        <form action={changeTools}>
-                          <input type="hidden" name="id" value={u.id} />
-                          <ToolChecklist selected={u.tools} />
-                          <button className="button" type="submit">Save tools</button>
-                        </form>
-                      </details>
-                    )}
+                    <p className="admin-muted admin-users-summary">
+                      {u.role === "owner"
+                        ? "Every tool, and manages logins"
+                        : u.tools.length === ALL_TOOLS.length
+                          ? "All tools"
+                          : u.tools.length === 0
+                            ? "No tools"
+                            : ADMIN_TOOLS.filter((t) => u.tools.includes(t.key)).map((t) => t.label).join(", ")}{" "}
+                      · <Link href={`/admin/user-permissions/#u-${u.id}`}>Change permissions</Link>
+                    </p>
                   </li>
                 );
               })}

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOwner, type AdminRole } from "@/lib/admin-auth";
 import { isAdminTool } from "@/lib/admin-tools";
-import { inviteAdmin, listAdminUsers, removeAdminUser, sendPasswordLink, setAdminRole, setAdminTools } from "@/lib/admin-users";
+import { inviteAdmin, isLastOwner, listAdminUsers, removeAdminUser, sendPasswordLink } from "@/lib/admin-users";
 import { describeStorageError } from "@/lib/supabase";
 
 export type UserFormState = { error?: string; done?: string };
@@ -28,33 +28,10 @@ export async function invite(_state: UserFormState, formData: FormData): Promise
   return { done: `Invitation sent to ${email}.` };
 }
 
-// Stops the last owner being removed or made an ordinary admin, so someone can always manage logins.
-async function wouldLeaveNoOwner(userId: string): Promise<boolean> {
-  const owners = (await listAdminUsers()).filter((u) => u.role === "owner");
-  return owners.length === 1 && owners[0].id === userId;
-}
-
-export async function changeRole(formData: FormData): Promise<void> {
-  await requireOwner();
-  const id = String(formData.get("id") ?? "");
-  const role = formData.get("role");
-  if (!isRole(role)) return;
-  if (role === "admin" && (await wouldLeaveNoOwner(id))) return;
-  await setAdminRole(id, role);
-  revalidatePath("/admin/users");
-}
-
-export async function changeTools(formData: FormData): Promise<void> {
-  await requireOwner();
-  const id = String(formData.get("id") ?? "");
-  await setAdminTools(id, [...new Set(formData.getAll("tools").filter(isAdminTool))]);
-  revalidatePath("/admin/users");
-}
-
 export async function remove(formData: FormData): Promise<void> {
   const me = await requireOwner();
   const id = String(formData.get("id") ?? "");
-  if (id === me.id || (await wouldLeaveNoOwner(id))) return;
+  if (id === me.id || (await isLastOwner(id))) return;
   await removeAdminUser(id);
   revalidatePath("/admin/users");
 }

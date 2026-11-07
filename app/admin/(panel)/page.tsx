@@ -129,7 +129,15 @@ export default async function AdminDashboard({
           <Link className="admin-tool" href="/admin/users/">
             <h2>Users</h2>
             <p>
-              Give people their own login to the admin panel, and remove logins.
+              Give people their own login to the admin panel, reset passwords and remove logins.
+            </p>
+          </Link>
+        )}
+        {me.role === "owner" && (
+          <Link className="admin-tool" href="/admin/user-permissions/">
+            <h2>User Permissions</h2>
+            <p>
+              Choose who is an owner, and which tools each admin can use.
             </p>
           </Link>
         )}

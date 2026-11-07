@@ -143,3 +143,10 @@ export async function removeAdminUser(userId: string): Promise<void> {
   const { error } = await supabaseAdmin().auth.admin.deleteUser(userId);
   if (error) throw error;
 }
+
+// True if this person is the only owner, so they can't be removed or made an ordinary admin
+// (someone must always be able to manage logins).
+export async function isLastOwner(userId: string): Promise<boolean> {
+  const owners = (await listAdminUsers()).filter((u) => u.role === "owner");
+  return owners.length === 1 && owners[0].id === userId;
+}

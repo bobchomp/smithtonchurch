@@ -935,7 +935,7 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .admin-tool-checklist label.admin-checkbox { display: flex; flex-direction: row; align-items: flex-start; gap: 0.6rem; }
 .admin-users-list li { flex-wrap: wrap; }
-.admin-users-list .admin-tools-edit { flex-basis: 100%; margin-top: -0.25rem; }
+.admin-users-list .admin-users-summary { flex-basis: 100%; margin: -0.25rem 0 0; }
 
 /* Admin → Analytics */
 .analytics-bar-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1rem; margin-bottom: 1.25rem; }
@@ -991,3 +991,7 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .privacy-optout { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; background: var(--bg-alt); border-radius: var(--radius); padding: 1rem 1.25rem; margin: 1rem 0; }
 .privacy-optout p { margin: 0; flex: 1 1 260px; }
 .admin-notice-success { background: #ecfdf3; border-color: #abefc6; }
+.admin-permissions { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 1.5rem; align-items: start; }
+.admin-permissions h2 { margin-bottom: 0.1rem; overflow-wrap: anywhere; }
+.admin-permissions-email { margin: 0 0 1rem; font-size: 0.92rem; overflow-wrap: anywhere; }
+.admin-users-summary { font-size: 0.92rem; }
