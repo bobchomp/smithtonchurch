@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireOwner, type AdminRole } from "@/lib/admin-auth";
 import { isAdminTool } from "@/lib/admin-tools";
 import { inviteAdmin, listAdminUsers, removeAdminUser, sendPasswordLink, setAdminRole, setAdminTools } from "@/lib/admin-users";
@@ -63,4 +64,20 @@ export async function resendInvite(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
   await sendPasswordLink(email, "invite");
   revalidatePath("/admin/users");
+}
+
+// Emails someone a link to choose a new password. Their current password keeps working until they do.
+export async function sendPasswordReset(formData: FormData): Promise<void> {
+  await requireOwner();
+  const id = String(formData.get("id") ?? "");
+  const user = (await listAdminUsers()).find((u) => u.id === id);
+  if (!user) return;
+  let result: string;
+  try {
+    await sendPasswordLink(user.email, "recovery");
+    result = `reset=${encodeURIComponent(user.email)}`;
+  } catch {
+    result = `failed=${encodeURIComponent(user.email)}`;
+  }
+  redirect(`/admin/users/?${result}`);
 }

@@ -5,7 +5,7 @@ import { listAdminUsers } from "@/lib/admin-users";
 import { emailIsConfigured } from "@/lib/email";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import { ADMIN_TOOLS, ALL_TOOLS } from "@/lib/admin-tools";
-import { changeRole, changeTools, remove, resendInvite } from "./actions";
+import { changeRole, changeTools, remove, resendInvite, sendPasswordReset } from "./actions";
 import ToolChecklist from "./ToolChecklist";
 import InviteForm from "./InviteForm";
 
@@ -16,8 +16,9 @@ function lastSeen(iso?: string): string {
   return `Last signed in ${new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/London" })}`;
 }
 
-export default async function Users() {
+export default async function Users({ searchParams }: { searchParams: Promise<{ reset?: string; failed?: string }> }) {
   const me = await requireOwner();
+  const { reset, failed } = await searchParams;
   const users = supabaseIsConfigured() ? await listAdminUsers().catch((e: Error) => e) : new Error("Supabase isn’t set up.");
   const owners = users instanceof Error ? 0 : users.filter((u) => u.role === "owner").length;
 
@@ -31,6 +32,15 @@ export default async function Users() {
       {!emailIsConfigured() && (
         <p className="admin-error admin-notice-spaced">Invitations are sent by email, which isn’t set up yet (RESEND_API_KEY).</p>
       )}
+
+      {reset && (
+        <div className="admin-notice admin-notice-success admin-notice-spaced" role="status">
+          <p className="admin-success">
+            Password reset email sent to {reset}. The link lasts an hour; their current password keeps working until they choose a new one.
+          </p>
+        </div>
+      )}
+      {failed && <p className="admin-error admin-notice-spaced" role="alert">Couldn’t send the password reset email to {failed}. Please try again.</p>}
 
       <div className="admin-columns admin-columns-wide">
         <section className="admin-panel">
@@ -57,6 +67,12 @@ export default async function Users() {
                         <form action={resendInvite}>
                           <input type="hidden" name="email" value={u.email} />
                           <button className="admin-link-button admin-link-plain" type="submit">Resend invite</button>
+                        </form>
+                      )}
+                      {!u.invited && (
+                        <form action={sendPasswordReset}>
+                          <input type="hidden" name="id" value={u.id} />
+                          <button className="admin-link-button admin-link-plain" type="submit">Reset password</button>
                         </form>
                       )}
                       {!lastOwner && (

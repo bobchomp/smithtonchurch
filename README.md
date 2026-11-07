@@ -64,7 +64,8 @@ Everyone who looks after the website has their own login (email and password), k
   only the tools an owner ticks for them (chosen when inviting, and changeable any time under
   their name in Users); their dashboard only shows those tools.
 - New people get an email invitation with a link to choose their password. "Forgot your
-  password?" on the sign-in page sends a reset link. These emails are sent through Resend, so
+  password?" on the sign-in page sends a reset link, and owners can send one from **Users** with
+  **Reset password** (the old password keeps working until a new one is chosen). These emails are sent through Resend, so
   `RESEND_API_KEY` must be set.
 - The shared **backup PIN** (`ADMIN_PIN` in Vercel) still works, with owner access. It's hidden:
   tap the Smithton Church logo on the sign-in page ten times quickly to show the PIN box. Use at least 8 digits. Changing it signs everyone out.
