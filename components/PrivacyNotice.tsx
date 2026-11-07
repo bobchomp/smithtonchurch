@@ -148,6 +148,13 @@ export default function PrivacyNotice() {
           To do any of these, contact the church office at <a href={`mailto:${site.email}`}>{site.email}</a>. We will
           reply within one month.
         </p>
+        <p>
+          You can also complain to the Information Commissioner’s Office (
+          <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener noreferrer">
+            ico.org.uk<span className="visually-hidden"> (opens in a new tab)</span>
+          </a>
+          ).
+        </p>
 
         <h2>Changes to this notice</h2>
         <p>We may update this notice from time to time. The date at the top shows when it was last changed.</p>
