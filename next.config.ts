@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
+import { ADMIN_HOST, HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
 
 const nextConfig: NextConfig = {
   // The analytics setup script is shown in Admin → Analytics, so include it with that page.
@@ -8,8 +8,10 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   // Also covers PDFs and images, which can't carry a noindex tag. See lib/domains.ts.
   async headers() {
-    if (!HIDE_FROM_SEARCH_ENGINES) return [];
-    return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+    // Only this site and its admin panel (for the analytics heatmaps) may show pages in a frame.
+    const framing = { key: "Content-Security-Policy", value: `frame-ancestors 'self' https://${ADMIN_HOST}` };
+    const noindex = { key: "X-Robots-Tag", value: "noindex, nofollow" };
+    return [{ source: "/:path*", headers: HIDE_FROM_SEARCH_ENGINES ? [framing, noindex] : [framing] }];
   },
   // Old addresses that have moved, so existing links and search results still work.
   async redirects() {

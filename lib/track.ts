@@ -2,7 +2,7 @@
 // components/Analytics.tsx picks it up and sends it, but only if tracking is on and the visitor
 // hasn't opted out; otherwise it does nothing. Safe to call on the server (it does nothing there).
 export type TrackEvent = {
-  t: "media" | "search";
+  t: "media" | "search" | "form";
   k?: string;
   h?: string;
   l?: string;

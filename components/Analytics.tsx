@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { TrackEvent } from "@/lib/track";
+import HeatmapOverlay from "./HeatmapOverlay";
 
 // Website analytics for the public pages: page views, time on page, scroll depth and clicks,
 // sent to /api/collect. Visitors are told in a small card and can choose "Don't count me".
@@ -31,8 +32,35 @@ const newId = () => (crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toS
 
 type Event = Record<string, string | number | boolean | undefined | Record<string, string>>;
 
+// Admin → Analytics shows each page with ?sc-heatmap=1 to draw its heatmap: never counted.
+const heatmapMode = () => new URLSearchParams(location.search).has("sc-heatmap");
+
 function excluded() {
-  return readCookie("sc_consent") === "no" || readCookie("sc_admin") === "1";
+  return readCookie("sc_consent") === "no" || readCookie("sc_admin") === "1" || heatmapMode();
+}
+
+// A path to the clicked element (e.g. "#main>section:nth-of-type(2)>a:nth-of-type(1)"), so the
+// heatmap can find the same element again, whatever the screen size.
+function selectorFor(el: Element): string | undefined {
+  const parts: string[] = [];
+  for (let node: Element | null = el; node; node = node.parentElement) {
+    if (node === document.body) return ["body", ...parts].join(">");
+    if (node.id && /^[a-z][\w-]*$/i.test(node.id)) return ["#" + node.id, ...parts].join(">");
+    let i = 1;
+    for (let sib = node.previousElementSibling; sib; sib = sib.previousElementSibling) if (sib.tagName === node.tagName) i++;
+    parts.unshift(`${node.tagName.toLowerCase()}:nth-of-type(${i})`);
+    if (parts.length > 25) return undefined;
+  }
+  return undefined;
+}
+
+// Where a click was: the element and the point within it (0 to 1 across and down).
+function clickPosition(event: MouseEvent): Event {
+  if (!(event.target instanceof Element) || event.detail === 0) return {}; // keyboard "clicks" have no position
+  const r = event.target.getBoundingClientRect();
+  const sel = selectorFor(event.target);
+  if (!sel || !r.width || !r.height || sel.length > 400) return {};
+  return { sel, fx: (event.clientX - r.left) / r.width, fy: (event.clientY - r.top) / r.height };
 }
 
 // The kind of thing that was clicked, for the click reports.
@@ -61,6 +89,8 @@ function describeClick(target: Element): Event | null {
 export default function Analytics({ notFound = false }: { notFound?: boolean }) {
   const pathname = usePathname();
   const [showCard, setShowCard] = useState(false);
+  const [heatmap, setHeatmap] = useState(false);
+  useEffect(() => setHeatmap(heatmapMode()), []);
   const state = useRef({ on: false, visitor: "", session: "", page: "", started: 0, active: 0, visibleSince: 0, scroll: 0 });
 
   // Sends events. Page views use fetch (to hear whether tracking is on); the rest use sendBeacon,
@@ -68,7 +98,8 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
   function send(events: Event[], beacon = false) {
     const s = state.current;
     if (!s.visitor || excluded()) return;
-    const body = JSON.stringify({ v: s.visitor, s: s.session, e: events });
+    const w = window.innerWidth;
+    const body = JSON.stringify({ v: s.visitor, s: s.session, e: events.map((e) => ({ w, ...e })) });
     if (beacon && navigator.sendBeacon) {
       navigator.sendBeacon("/api/collect/", new Blob([body], { type: "text/plain" }));
       return Promise.resolve(null);
@@ -157,9 +188,10 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
       }
     };
     const onClick = (event: MouseEvent) => {
-      if (!s.on || !(event.target instanceof Element)) return;
-      const click = describeClick(event.target);
-      if (click) send([{ ...click, p: location.pathname }], true);
+      if (!s.on || !(event.target instanceof Element) || event.target.closest(".cookie-card")) return;
+      // Links and buttons for the click reports; anything else only for the heatmaps.
+      const click = describeClick(event.target) ?? { t: "click", k: "none" };
+      send([{ ...click, ...clickPosition(event), p: location.pathname }], true);
       touchVisit();
     };
     // Sermon plays, searches and so on, from track() in lib/track.ts.
@@ -182,6 +214,7 @@ export default function Analytics({ notFound = false }: { notFound?: boolean }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (heatmap) return <HeatmapOverlay />;
   if (!showCard) return null;
   return (
     <div className="cookie-card" role="region" aria-label="Cookies">

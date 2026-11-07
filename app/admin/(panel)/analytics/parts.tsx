@@ -7,6 +7,8 @@ import type { RangeKey } from "./ranges";
 export const VIEWS = [
   { key: "overview", label: "Overview" },
   { key: "pages", label: "Pages & journeys" },
+  { key: "heatmaps", label: "Heatmaps" },
+  { key: "goals", label: "Goals & funnels" },
   { key: "clicks", label: "Clicks & downloads" },
   { key: "sermons", label: "Sermons" },
   { key: "searches", label: "Searches" },

@@ -79,6 +79,12 @@
   Admin → Analytics has tabs (`?view=`: overview, pages, clicks, sermons, searches, missing; views.tsx, parts.tsx) and CSV
   downloads (`analytics/export/route.ts`, `?report=…`, "events" streams every row). New reports need their SQL function in
   supabase/analytics.sql; the owner re-runs it (the page shows the setup panel when a function is missing).
+  Phase 3: every click carries props {sel, fx, fy} (element path + point within it; non-link clicks are kind "none", heatmaps only).
+  Heatmaps tab frames the public page with `?sc-heatmap=1` (never counted) and postMessages the clicks to
+  `components/HeatmapOverlay.tsx`, which draws them (accepts messages only from ADMIN_HOST or its own origin; frame-ancestors
+  header in next.config.ts allows only self + admin). Goals & funnels (`lib/analytics-goals.ts`, saved in
+  `private/settings/analytics-goals.json`) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
+  'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys.
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

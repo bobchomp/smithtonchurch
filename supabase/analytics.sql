@@ -7,7 +7,7 @@
 create table if not exists public.analytics_events (
   id bigint generated always as identity primary key,
   created_at timestamptz not null default now(),
-  type text not null,              -- 'pageview', 'leave' (time on page + scroll), 'click', 'media', 'search'
+  type text not null,              -- 'pageview', 'leave' (time on page + scroll), 'click', 'media', 'search', 'form' (contact form sent)
   visitor_id text,                 -- random ID in the visitor's cookie (returning visitors)
   session_id text,                 -- one visit: ends after 30 minutes without activity
   entry boolean not null default false, -- the first page of a visit
@@ -352,5 +352,153 @@ grant execute on function public.analytics_not_found(timestamptz, timestamptz, i
 grant execute on function public.analytics_page_flow(timestamptz, timestamptz, text, integer) to service_role;
 grant execute on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) to service_role;
 grant execute on function public.analytics_visits(timestamptz, timestamptz, integer, integer) to service_role;
+
+-- ---------- Phase 3 ----------
+
+-- Whether an event meets a goal or funnel step. c is {"type": ..., "match": ...}:
+--   page (exact address), page-starts (address starts with), click (link address or button text
+--   contains), download, outbound (optionally containing match), sermon-play, sermon-finish, search, form.
+create or replace function public.analytics_matches(e public.analytics_events, c jsonb)
+returns boolean
+language sql immutable as $$
+  select case c->>'type'
+    when 'page' then e.type = 'pageview' and e.props->>'nf' is null and e.path = c->>'match'
+    when 'page-starts' then e.type = 'pageview' and e.props->>'nf' is null and starts_with(e.path, coalesce(c->>'match', '/'))
+    when 'click' then e.type = 'click' and coalesce(c->>'match', '') <> ''
+      and position(lower(c->>'match') in lower(coalesce(e.target, '') || ' ' || coalesce(e.target_label, ''))) > 0
+    when 'download' then e.type = 'click' and e.target_kind = 'download'
+      and position(lower(coalesce(c->>'match', '')) in lower(coalesce(e.target, '') || ' ' || coalesce(e.target_label, ''))) > 0
+    when 'outbound' then e.type = 'click' and e.target_kind = 'outbound'
+      and position(lower(coalesce(c->>'match', '')) in lower(coalesce(e.target, '') || ' ' || coalesce(e.target_label, ''))) > 0
+    when 'sermon-play' then e.type = 'media'
+    when 'sermon-finish' then e.type = 'media' and coalesce((e.props->>'pct')::numeric, 0) >= 95
+    when 'search' then e.type = 'search'
+    when 'form' then e.type = 'form'
+    else false
+  end;
+$$;
+
+-- A funnel: how many visits did step 1, then step 2 later in the same visit, and so on.
+-- p_steps is a JSON array of conditions (see analytics_matches). A goal is a one-step funnel.
+create or replace function public.analytics_funnel(p_from timestamptz, p_to timestamptz, p_steps jsonb)
+returns table (step integer, visits bigint, visitors bigint)
+language sql stable as $$
+  with recursive steps as (
+    select (ord - 1)::integer as i, cond from jsonb_array_elements(p_steps) with ordinality as t(cond, ord)
+  ),
+  ev as (
+    select * from public.analytics_events where created_at >= p_from and created_at < p_to
+  ),
+  r as (
+    select * from (
+      select distinct on (e.session_id) 0 as i, e.session_id, e.visitor_id, e.created_at as at, e.id as eid
+      from ev e join steps s on s.i = 0
+      where public.analytics_matches(e, s.cond)
+      order by e.session_id, e.created_at, e.id
+    ) first_step
+    union all
+    select r.i + 1, r.session_id, r.visitor_id, nx.created_at, nx.id
+    from r
+    left join lateral (
+      select e.created_at, e.id from ev e, steps s
+      where s.i = r.i + 1 and e.session_id = r.session_id and (e.created_at, e.id) > (r.at, r.eid)
+        and public.analytics_matches(e, s.cond)
+      order by e.created_at, e.id
+      limit 1
+    ) nx on true
+    where r.at is not null and r.i + 1 < jsonb_array_length(p_steps)
+  )
+  select s.i + 1, count(r.at), count(distinct r.visitor_id) filter (where r.at is not null)
+  from steps s left join r on r.i = s.i
+  group by s.i order by s.i;
+$$;
+
+-- For a goal: where the visits that reached it came from, and the page they started on.
+create or replace function public.analytics_goal_sources(p_from timestamptz, p_to timestamptz, p_goal jsonb, p_limit integer)
+returns table (kind text, label text, visits bigint)
+language sql stable as $$
+  with hit as (
+    select distinct session_id from public.analytics_events e
+    where e.created_at >= p_from and e.created_at < p_to and public.analytics_matches(e, p_goal)
+  ),
+  firsts as (
+    select distinct on (e.session_id) e.session_id, e.path, coalesce(nullif(e.utm_source, ''), e.ref_domain, '(direct or unknown)') as src
+    from public.analytics_events e join hit using (session_id)
+    where e.type = 'pageview' and e.created_at >= p_from and e.created_at < p_to
+    order by e.session_id, e.created_at, e.id
+  ),
+  src as (select 'source' as kind, src as label, count(*) as n from firsts group by 2 order by 3 desc limit p_limit),
+  ent as (select 'entry' as kind, path as label, count(*) as n from firsts group by 2 order by 3 desc limit p_limit)
+  select kind, label, n from src
+  union all
+  select kind, label, n from ent;
+$$;
+
+-- Clicks on one page for the heatmap: where on the page (the clicked element and the point within
+-- it) for screens between p_min_w and p_max_w pixels wide.
+create or replace function public.analytics_heatmap(p_from timestamptz, p_to timestamptz, p_path text, p_min_w integer, p_max_w integer, p_limit integer)
+returns table (sel text, fx numeric, fy numeric, kind text)
+language sql stable as $$
+  select props->>'sel', (props->>'fx')::numeric, (props->>'fy')::numeric, target_kind
+  from public.analytics_events
+  where type = 'click' and created_at >= p_from and created_at < p_to and path = p_path
+    and props ? 'sel' and coalesce(screen_w, 0) >= p_min_w and coalesce(screen_w, 0) < p_max_w
+  order by created_at desc
+  limit p_limit;
+$$;
+
+-- How far down one page visitors scrolled: the share of page views that reached each 10%.
+create or replace function public.analytics_scroll_reach(p_from timestamptz, p_to timestamptz, p_path text, p_min_w integer, p_max_w integer)
+returns table (pct integer, views bigint, total bigint)
+language sql stable as $$
+  with l as (
+    select scroll_pct from public.analytics_events
+    where type = 'leave' and created_at >= p_from and created_at < p_to and path = p_path and scroll_pct is not null
+      and coalesce(screen_w, 0) >= p_min_w and coalesce(screen_w, 0) < p_max_w
+  )
+  select g.pct, (select count(*) from l where scroll_pct >= g.pct), (select count(*) from l)
+  from generate_series(0, 100, 10) as g(pct);
+$$;
+
+-- The flow diagram: page by page through visits. Each step's most visited pages are shown and the
+-- rest grouped as "Other pages"; visits that end are "Left the website".
+create or replace function public.analytics_flow(p_from timestamptz, p_to timestamptz, p_steps integer, p_nodes integer)
+returns table (step integer, source text, target text, visits bigint)
+language sql stable as $$
+  with pv as (
+    select session_id, path, row_number() over (partition by session_id order by created_at, id) as n
+    from public.analytics_events
+    where type = 'pageview' and created_at >= p_from and created_at < p_to and props->>'nf' is null
+  ),
+  top as (
+    select n, path from (
+      select n, path, row_number() over (partition by n order by count(*) desc, path) as r
+      from pv where n <= p_steps group by n, path
+    ) x where r <= p_nodes
+  ),
+  lab as (
+    select pv.session_id, pv.n, coalesce(top.path, 'Other pages') as label
+    from pv left join top on top.n = pv.n and top.path = pv.path
+    where pv.n <= p_steps
+  )
+  select a.n::integer, a.label, coalesce(b.label, 'Left the website'), count(*)
+  from lab a left join lab b on b.session_id = a.session_id and b.n = a.n + 1
+  where a.n < p_steps
+  group by 1, 2, 3
+  order by 1, 4 desc;
+$$;
+
+revoke all on function public.analytics_matches(public.analytics_events, jsonb) from public, anon, authenticated;
+revoke all on function public.analytics_funnel(timestamptz, timestamptz, jsonb) from public, anon, authenticated;
+revoke all on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) from public, anon, authenticated;
+revoke all on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) from public, anon, authenticated;
+revoke all on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) from public, anon, authenticated;
+revoke all on function public.analytics_flow(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
+grant execute on function public.analytics_matches(public.analytics_events, jsonb) to service_role;
+grant execute on function public.analytics_funnel(timestamptz, timestamptz, jsonb) to service_role;
+grant execute on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) to service_role;
+grant execute on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) to service_role;
+grant execute on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) to service_role;
+grant execute on function public.analytics_flow(timestamptz, timestamptz, integer, integer) to service_role;
 
 notify pgrst, 'reload schema'; -- so the website can see the new functions straight away

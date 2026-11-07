@@ -8,6 +8,13 @@ import {
   breakdown,
   clickKinds,
   clicks,
+  flow,
+  funnel,
+  goalSources,
+  heatmapClicks,
+  loadGoals,
+  SCREEN_SIZES,
+  scrollReach,
   isMissingSetup,
   journeys,
   live,
@@ -23,11 +30,13 @@ import {
   storageUsed,
   visits,
 } from "@/lib/analytics";
+import { headers } from "next/headers";
+import { ADMIN_HOST, SITE_HOST } from "@/lib/domains";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import CopySql from "./CopySql";
 import { analyticsHref, VIEWS, type ViewKey } from "./parts";
 import { RANGES, rangeFor, type RangeKey } from "./ranges";
-import { ClicksView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
+import { ClicksView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -57,7 +66,7 @@ function Setup({ error }: { error?: unknown }) {
   );
 }
 
-type Params = { range?: string; view?: string; page?: string; older?: string };
+type Params = { range?: string; view?: string; page?: string; older?: string; size?: string; goal?: string };
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const me = await requireTool("analytics");
@@ -118,10 +127,32 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       );
     } else if (view === "pages") {
       const offset = Math.max(0, Math.min(10_000, Number(params.older) || 0));
-      const [all, routes, recent] = await Promise.all([pages(current, 100), journeys(current, 4, 20), visits(current, 30, offset)]);
+      const [all, routes, recent, links] = await Promise.all([pages(current, 100), journeys(current, 4, 20), visits(current, 30, offset), flow(current, 4, 6)]);
       const chosen = params.page && params.page.startsWith("/") ? params.page : all[0]?.path;
-      const flow = chosen ? await pageFlow(current, chosen, 10) : [];
-      body = <PagesView range={key} pages={all} chosen={chosen} flow={flow} journeys={routes} visits={recent} offset={offset} />;
+      const before = chosen ? await pageFlow(current, chosen, 10) : [];
+      body = <PagesView range={key} pages={all} chosen={chosen} flow={before} flowLinks={links} journeys={routes} visits={recent} offset={offset} />;
+    } else if (view === "heatmaps") {
+      const size = SCREEN_SIZES.find((s) => s.key === params.size) ?? SCREEN_SIZES[0];
+      const top = (await pages(current, 100)).map((p) => p.path);
+      const path = params.page && params.page.startsWith("/") ? params.page.slice(0, 300) : top[0];
+      const [spots, reach] = path ? await Promise.all([heatmapClicks(current, path, size), scrollReach(current, path, size)]) : [[], []];
+      // The admin panel is on its own address, so the page comes from the website's address.
+      const host = ((await headers()).get("host") ?? "").split(":")[0].toLowerCase();
+      const siteOrigin = host === ADMIN_HOST ? `https://${SITE_HOST}` : "";
+      body = (
+        <HeatmapsView range={key} pages={top} path={path} sizeKey={size.key} siteOrigin={siteOrigin}
+          clicks={spots.map(({ sel, fx, fy }) => ({ sel, fx, fy }))} reach={reach} />
+      );
+    } else if (view === "goals") {
+      const config = await loadGoals();
+      const [goals, funnels, totals] = await Promise.all([
+        Promise.all(config.goals.map(async (goal) => ({ goal, now: await funnel(current, [goal.condition]), before: await funnel(previous, [goal.condition]) }))),
+        Promise.all(config.funnels.map(async (f) => ({ funnel: f, result: await funnel(current, f.steps.map((s) => s.condition)) }))),
+        overview(current),
+      ]);
+      const chosen = config.goals.find((g) => g.id === params.goal);
+      const sources = chosen ? await goalSources(current, chosen.condition, 10) : [];
+      body = <GoalsView range={key} config={config} goals={goals} funnels={funnels} sessions={totals.sessions} chosen={chosen} sources={sources} />;
     } else if (view === "clicks") {
       const [kinds, downloads, outbound, contact, internal, buttons] = await Promise.all([
         clickKinds(current),

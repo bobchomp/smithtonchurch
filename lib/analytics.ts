@@ -1,4 +1,5 @@
 import "server-only";
+import type { GoalCondition, GoalsConfig } from "./analytics-goals";
 import { readPrivateJson, writePrivateJson, ensurePrivateBucket } from "./private-store";
 import { supabaseAdmin, supabaseIsConfigured, withTimeout } from "./supabase";
 
@@ -26,7 +27,7 @@ export async function saveAnalyticsSettings(settings: AnalyticsSettings): Promis
 }
 
 export type EventRow = {
-  type: "pageview" | "leave" | "click" | "media" | "search";
+  type: "pageview" | "leave" | "click" | "media" | "search" | "form";
   visitor_id: string;
   session_id: string;
   entry?: boolean;
@@ -238,4 +239,55 @@ export async function* allEvents(r: Range): AsyncGenerator<Record<string, unknow
     yield data as Record<string, unknown>[];
     if (data.length < size) return;
   }
+}
+
+// ---------- Phase 3: goals, funnels, heatmaps and the flow diagram ----------
+
+const GOALS_PATH = "settings/analytics-goals.json";
+
+export async function loadGoals(): Promise<GoalsConfig> {
+  const saved = await readPrivateJson<Partial<GoalsConfig>>(GOALS_PATH).catch(() => undefined);
+  return { goals: saved?.goals ?? [], funnels: saved?.funnels ?? [] };
+}
+
+export async function saveGoals(config: GoalsConfig): Promise<void> {
+  await ensurePrivateBucket();
+  await writePrivateJson(GOALS_PATH, config);
+}
+
+export type FunnelResult = { step: number; visits: number; visitors: number }[];
+
+// Visits that did each step in order (a goal is a funnel with one step).
+export async function funnel(r: Range, steps: GoalCondition[]): Promise<FunnelResult> {
+  const rows = await rpc<Record<string, unknown>>("analytics_funnel", { ...span(r), p_steps: steps });
+  return rows.map((x) => ({ step: n0(x.step), visits: n0(x.visits), visitors: n0(x.visitors) }));
+}
+
+export async function goalSources(r: Range, goal: GoalCondition, limit = 10): Promise<{ kind: "source" | "entry"; label: string; visits: number }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_goal_sources", { ...span(r), p_goal: goal, p_limit: limit });
+  return rows.map((x) => ({ kind: x.kind === "entry" ? "entry" : "source", label: String(x.label), visits: n0(x.visits) }));
+}
+
+export const SCREEN_SIZES = [
+  { key: "phone", label: "Phones", min: 0, max: 768, width: 390, viewport: 760 },
+  { key: "tablet", label: "Tablets", min: 768, max: 1024, width: 820, viewport: 1100 },
+  { key: "desktop", label: "Computers", min: 1024, max: 100_000, width: 1440, viewport: 860 },
+] as const;
+export type ScreenSize = (typeof SCREEN_SIZES)[number];
+
+export async function heatmapClicks(r: Range, path: string, size: ScreenSize, limit = 5000): Promise<{ sel: string; fx: number; fy: number; kind: string | null }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_heatmap", { ...span(r), p_path: path, p_min_w: size.min, p_max_w: size.max, p_limit: limit });
+  return rows.map((x) => ({ sel: String(x.sel), fx: Number(x.fx), fy: Number(x.fy), kind: str(x.kind) }));
+}
+
+export async function scrollReach(r: Range, path: string, size: ScreenSize): Promise<{ pct: number; share: number; total: number }[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_scroll_reach", { ...span(r), p_path: path, p_min_w: size.min, p_max_w: size.max });
+  return rows.map((x) => ({ pct: n0(x.pct), share: n0(x.total) ? n0(x.views) / n0(x.total) : 0, total: n0(x.total) }));
+}
+
+export type FlowLink = { step: number; source: string; target: string; visits: number };
+
+export async function flow(r: Range, steps = 4, nodes = 6): Promise<FlowLink[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_flow", { ...span(r), p_steps: steps, p_nodes: nodes });
+  return rows.map((x) => ({ step: n0(x.step), source: String(x.source), target: String(x.target), visits: n0(x.visits) }));
 }

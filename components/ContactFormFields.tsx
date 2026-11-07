@@ -2,12 +2,17 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { sendContactMessage, type ContactState } from "@/app/contact-actions";
+import { track } from "@/lib/track";
 
 export default function ContactFormFields({ source }: { source: string }) {
   const [state, formAction, pending] = useActionState<ContactState, FormData>(sendContactMessage, {});
   // When the form was shown, to spot forms filled in by robots in an instant.
   const [startedAt, setStartedAt] = useState("");
   useEffect(() => setStartedAt(String(Date.now())), []);
+  // Counted in the website statistics (for goals such as "Sent a message").
+  useEffect(() => {
+    if (state.ok) track({ t: "form", l: source });
+  }, [state.ok, source]);
 
   if (state.ok) {
     return (

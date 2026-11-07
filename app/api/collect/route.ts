@@ -12,16 +12,18 @@ export const dynamic = "force-dynamic";
 const countries = new Intl.DisplayNames(["en-GB"], { type: "region" });
 const MAX_EVENTS = 25;
 const ID = /^[a-z0-9-]{8,40}$/i;
-const TYPES = new Set(["pageview", "leave", "click", "media", "search"]);
+const TYPES = new Set(["pageview", "leave", "click", "media", "search", "form"]);
 const MEDIA = new Set(["audio", "video"]);
 const FILTERS = ["preacher", "book", "year", "service"];
 const MILESTONES = [0, 25, 50, 75, 95];
-const KINDS = new Set(["internal", "outbound", "download", "phone", "email", "button"]);
+// "none": a click on something that isn't a link or button (kept only for the heatmaps).
+const KINDS = new Set(["internal", "outbound", "download", "phone", "email", "button", "none"]);
+const SELECTOR = /^[#\w\-:().>]+$/;
 
 type Incoming = {
   t?: string; p?: string; ti?: string; en?: boolean; r?: string; w?: number;
   us?: string; um?: string; uc?: string; d?: number; sc?: number; k?: string; h?: string; l?: string;
-  pc?: number; n?: number; f?: Record<string, unknown>; nf?: boolean; fr?: string;
+  pc?: number; n?: number; f?: Record<string, unknown>; nf?: boolean; fr?: string; sel?: string; fx?: number; fy?: number;
 };
 
 const text = (v: unknown, max: number) => (typeof v === "string" && v.trim() ? v.trim().slice(0, max) : null);
@@ -68,6 +70,13 @@ function propsFor(e: Incoming): Record<string, unknown> | null {
     return { results: whole(e.n, 0, 100_000) ?? 0, ...(Object.keys(filters).length ? { filters } : {}) };
   }
   if (e.t === "pageview" && e.nf) return { nf: true, from: cameFrom(text(e.fr, 500)) };
+  if (e.t === "click") {
+    // Where on the page, for the heatmaps: the clicked element and the point within it (0 to 1).
+    const sel = text(e.sel, 400);
+    const fx = typeof e.fx === "number" && Number.isFinite(e.fx) ? Math.min(1, Math.max(0, Math.round(e.fx * 1000) / 1000)) : null;
+    const fy = typeof e.fy === "number" && Number.isFinite(e.fy) ? Math.min(1, Math.max(0, Math.round(e.fy * 1000) / 1000)) : null;
+    return sel && SELECTOR.test(sel) && fx !== null && fy !== null ? { sel, fx, fy } : null;
+  }
   return null;
 }
 
@@ -136,7 +145,7 @@ export async function POST(request: Request) {
       scroll_pct: e.t === "leave" ? whole(e.sc, 0, 100) : null,
       target: e.t === "click" ? text(e.h, 500) : e.t === "media" ? text(e.h, 300) : null,
       target_kind: e.t === "click" && e.k && KINDS.has(e.k) ? e.k : e.t === "media" ? e.k! : null,
-      target_label: e.t === "click" || e.t === "media" ? text(e.l, 200) : e.t === "search" ? text(e.l, 100) : null,
+      target_label: e.t === "click" || e.t === "media" ? text(e.l, 200) : e.t === "search" ? text(e.l, 100) : e.t === "form" ? text(e.l, 40) : null,
       props: propsFor(e),
     });
   }

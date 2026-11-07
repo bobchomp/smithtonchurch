@@ -76,7 +76,8 @@ export default function PrivacyNotice() {
         <p>
           To understand how the website is used, so that we can improve it, the website keeps its own statistics. We
           record which pages are visited, how long people spend on them and how far down they scroll, which links and
-          buttons are pressed, which sermons are played and how far through, what is searched for in the sermon archive,
+          buttons are pressed and where on the page people click or tap, whether a message was sent with the contact
+          form (the message itself is kept separately, as described above), which sermons are played and how far through, what is searched for in the sermon archive,
           addresses that couldn’t be found, the website or link that brought someone here, the type of device, browser and screen
           size, and the approximate town and country (worked out from the internet connection when the page is
           requested; we don’t store IP addresses).

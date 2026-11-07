@@ -82,7 +82,11 @@ each page's time on page and scroll depth, where visits start and end, where vis
 (other websites and `?utm_campaign=` links), towns and countries, and devices. Further tabs show
 routes through the website and individual (anonymous) visits, clicks and downloads, sermon plays
 and how far people listen or watch, sermon archive searches, and addresses that weren't found.
-Every report can be downloaded as a CSV file. The website keeps
+Every report can be downloaded as a CSV file. **Heatmaps** show where people click or tap on each page (and how far
+they scroll), drawn over the page itself at phone, tablet or computer size. **Goals & funnels**
+count visits that do the things you care about (watch live, play a sermon, send a message...) and,
+for steps in order, where people drop out. Pages & journeys also has a flow diagram of how visits
+move from page to page. The website keeps
 these statistics itself, in the Supabase database; nothing is sent to Google or anyone else.
 
 To set it up:

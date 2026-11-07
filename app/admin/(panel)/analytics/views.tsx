@@ -13,8 +13,14 @@ import type {
   SermonRow,
   VisitRow,
 } from "@/lib/analytics";
-import { setTracking } from "./actions";
+import { describeCondition, SUGGESTED_FUNNELS, SUGGESTED_GOALS, type Funnel, type Goal, type GoalsConfig } from "@/lib/analytics-goals";
+import { SCREEN_SIZES, type FlowLink, type FunnelResult } from "@/lib/analytics";
+import DeleteButton from "../_documents/DeleteButton";
+import { addSuggestion, removeGoalOrFunnel, setTracking } from "./actions";
 import Chart from "./Chart";
+import FlowDiagram from "./FlowDiagram";
+import { FunnelForm, GoalForm } from "./GoalForms";
+import HeatmapFrame from "./HeatmapFrame";
 import { analyticsHref, csvHref, duration, MoreLink, nf, percent, Report, Stat, ukDateTime, type Column } from "./parts";
 import { bucketKey, buckets, RANGES, type RangeKey } from "./ranges";
 
@@ -158,8 +164,8 @@ export function OverviewView({ range, current, data, enabled, isOwner }: {
 
 // ---------- Pages & journeys ----------
 
-export function PagesView({ range, pages, chosen, flow, journeys, visits, offset }: {
-  range: RangeKey; pages: PageRow[]; chosen?: string; flow: FlowRow[];
+export function PagesView({ range, pages, chosen, flow, flowLinks, journeys, visits, offset }: {
+  range: RangeKey; pages: PageRow[]; chosen?: string; flow: FlowRow[]; flowLinks: FlowLink[];
   journeys: { journey: string; visits: number; visitors: number }[]; visits: VisitRow[]; offset: number;
 }) {
   const came = flow.filter((f) => f.direction === "from");
@@ -170,6 +176,17 @@ export function PagesView({ range, pages, chosen, flow, journeys, visits, offset
   ];
   return (
     <>
+      <section className="admin-panel analytics-flow-panel">
+        <div className="analytics-table-head">
+          <h2>How visits flow through the website</h2>
+        </div>
+        <p className="admin-muted analytics-note">
+          Each column is a step of a visit: the page people arrived on, then the next page, and so on. The wider the band,
+          the more visits went that way. Grey shows visits that ended there. Point at a band for the numbers.
+        </p>
+        <FlowDiagram links={flowLinks} steps={4} />
+      </section>
+
       <Report
         title="Pages"
         rows={pages}
@@ -453,6 +470,216 @@ export function MissingView({ range, rows }: { range: RangeKey; rows: MissingRow
           { head: "Last", cell: (r) => ukDateTime(r.last_seen), text: true },
         ]}
       />
+    </>
+  );
+}
+
+// ---------- Heatmaps ----------
+
+export function HeatmapsView({ range, pages, path, sizeKey, siteOrigin, clicks, reach }: {
+  range: RangeKey; pages: string[]; path?: string; sizeKey: string; siteOrigin: string;
+  clicks: { sel: string; fx: number; fy: number }[]; reach: { pct: number; share: number; total: number }[];
+}) {
+  const size = SCREEN_SIZES.find((s) => s.key === sizeKey) ?? SCREEN_SIZES[0];
+  const views = reach[0]?.total ?? 0;
+  return (
+    <>
+      <p className="analytics-compare analytics-lead">
+        Where people click or tap on a page, shown over the page itself: the redder, the more clicks. The dashed lines show
+        how far down people scrolled. Choose the screen size, as pages are laid out differently on phones and computers.
+      </p>
+      <section className="admin-panel">
+        <form className="analytics-heatmap-controls" action="/admin/analytics/" method="get">
+          <input type="hidden" name="view" value="heatmaps" />
+          {range !== "30d" && <input type="hidden" name="range" value={range} />}
+          <label>
+            Page
+            <select name="page" defaultValue={path}>
+              {(path && !pages.includes(path) ? [path, ...pages] : pages).map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Screen size
+            <select name="size" defaultValue={size.key}>
+              {SCREEN_SIZES.map((s) => (
+                <option key={s.key} value={s.key}>{s.label}</option>
+              ))}
+            </select>
+          </label>
+          <button className="button" type="submit">Show</button>
+        </form>
+        {!path ? (
+          <p className="admin-muted">No pages visited in this period yet.</p>
+        ) : (
+          <>
+            <p className="analytics-note">
+              <strong>{path}</strong> on {size.label.toLowerCase()}: {nf.format(clicks.length)} click{clicks.length === 1 ? "" : "s"}
+              {clicks.length === 5000 ? " (the latest 5,000)" : ""}, scrolling from {nf.format(views)} page view{views === 1 ? "" : "s"}.
+            </p>
+            <HeatmapFrame
+              key={`${path}|${size.key}|${range}`}
+              src={`${siteOrigin}${path}?sc-heatmap=1`}
+              origin={siteOrigin}
+              width={size.width}
+              viewport={size.viewport}
+              clicks={clicks}
+              reach={views ? reach.map(({ pct, share }) => ({ pct, share })) : []}
+            />
+          </>
+        )}
+      </section>
+    </>
+  );
+}
+
+// ---------- Goals & funnels ----------
+
+export type GoalResult = { goal: Goal; now: FunnelResult; before: FunnelResult };
+export type FunnelReport = { funnel: Funnel; result: FunnelResult };
+
+function RemoveForm({ id, name }: { id: string; name: string }) {
+  return (
+    <form action={removeGoalOrFunnel}>
+      <input type="hidden" name="id" value={id} />
+      <DeleteButton question={`Remove “${name}”? Only the goal is removed; nothing recorded is deleted.`} label="Remove" />
+    </form>
+  );
+}
+
+export function GoalsView({ range, config, goals, funnels, sessions, chosen, sources }: {
+  range: RangeKey; config: GoalsConfig; goals: GoalResult[]; funnels: FunnelReport[]; sessions: number;
+  chosen?: Goal; sources: { kind: "source" | "entry"; label: string; visits: number }[];
+}) {
+  const unused = SUGGESTED_GOALS.map((g, i) => ({ g, i })).filter(({ g }) => !config.goals.some((x) => x.name === g.name));
+  return (
+    <>
+      <p className="analytics-compare analytics-lead">
+        A goal is something you’d like visitors to do, such as watch a live service or send a message. Each one shows how
+        many visits did it. A funnel is several steps in order, showing where people drop out along the way.
+      </p>
+
+      <section className="admin-panel">
+        <h2>Goals</h2>
+        {goals.length === 0 ? (
+          <p className="admin-muted">No goals yet. Add one below, or start with a suggestion.</p>
+        ) : (
+          <div className="analytics-table analytics-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Goal</th>
+                  <th scope="col">Visits</th>
+                  <th scope="col">Of all visits</th>
+                  <th scope="col">Change</th>
+                  <th scope="col"><span className="visually-hidden">Remove</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {goals.map(({ goal, now, before }) => {
+                  const n = now[0]?.visits ?? 0, b = before[0]?.visits ?? 0;
+                  return (
+                    <tr key={goal.id} className="analytics-goal-row">
+                      <td>
+                        <span className="analytics-bar" style={{ width: `${sessions ? (n / sessions) * 100 : 0}%` }} />
+                        <span className="analytics-label">
+                          <Link href={analyticsHref("goals", range, { goal: goal.id }) + "#goal"}>{goal.name}</Link>
+                          <span className="analytics-sub">{describeCondition(goal.condition)}</span>
+                        </span>
+                      </td>
+                      <td>{nf.format(n)}</td>
+                      <td>{percent(n, sessions)}</td>
+                      <td>{change(n, b) ?? "–"}</td>
+                      <td><RemoveForm id={goal.id} name={goal.name} /></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {unused.length > 0 && (
+          <>
+            <p className="admin-muted analytics-note analytics-suggest-intro">Suggestions:</p>
+            <div className="analytics-suggest">
+              {unused.map(({ g, i }) => (
+                <form key={i} action={addSuggestion}>
+                  <input type="hidden" name="kind" value="goal" />
+                  <input type="hidden" name="index" value={i} />
+                  <button type="submit">+ {g.name}</button>
+                </form>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      {chosen && (
+        <section id="goal" className="admin-panel analytics-section">
+          <h2>{chosen.name}: where those visits came from</h2>
+          <div className="analytics-grid analytics-flow-grid">
+            <Report title="Came from" rows={sources.filter((s) => s.kind === "source")} range={range} bar={(s) => s.visits} rowKey={(s) => s.label}
+              columns={[{ head: "", cell: (s) => s.label }, { head: "Visits", cell: (s) => nf.format(s.visits) }]} />
+            <Report title="Arrived on" rows={sources.filter((s) => s.kind === "entry")} range={range} bar={(s) => s.visits} rowKey={(s) => s.label}
+              columns={[{ head: "", cell: (s) => s.label }, { head: "Visits", cell: (s) => nf.format(s.visits) }]} />
+          </div>
+        </section>
+      )}
+
+      <div className="analytics-section analytics-funnels">
+        {funnels.map(({ funnel, result }) => {
+          const first = result[0]?.visits ?? 0;
+          return (
+            <section key={funnel.id} className="admin-panel">
+              <div className="analytics-table-head">
+                <h2>{funnel.name}</h2>
+                <RemoveForm id={funnel.id} name={funnel.name} />
+              </div>
+              <ol className="analytics-funnel">
+                {funnel.steps.map((step, i) => {
+                  const v = result[i]?.visits ?? 0;
+                  const prev = i ? result[i - 1]?.visits ?? 0 : 0;
+                  return (
+                    <li key={i}>
+                      <span className="analytics-funnel-name">{i + 1}. {step.name}</span>
+                      <span className="analytics-funnel-num">{nf.format(v)} visit{v === 1 ? "" : "s"}{i > 0 && ` · ${percent(v, first)}`}</span>
+                      <span className="analytics-funnel-bar"><span style={{ width: `${first ? (v / first) * 100 : 0}%` }} /></span>
+                      {i > 0 && prev > 0 && <span className="analytics-funnel-drop">{percent(prev - v, prev)} dropped out after step {i}</span>}
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          );
+        })}
+      </div>
+      {funnels.length === 0 && (
+        <section className="admin-panel analytics-section">
+          <h2>Funnels</h2>
+          <p className="admin-muted">No funnels yet. Add one below, or start with a suggestion.</p>
+          <div className="analytics-suggest">
+            {SUGGESTED_FUNNELS.map((f, i) => (
+              <form key={i} action={addSuggestion}>
+                <input type="hidden" name="kind" value="funnel" />
+                <input type="hidden" name="index" value={i} />
+                <button type="submit">+ {f.name}</button>
+              </form>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div className="admin-columns analytics-section">
+        <section className="admin-panel">
+          <h2>Add a goal</h2>
+          <GoalForm />
+        </section>
+        <section className="admin-panel">
+          <h2>Add a funnel</h2>
+          <FunnelForm />
+        </section>
+      </div>
     </>
   );
 }
