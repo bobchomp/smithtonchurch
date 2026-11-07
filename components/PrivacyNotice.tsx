@@ -50,9 +50,7 @@ export default function PrivacyNotice() {
 
         <h2>Who can see it</h2>
         <p>
-          Your message is stored securely and can only be read by the church office staff and others who help run the
-          church and have a login to the website’s admin area. A copy is also sent by email to the people responsible
-          for answering messages.
+          Your message is stored securely and can only be read by the church office staff.
         </p>
         <p>We use trusted service providers to run the website, who handle information on our behalf:</p>
         <ul>
@@ -126,7 +124,11 @@ export default function PrivacyNotice() {
           </li>
           <li>
             <strong>Our live stream</strong>: the player on the <Link href="/live/">Live Services</Link> page is
-            provided by our streaming service.
+            provided by our streaming service, whose privacy policy can be found here:{" "}
+            <a href="https://stream.rossmackenzie.co.uk/privacy.html" target="_blank" rel="noopener noreferrer">
+              stream.rossmackenzie.co.uk/privacy.html<span className="visually-hidden"> (opens in a new tab)</span>
+            </a>
+            .
           </li>
         </ul>
         <p>
@@ -145,14 +147,6 @@ export default function PrivacyNotice() {
         <p>
           To do any of these, contact the church office at <a href={`mailto:${site.email}`}>{site.email}</a>. We will
           reply within one month.
-        </p>
-        <p>
-          If you are unhappy with how we have handled your information, please talk to us first. You also have the
-          right to complain to the Information Commissioner’s Office (ICO) at{" "}
-          <a href="https://ico.org.uk/make-a-complaint/" target="_blank" rel="noopener noreferrer">
-            ico.org.uk<span className="visually-hidden"> (opens in a new tab)</span>
-          </a>{" "}
-          or on 0303 123 1113.
         </p>
 
         <h2>Changes to this notice</h2>
