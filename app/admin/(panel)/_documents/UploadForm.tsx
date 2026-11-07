@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DOCUMENT_TYPES, type DocumentKind } from "@/lib/document-types";
+import { dateFromFileName, DOCUMENT_TYPES, formatDocumentDate, type DocumentKind } from "@/lib/document-types";
 import { renderPdfCover } from "@/lib/pdf-cover";
 import { finishDocumentUpload, startDocumentUpload } from "./actions";
 import MonthYearSelect from "./MonthYearSelect";
@@ -33,6 +33,20 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
   const router = useRouter();
   const [progress, setProgress] = useState<number | null>(null);
   const [message, setMessage] = useState<{ kind: "success" | "error"; text: string } | null>(null);
+  // The date: filled in from the file's name when it has one, and always changeable.
+  const [date, setDate] = useState(defaultDate);
+  const [fromName, setFromName] = useState<string | null>(null);
+  const [dateKey, setDateKey] = useState(0); // remounts the month/year dropdowns when the date is filled in
+
+  function fileChosen(file: File | undefined) {
+    const found = file ? dateFromFileName(file.name, precision) : undefined;
+    setFromName(found ?? null);
+    if (found) {
+      setDate(found);
+      setDateKey((k) => k + 1);
+    }
+  }
+  const notSunday = precision === "day" && /^\d{4}-\d{2}-\d{2}$/.test(date) && new Date(`${date}T12:00:00Z`).getUTCDay() !== 0;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,6 +75,9 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
       if (cover) await uploadFile(uploadUrls.cover, cover).catch(() => undefined);
       await finishDocumentUpload(kind, date);
       form.reset();
+      setDate(defaultDate);
+      setFromName(null);
+      setDateKey((k) => k + 1);
       setMessage({ kind: "success", text: `${singular[0].toUpperCase()}${singular.slice(1)} uploaded. It’s now live on the website.` });
       router.refresh();
     } catch (error) {
@@ -73,18 +90,23 @@ export default function UploadForm({ kind, defaultDate }: { kind: DocumentKind; 
   const uploading = progress !== null;
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
+      <label>
+        {`${singular[0].toUpperCase()}${singular.slice(1)} PDF`}
+        <input type="file" name="file" accept="application/pdf,.pdf" required onChange={(e) => fileChosen(e.target.files?.[0])} />
+      </label>
       {precision === "day" ? (
         <label>
           Sunday it’s for
-          <input type="date" name="date" defaultValue={defaultDate} required />
+          <input type="date" name="date" value={date} onChange={(e) => { setDate(e.target.value); setFromName(null); }} required />
         </label>
       ) : (
-        <MonthYearSelect defaultValue={defaultDate} />
+        <MonthYearSelect key={dateKey} defaultValue={date} />
       )}
-      <label>
-        {`${singular[0].toUpperCase()}${singular.slice(1)} PDF`}
-        <input type="file" name="file" accept="application/pdf,.pdf" required />
-      </label>
+      {fromName && (
+        <p className="admin-muted admin-date-note" role="status">
+          Filled in from the file name: {formatDocumentDate(kind, fromName)}.{notSunday && " That isn’t a Sunday, so please check it."}
+        </p>
+      )}
       {message && (
         <p className={message.kind === "error" ? "admin-error" : "admin-success"} role="status">
           {message.text}

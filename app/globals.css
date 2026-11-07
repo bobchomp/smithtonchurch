@@ -1156,3 +1156,4 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .slides-verse-time { color: var(--muted); font-variant-numeric: tabular-nums; }
 .slides-small-caps { font-variant: small-caps; }
 .slides-history-inner { border-top: 0; padding-top: 0; margin-top: 0.6rem; }
+.admin-date-note { margin: -0.4rem 0 0; font-size: 0.9rem; }

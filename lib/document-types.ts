@@ -74,3 +74,44 @@ export function bulletinSunday(date: string): string {
   day.setUTCDate(day.getUTCDate() - day.getUTCDay());
   return day.toISOString().slice(0, 10);
 }
+
+// A date in an uploaded file's name, so the upload form can fill it in. Finds "20261011", "2026-10-11",
+// "11 October 2026", "11th Oct 2026" and so on; with precision "month", also "October 2026" or "202610".
+// Returns YYYY-MM-DD (or YYYY-MM), or undefined if there's no real date in the name.
+export function dateFromFileName(name: string, precision: "day" | "month"): string | undefined {
+  const base = name.replace(/\.[a-z0-9]+$/i, "");
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const real = (y: number, m: number, d: number) => {
+    const t = new Date(Date.UTC(y, m - 1, d));
+    return t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+  };
+  const monthOf = (word: string) => {
+    const i = MONTH_NAMES.findIndex((m) => m.toLowerCase().startsWith(word.toLowerCase().slice(0, 3)));
+    return word.length >= 3 && i >= 0 && MONTH_NAMES[i].toLowerCase().startsWith(word.toLowerCase().replace(/\.$/, "")) ? i + 1 : 0;
+  };
+  const found = (y: number, m: number, d?: number) =>
+    precision === "month" ? `${y}-${pad(m)}` : d && real(y, m, d) ? `${y}-${pad(m)}-${pad(d)}` : undefined;
+
+  // 20261011, 2026-10-11, 2026_10_11, 2026.10.11
+  for (const m of base.matchAll(/(?<!\d)(20\d\d)[-_. ]?(0[1-9]|1[0-2])[-_. ]?(0[1-9]|[12]\d|3[01])(?!\d)/g)) {
+    const r = found(+m[1], +m[2], +m[3]);
+    if (r) return r;
+  }
+  // 11 October 2026, 11th Oct 2026, 11-October-2026
+  for (const m of base.matchAll(/(?<!\d)(\d{1,2})(?:st|nd|rd|th)?[\s_.-]+([a-z]{3,9}\.?)[\s_.,-]+(20\d\d)(?!\d)/gi)) {
+    const month = monthOf(m[2]);
+    const r = month ? found(+m[3], month, +m[1]) : undefined;
+    if (r) return r;
+  }
+  if (precision === "month") {
+    // October 2026, Oct-2026
+    for (const m of base.matchAll(/([a-z]{3,9})[\s_.,-]+(20\d\d)(?!\d)/gi)) {
+      const month = monthOf(m[1]);
+      if (month) return `${m[2]}-${pad(month)}`;
+    }
+    // 202610, 2026-10
+    const m = base.match(/(?<!\d)(20\d\d)[-_. ]?(0[1-9]|1[0-2])(?!\d)/);
+    if (m) return `${m[1]}-${m[2]}`;
+  }
+  return undefined;
+}
