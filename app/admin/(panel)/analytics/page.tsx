@@ -16,6 +16,9 @@ import {
   SCREEN_SIZES,
   scrollReach,
   isMissingSetup,
+  lastRecorded,
+  missingReports,
+  recordingProblem,
   journeys,
   live,
   notFound,
@@ -40,7 +43,8 @@ import { ClicksView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesVi
 
 export const metadata: Metadata = { title: "Analytics" };
 
-function Setup({ error }: { error?: unknown }) {
+function Setup({ error, missing }: { error?: unknown; missing: { fn: string; tab: string }[] }) {
+  const tabs = [...new Set(missing.map((m) => m.tab))];
   let sql = "";
   try {
     sql = readFileSync(join(process.cwd(), "supabase/analytics.sql"), "utf8");
@@ -52,8 +56,15 @@ function Setup({ error }: { error?: unknown }) {
       <h2>Set up (or update) the analytics database</h2>
       <p>
         The analytics are kept in your Supabase database. It needs setting up once, and again when new reports are
-        added (running it again keeps everything already recorded):
+        added (running it again keeps everything already recorded).
       </p>
+      {missing.length > 0 && (
+        <p className="analytics-missing">
+          {missing.length === 21
+            ? "The database hasn’t been set up yet."
+            : `The database is missing ${missing.length} newer report${missing.length === 1 ? "" : "s"}, needed by: ${tabs.join(", ")}. Run the latest script below to add ${missing.length === 1 ? "it" : "them"}.`}
+        </p>
+      )}
       <ol>
         <li>Press <strong>Copy the setup script</strong> below.</li>
         <li>In the Supabase dashboard, open your project, then <strong>SQL Editor</strong> → <strong>New query</strong>.</li>
@@ -116,12 +127,15 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
           storageUsed(),
           analyticsSettings(true),
         ]);
+      const [lastAt, problem] = await Promise.all([lastRecorded().catch(() => null), recordingProblem()]);
       body = (
         <OverviewView
           range={key}
           current={current}
           data={{ now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, storage }}
           enabled={settings.enabled}
+          lastAt={lastAt}
+          problem={problem && (!lastAt || problem.at > lastAt) ? problem : undefined}
           isOwner={me.role === "owner"}
         />
       );
@@ -174,10 +188,11 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     }
   } catch (error) {
     if (isMissingSetup(error)) {
+      const missing = await missingReports().catch(() => []);
       return (
         <>
           {heading}
-          <Setup error={error} />
+          <Setup error={error} missing={missing} />
         </>
       );
     }

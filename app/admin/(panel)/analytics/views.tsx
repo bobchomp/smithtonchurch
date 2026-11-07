@@ -68,7 +68,7 @@ const pageColumns: Column<PageRow>[] = [
 
 // ---------- Overview ----------
 
-export function OverviewView({ range, current, data, enabled, isOwner }: {
+export function OverviewView({ range, current, data, enabled, isOwner, lastAt, problem }: {
   range: RangeKey;
   current: Range;
   data: {
@@ -79,6 +79,8 @@ export function OverviewView({ range, current, data, enabled, isOwner }: {
   };
   enabled: boolean;
   isOwner: boolean;
+  lastAt: string | null;
+  problem?: { at: string; message: string };
 }) {
   const { now, before, chart, top, storage } = data;
   const byBucket = new Map(chart.map((p) => [bucketKey(p.bucket, current.unit), p]));
@@ -143,6 +145,18 @@ export function OverviewView({ range, current, data, enabled, isOwner }: {
           ) : (
             <p className="admin-muted">Tracking is {enabled ? "on" : "off"}. Owners can change this.</p>
           )}
+          <p className="analytics-last">
+            Last visit recorded: <strong>{lastAt ? ukDateTime(lastAt) : "none yet"}</strong>
+          </p>
+          {problem && (
+            <p className="admin-error analytics-last">
+              Recording stopped working at {ukDateTime(problem.at)}: {problem.message}
+            </p>
+          )}
+          <p className="admin-muted analytics-last-note">
+            Not counted: signed-in admins, anyone who chose “Don’t count me”, and browsers that send a Global Privacy
+            Control signal (Firefox private windows do by default). To test, use a normal window in another browser or a phone.
+          </p>
         </section>
         <section className="admin-panel">
           <h2>Data</h2>

@@ -88,6 +88,9 @@
   header in next.config.ts allows only self + admin). Goals & funnels (`lib/analytics-goals.ts`, saved in
   `private/settings/analytics-goals.json`) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
   'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys.
+  Checks: the setup panel lists missing report functions (`missingReports`, REPORT_FUNCTIONS in lib/analytics.ts: add new
+  functions there too); Overview shows the last recorded event and the last recording error (saved by /api/collect to
+  `private/settings/analytics-status.json`). The live site is served at www.rossmdev.co.uk (the bare domain redirects there).
 - Admin → Holding Slides (tool "holding-slides"): the live stream's holding slides with every revision, listed in
   `lib/holding-slides.ts`; images in `holding-slides/<slide>/<file>.png|.jpg` (not public, served by
   `app/admin/(panel)/holding-slides/file/[...path]/route.ts` behind requireTool). Made with `scripts/render-holding-slides.cjs`;

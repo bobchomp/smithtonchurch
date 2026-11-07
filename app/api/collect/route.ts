@@ -1,4 +1,5 @@
-import { analyticsSettings, recordEvents, type EventRow } from "@/lib/analytics";
+import { analyticsSettings, recordEvents, saveRecordingProblem, type EventRow } from "@/lib/analytics";
+import { describeStorageError } from "@/lib/supabase";
 import { describeAgent, isBot } from "@/lib/analytics-ua";
 import { MAIN_HOSTS } from "@/lib/domains";
 
@@ -153,6 +154,8 @@ export async function POST(request: Request) {
     await recordEvents(rows);
   } catch (error) {
     console.error("Could not record analytics", error);
+    // Shown in Admin → Analytics, so a problem doesn't go unnoticed.
+    await saveRecordingProblem(describeStorageError(error)).catch(() => undefined);
   }
   return Response.json({ on: true });
 }

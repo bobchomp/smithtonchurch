@@ -291,3 +291,68 @@ export async function flow(r: Range, steps = 4, nodes = 6): Promise<FlowLink[]> 
   const rows = await rpc<Record<string, unknown>>("analytics_flow", { ...span(r), p_steps: steps, p_nodes: nodes });
   return rows.map((x) => ({ step: n0(x.step), source: String(x.source), target: String(x.target), visits: n0(x.visits) }));
 }
+
+// ---------- Checking the set-up ----------
+
+// Every report function, with harmless arguments, and the tab that needs it. Used to say exactly what's
+// missing when the setup script hasn't been run (or re-run since new reports were added).
+const REPORT_FUNCTIONS: { fn: string; tab: string; args: (r: Range) => Record<string, unknown> }[] = [
+  { fn: "analytics_overview", tab: "Overview", args: span },
+  { fn: "analytics_series", tab: "Overview", args: (r) => ({ ...span(r), p_unit: "day" }) },
+  { fn: "analytics_breakdown", tab: "Overview", args: (r) => ({ ...span(r), p_dim: "source", p_limit: 1 }) },
+  { fn: "analytics_live", tab: "Overview", args: () => ({}) },
+  { fn: "analytics_storage", tab: "Overview", args: () => ({}) },
+  { fn: "analytics_pages", tab: "Pages & journeys", args: (r) => ({ ...span(r), p_limit: 1 }) },
+  { fn: "analytics_page_flow", tab: "Pages & journeys", args: (r) => ({ ...span(r), p_path: "/", p_limit: 1 }) },
+  { fn: "analytics_journeys", tab: "Pages & journeys", args: (r) => ({ ...span(r), p_steps: 2, p_limit: 1 }) },
+  { fn: "analytics_visits", tab: "Pages & journeys", args: (r) => ({ ...span(r), p_limit: 1, p_offset: 0 }) },
+  { fn: "analytics_flow", tab: "Pages & journeys", args: (r) => ({ ...span(r), p_steps: 2, p_nodes: 1 }) },
+  { fn: "analytics_heatmap", tab: "Heatmaps", args: (r) => ({ ...span(r), p_path: "/", p_min_w: 0, p_max_w: 1, p_limit: 1 }) },
+  { fn: "analytics_scroll_reach", tab: "Heatmaps", args: (r) => ({ ...span(r), p_path: "/", p_min_w: 0, p_max_w: 1 }) },
+  { fn: "analytics_funnel", tab: "Goals & funnels", args: (r) => ({ ...span(r), p_steps: [{ type: "form" }] }) },
+  { fn: "analytics_goal_sources", tab: "Goals & funnels", args: (r) => ({ ...span(r), p_goal: { type: "form" }, p_limit: 1 }) },
+  { fn: "analytics_clicks", tab: "Clicks & downloads", args: (r) => ({ ...span(r), p_kind: null, p_limit: 1 }) },
+  { fn: "analytics_click_kinds", tab: "Clicks & downloads", args: span },
+  { fn: "analytics_sermons", tab: "Sermons", args: (r) => ({ ...span(r), p_limit: 1 }) },
+  { fn: "analytics_sermon_totals", tab: "Sermons", args: span },
+  { fn: "analytics_searches", tab: "Searches", args: (r) => ({ ...span(r), p_limit: 1 }) },
+  { fn: "analytics_search_filters", tab: "Searches", args: (r) => ({ ...span(r), p_limit: 1 }) },
+  { fn: "analytics_not_found", tab: "Missing pages", args: (r) => ({ ...span(r), p_limit: 1 }) },
+];
+
+// The report functions the database doesn't have yet, and the tabs they're for.
+export async function missingReports(): Promise<{ fn: string; tab: string }[]> {
+  const now = new Date();
+  const r: Range = { from: now, to: now, unit: "day" };
+  const results = await Promise.all(
+    REPORT_FUNCTIONS.map(async (f) => {
+      try {
+        await rpc(f.fn, f.args(r));
+        return null;
+      } catch (error) {
+        return isMissingSetup(error) ? { fn: f.fn, tab: f.tab } : null;
+      }
+    }),
+  );
+  return results.filter((x): x is { fn: string; tab: string } => x !== null);
+}
+
+// When the last visit was recorded (straight from the table, so it works whatever reports exist).
+export async function lastRecorded(): Promise<string | null> {
+  const { data, error } = await withTimeout(supabaseAdmin().from("analytics_events").select("created_at").order("id", { ascending: false }).limit(1));
+  if (error) throw error;
+  return data?.[0]?.created_at ?? null;
+}
+
+// The last time recording a visit failed, saved by /api/collect so it shows in the admin panel.
+const STATUS_PATH = "settings/analytics-status.json";
+export type RecordingProblem = { at: string; message: string };
+
+export async function saveRecordingProblem(message: string): Promise<void> {
+  await ensurePrivateBucket();
+  await writePrivateJson(STATUS_PATH, { at: new Date().toISOString(), message: message.slice(0, 500) } satisfies RecordingProblem);
+}
+
+export async function recordingProblem(): Promise<RecordingProblem | undefined> {
+  return readPrivateJson<RecordingProblem>(STATUS_PATH).catch(() => undefined);
+}
