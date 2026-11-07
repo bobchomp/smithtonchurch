@@ -67,6 +67,13 @@
   (smithtonchurch.com), Open Graph/Twitter tags and the share image `public/images/og-image.jpg` (1200×630). The home page
   has schema.org Church JSON-LD. `app/robots.ts` and `app/sitemap.ts` (includes every sermon). New pages: use pageMetadata
   and add them to the sitemap list.
+- Analytics (Admin → Analytics, tool key "analytics"): `components/Analytics.tsx` (in the site layout and not-found) posts
+  page views, leave events (active time + scroll %) and clicks to `/api/collect/` (text/plain JSON), which writes rows to the
+  Supabase Postgres table `analytics_events` (`lib/analytics.ts`, setup SQL in `supabase/analytics.sql`, run once by the owner
+  in the SQL editor; reports are SQL functions called with `rpc`). Off until switched on (`private/settings/analytics.json`).
+  Cookies: `sc_v` visitor (1y), `sc_s` visit (30 min), `sc_consent` ok/no, `sc_admin` (set on admin sign-in: never counted).
+  Not counted: "Don't count me", Sec-GPC, admins, bots (`lib/analytics-ua.ts`). No IPs stored; town/country from Vercel headers.
+  The cookie card links to /privacy/, which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

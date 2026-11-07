@@ -9,6 +9,7 @@ export const ADMIN_TOOLS = [
   { key: "newsletter", label: "Marsali’s Newsletter", hint: "Upload and delete newsletters" },
   { key: "live-notices", label: "Live Notices", hint: "Messages and images on the Watch Live page" },
   { key: "pages-to-review", label: "Pages to Review", hint: "See draft pages before they go live" },
+  { key: "analytics", label: "Analytics", hint: "See how people find and use the website" },
 ] as const;
 
 export type AdminTool = (typeof ADMIN_TOOLS)[number]["key"];

@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 import { HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
 
 const nextConfig: NextConfig = {
+  // The analytics setup script is shown in Admin → Analytics, so include it with that page.
+  outputFileTracingIncludes: { "/admin/analytics": ["./supabase/analytics.sql"] },
   // Keep the trailing slash so page addresses match the old WordPress site (e.g. /about-us/).
   trailingSlash: true,
   // Also covers PDFs and images, which can't carry a noindex tag. See lib/domains.ts.

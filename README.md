@@ -74,6 +74,24 @@ Getting started: sign in with the backup PIN, open **Users**, and invite yoursel
 Recommended in Supabase (**Authentication → Sign In / Providers**): turn off **Allow new users to
 sign up**, as logins are only created by invitation. Signing in lasts 12 hours.
 
+### Analytics
+
+**Admin → Analytics** shows how people use the website: visitors, visits and page views over time,
+each page's time on page and scroll depth, where visits start and end, where visitors came from
+(other websites and `?utm_campaign=` links), towns and countries, and devices. The website keeps
+these statistics itself, in the Supabase database; nothing is sent to Google or anyone else.
+
+To set it up:
+
+1. Open **Admin → Analytics**, press **Copy the setup script**, then in Supabase open **SQL Editor →
+   New query**, paste it and press **Run**. (It's safe to run again after updates.)
+2. Publish the privacy notice (it explains the statistics and how to opt out).
+3. Back in **Admin → Analytics**, tick **Record visits to the website** and save.
+
+Visitors see a small cookie message with **Got it** and **Don't count me**. Signed-in admins,
+people who chose "Don't count me", browsers sending Global Privacy Control and search engine robots
+are never counted. Records are kept until deleted.
+
 ### File storage (Supabase)
 
 Files uploaded in the admin panel, such as the weekly bulletin, are stored in

@@ -116,6 +116,15 @@ export default async function AdminDashboard({
             </p>
           </Link>
         )}
+        {canUse(me, "analytics") && (
+          <Link className="admin-tool" href="/admin/analytics/">
+            <h2>Analytics</h2>
+            <p>
+              See how people find and use the website: pages, visitors, where
+              they came from and more.
+            </p>
+          </Link>
+        )}
         {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/users/">
             <h2>Users</h2>

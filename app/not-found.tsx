@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Analytics from "@/components/Analytics";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import LostPage from "@/components/LostPage";
@@ -17,6 +18,7 @@ export default function NotFound() {
         <LostPage />
       </main>
       <Footer />
+      <Analytics />
     </>
   );
 }

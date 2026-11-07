@@ -1,9 +1,10 @@
 import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { ALL_TOOLS, toolsOf, type AdminTool } from "./admin-tools";
+import { ADMIN_HOST, SITE_HOST } from "./domains";
 import { supabaseAdmin, supabaseIsConfigured } from "./supabase";
 
 // Signing in to the admin panel. Each person has their own login (email and password, kept by
@@ -74,6 +75,21 @@ export async function startSession(subject: string): Promise<void> {
     sameSite: "lax",
     path: "/",
     maxAge: SESSION_HOURS * 60 * 60,
+  });
+  await markAsAdminBrowser();
+}
+
+// Tells the public website's analytics not to count this browser (admins checking the site would
+// otherwise fill the reports). Set for the main domain too, as the admin panel is on a subdomain.
+async function markAsAdminBrowser(): Promise<void> {
+  const host = ((await headers()).get("host") ?? "").split(":")[0].toLowerCase();
+  const domain = host === ADMIN_HOST && ADMIN_HOST.endsWith(`.${SITE_HOST}`) ? SITE_HOST : undefined;
+  (await cookies()).set("sc_admin", "1", {
+    domain,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 365 * 24 * 60 * 60,
   });
 }
 

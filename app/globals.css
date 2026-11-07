@@ -318,6 +318,18 @@ p { margin: 0 0 1em; }
 @keyframes lost-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .lost-line, .lost-after { animation: none; opacity: 1; } }
 
+/* ---------- Cookie card (components/Analytics.tsx) ---------- */
+
+.cookie-card {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 70; width: min(340px, calc(100vw - 2.5rem));
+  display: grid; gap: 0.6rem; padding: 1rem 1.1rem; background: #fff; border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: 0 10px 30px rgba(30, 45, 70, 0.18); font-size: 0.9rem;
+}
+.cookie-card p { margin: 0; color: var(--text); line-height: 1.5; }
+.cookie-card .button { width: 100%; border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.95rem; }
+.cookie-card-optout { justify-self: center; background: none; border: 0; padding: 0.15rem; font: inherit; font-size: 0.82rem; color: var(--muted); text-decoration: underline; cursor: pointer; }
+@media (max-width: 520px) { .cookie-card { right: 0.75rem; left: 0.75rem; bottom: 0.75rem; width: auto; } }
+
 /* ---------- Social links ---------- */
 
 .social-links { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.75rem; }
@@ -924,3 +936,57 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .admin-tool-checklist label.admin-checkbox { display: flex; flex-direction: row; align-items: flex-start; gap: 0.6rem; }
 .admin-users-list li { flex-wrap: wrap; }
 .admin-users-list .admin-tools-edit { flex-basis: 100%; margin-top: -0.25rem; }
+
+/* Admin → Analytics */
+.analytics-bar-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.75rem 1rem; margin-bottom: 1.25rem; }
+.analytics-ranges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.analytics-ranges a {
+  padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--border); background: #fff;
+  color: var(--text); text-decoration: none; font-size: 0.92rem; font-weight: 600;
+}
+.analytics-ranges a:hover { border-color: var(--blue); }
+.analytics-ranges a[aria-current="page"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.analytics-live { display: flex; align-items: center; gap: 0.45rem; font-size: 0.92rem; color: var(--muted); }
+.analytics-live-dot { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: #c4ccd6; }
+.analytics-live.is-live { color: var(--text); font-weight: 600; }
+.analytics-live.is-live .analytics-live-dot { background: #12a150; box-shadow: 0 0 0 3px rgba(18, 161, 80, 0.2); }
+.analytics-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+.analytics-stat {
+  display: grid; gap: 0.2rem; background: #fff; border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 1rem 1.25rem;
+}
+.analytics-stat-label { font: 600 0.75rem var(--font-head); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.analytics-stat strong { font-size: 1.7rem; line-height: 1.2; }
+.analytics-change { font-size: 0.85rem; color: var(--muted); }
+.analytics-change.is-up { color: #12773d; }
+.analytics-change.is-down { color: #b42318; }
+.analytics-compare { color: var(--muted); font-size: 0.85rem; margin: 0.6rem 0 1.5rem; }
+.analytics-chart { margin: 0; }
+.analytics-chart svg { display: block; width: 100%; height: auto; }
+.analytics-chart figcaption { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem; }
+.analytics-key { display: inline-block; width: 0.9rem; height: 0.9rem; border-radius: 3px; }
+.analytics-key-bar { background: #c5d2e4; }
+.analytics-key-line { height: 3px; background: #456188; margin-left: 0.8rem; }
+.analytics-pages, .analytics-grid, .analytics-grid + .admin-columns { margin-top: 1.5rem; }
+.analytics-tracking label.admin-checkbox { display: flex; flex-direction: row; align-items: flex-start; font-weight: 400; }
+.analytics-tracking label.admin-checkbox input { margin-top: 0.2rem; }
+.analytics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 1.5rem; }
+.analytics-grid .admin-panel { margin-top: 0; }
+.analytics-table h2 { margin-bottom: 0.75rem; }
+.analytics-table table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.analytics-table th { text-align: right; font: 600 0.72rem var(--font-head); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0 0 0.4rem 0.75rem; white-space: nowrap; }
+.analytics-table th:first-child { text-align: left; padding-left: 0; }
+.analytics-table td { padding: 0.3rem 0 0.3rem 0.75rem; text-align: right; white-space: nowrap; border-top: 1px solid var(--border); }
+.analytics-table td:first-child { position: relative; text-align: left; padding: 0.3rem 0.5rem; white-space: normal; width: 100%; }
+.analytics-bar { position: absolute; inset: 3px auto 3px 0; background: var(--blue-light); border-radius: 4px; z-index: 0; }
+.analytics-label { position: relative; overflow-wrap: anywhere; }
+.analytics-scroll { overflow-x: auto; }
+.analytics-pages table { min-width: 640px; }
+.analytics-setup ol { margin: 0.75rem 0 1.25rem 1.25rem; display: grid; gap: 0.4rem; }
+.analytics-sql { margin-top: 1rem; }
+.analytics-sql summary { cursor: pointer; color: var(--muted); font-size: 0.92rem; }
+.analytics-sql pre { max-height: 320px; overflow: auto; background: var(--bg-alt); border-radius: 6px; padding: 0.9rem; font-size: 0.78rem; margin-top: 0.5rem; }
+.analytics-setup-error { font-size: 0.85rem; margin-top: 1rem; }
+.analytics-sql details { margin-top: 0.75rem; }
+.privacy-optout { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; background: var(--bg-alt); border-radius: var(--radius); padding: 1rem 1.25rem; margin: 1rem 0; }
+.privacy-optout p { margin: 0; flex: 1 1 260px; }

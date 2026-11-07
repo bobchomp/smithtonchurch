@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AnalyticsOptOut from "@/components/AnalyticsOptOut";
 import { site } from "@/lib/content";
 
 // The website privacy notice (/privacy/). Keep "Last updated" current when it changes.
@@ -21,8 +22,9 @@ export default function PrivacyNotice() {
 
         <h2>What we collect</h2>
         <p>
-          You can browse this website without telling us who you are. We only collect personal information when you
-          choose to send us a message using the contact form on the website. The form asks for:
+          You can browse this website without telling us who you are. We collect two kinds of information: anonymous
+          statistics about how the website is used (see <a href="#statistics">Website statistics</a> below), and the
+          details you give us if you choose to send us a message using the contact form. The form asks for:
         </p>
         <ul>
           <li>your first and last name</li>
@@ -55,7 +57,7 @@ export default function PrivacyNotice() {
         <p>We use trusted service providers to run the website, who handle information on our behalf:</p>
         <ul>
           <li><strong>Vercel</strong>, which hosts the website</li>
-          <li><strong>Supabase</strong>, which stores contact form messages and website files</li>
+          <li><strong>Supabase</strong>, which stores contact form messages, website statistics and website files</li>
           <li><strong>Resend</strong>, which sends the email notifications of new messages</li>
         </ul>
         <p>
@@ -68,13 +70,51 @@ export default function PrivacyNotice() {
           We keep messages only for as long as we need them to deal with your enquiry. We review them regularly and
           delete them when they are no longer needed.
         </p>
+        <p>
+          Website statistics don’t identify you, so we keep them to see how the website is used over the years.
+        </p>
+
+        <h2 id="statistics">Website statistics</h2>
+        <p>
+          To understand how the website is used, so that we can improve it, the website keeps its own statistics. We
+          record which pages are visited, how long people spend on them and how far down they scroll, which links and
+          buttons are pressed, the website or link that brought someone here, the type of device, browser and screen
+          size, and the approximate town and country (worked out from the internet connection when the page is
+          requested; we don’t store IP addresses).
+        </p>
+        <p>
+          We don’t use these statistics to find out who you are, we don’t combine them with other information about
+          you, and we never share or sell them. They are kept by us, not by an advertising or analytics company. We use
+          them on the basis of our legitimate interest in running and improving the website.
+        </p>
+        <p>
+          You can choose not to be counted at any time, here or with “Don’t count me” on the cookie message. We also
+          don’t count you if your browser sends a Global Privacy Control signal.
+        </p>
+        <AnalyticsOptOut />
 
         <h2>Cookies</h2>
         <p>
-          This website does not use advertising or tracking cookies, and we don’t use analytics that follow you around
-          the web. The only cookie the website sets itself is a sign-in cookie for people who look after the website,
-          used in its admin area.
+          This website does not use advertising cookies or anything that follows you around other websites. The website
+          sets these cookies itself:
         </p>
+        <ul>
+          <li>
+            <strong>sc_v</strong> (1 year): a random number so our statistics can tell a returning visitor from a new
+            one. It doesn’t contain anything about you.
+          </li>
+          <li>
+            <strong>sc_s</strong> (30 minutes): groups the pages you look at in one visit.
+          </li>
+          <li>
+            <strong>sc_consent</strong> (1 year): remembers that you’ve seen the cookie message, or that you’ve asked not
+            to be counted.
+          </li>
+          <li>
+            <strong>sc_admin</strong> and a sign-in cookie: only for people who look after the website, so their own
+            visits aren’t counted and they can use its admin area.
+          </li>
+        </ul>
         <p>Some pages include content from other services, which may set their own cookies or collect information:</p>
         <ul>
           <li>
