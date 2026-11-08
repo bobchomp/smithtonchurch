@@ -10,7 +10,8 @@ import {
   isNoticeImagePath,
   loadNotices,
   NOTICE_IMAGE_TYPES,
-  saveNotices,
+  removeNotice,
+  storeNotice,
 } from "@/lib/live-notices";
 import { describeStorageError } from "@/lib/supabase";
 
@@ -78,15 +79,14 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
     const now = new Date().toISOString();
     let oldImage: string | undefined;
     if (id === null) {
-      notices.push({ id: randomUUID(), ...notice, createdAt: now, updatedAt: now });
+      await storeNotice({ id: randomUUID(), ...notice, createdAt: now, updatedAt: now });
     } else {
       const index = notices.findIndex((n) => n.id === id);
       if (index < 0) return { error: "That notice no longer exists." };
       const existing = notices[index];
       if (existing.image && existing.image.path !== notice.image?.path) oldImage = existing.image.path;
-      notices[index] = { id, ...notice, ...(existing.off ? { off: true } : {}), createdAt: existing.createdAt, updatedAt: now };
+      await storeNotice({ id, ...notice, ...(existing.off ? { off: true } : {}), createdAt: existing.createdAt, updatedAt: now });
     }
-    await saveNotices(notices);
     if (oldImage) await deleteNoticeImages([oldImage]);
     revalidatePath("/admin/live-notices");
     return {};
@@ -106,7 +106,7 @@ export async function setNoticeOn(id: string, on: boolean): Promise<{ error?: st
     if (on) delete notice.off;
     else notice.off = true;
     notice.updatedAt = new Date().toISOString();
-    await saveNotices(notices);
+    await storeNotice(notice);
     revalidatePath("/admin/live-notices");
     return {};
   } catch (error) {
@@ -120,7 +120,7 @@ export async function deleteNotice(formData: FormData): Promise<void> {
   const notices = await loadNotices();
   const notice = notices.find((n) => n.id === id);
   if (!notice) return;
-  await saveNotices(notices.filter((n) => n.id !== id));
+  await removeNotice(id);
   if (notice.image) await deleteNoticeImages([notice.image.path]);
   revalidatePath("/admin/live-notices");
 }

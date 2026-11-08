@@ -8,7 +8,7 @@ import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match"
 import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
 import { isSermonDate, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
-import { loadSermons, saveSermons } from "@/lib/sermons";
+import { addSermons, loadSermons, removeSermon, storeSermon } from "@/lib/sermons";
 import { describeStorageError } from "@/lib/supabase";
 
 export type SermonInput = {
@@ -90,25 +90,20 @@ export async function saveSermon(id: number | null, input: SermonInput): Promise
   const problem = validate(input);
   if (problem) return { error: problem };
   try {
-    const sermons = await loadSermons();
     const audio = input.audio ? { audioKey: input.audio.key, audioSize: input.audio.size, duration: input.audio.duration } : {};
     let saved: Sermon;
     let previous: Sermon | undefined;
     let replacedAudio: string | undefined;
     if (id === null) {
-      // Sermons imported from the old media site keep its numbers (all below 10000); new ones start at 10001.
-      saved = { id: Math.max(10000, ...sermons.map((s) => s.id)) + 1, ...clean(input), ...audio, createdAt: new Date().toISOString() };
-      sermons.push(saved);
+      [saved] = await addSermons([{ ...clean(input), ...audio, createdAt: new Date().toISOString() }]);
     } else {
-      const index = sermons.findIndex((s) => s.id === id);
-      if (index < 0) return { error: "That sermon no longer exists." };
-      const existing = sermons[index];
+      const existing = (await loadSermons()).find((s) => s.id === id);
+      if (!existing) return { error: "That sermon no longer exists." };
       previous = existing;
       if (input.audio && existing.audioKey && existing.audioKey !== input.audio.key) replacedAudio = existing.audioKey;
       saved = { ...existing, ...clean(input), ...audio };
-      sermons[index] = saved;
+      await storeSermon(saved);
     }
-    await saveSermons(sermons);
     if (replacedAudio) await deleteAudio(replacedAudio).catch((e) => console.error("Could not delete old audio", e));
     refresh(saved, previous);
     return { id: saved.id };
@@ -121,10 +116,9 @@ export async function saveSermon(id: number | null, input: SermonInput): Promise
 export async function deleteSermon(formData: FormData): Promise<void> {
   await requireTool("sermons");
   const id = Number(formData.get("id"));
-  const sermons = await loadSermons();
-  const sermon = sermons.find((s) => s.id === id);
+  const sermon = (await loadSermons()).find((s) => s.id === id);
   if (!sermon) return;
-  await saveSermons(sermons.filter((s) => s.id !== id));
+  await removeSermon(id);
   if (sermon.audioKey && r2IsConfigured()) await deleteAudio(sermon.audioKey).catch((e) => console.error("Could not delete audio", e));
   refresh(sermon);
 }
@@ -155,12 +149,10 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
     const available = new Map(unmatchedStreams(sermons, streams).map((s) => [s.id, s]));
     const chosen = [...new Set(streamIds)].map((id) => available.get(id)).filter((s) => s !== undefined);
     if (!chosen.length) return { error: "None of those livestreams still need a sermon." };
-    let nextId = Math.max(10000, ...sermons.map((s) => s.id));
     const now = new Date().toISOString();
-    const created = chosen.map((stream): Sermon => {
+    const fresh = chosen.map((stream): Omit<Sermon, "id"> => {
       const { date, service } = streamSlot(stream);
       return {
-        id: ++nextId,
         title: stream.title.trim(),
         books: sortBooks([bookFromTitle(stream.title)]),
         date,
@@ -171,7 +163,7 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
         createdAt: now,
       };
     });
-    await saveSermons([...sermons, ...created]);
+    const created = await addSermons(fresh);
     refresh(...created);
     return { created: created.length };
   } catch (error) {

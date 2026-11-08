@@ -4,7 +4,10 @@ import { canUse, requireAdmin } from "@/lib/admin-auth";
 import { listMessages } from "@/lib/messages";
 import { currentNotice } from "@/lib/live-notice-types";
 import { loadNotices } from "@/lib/live-notices";
+import { CONTENT_TABLES, tableReady } from "@/lib/db";
 import { sermonsToReview } from "@/lib/sermon-review";
+import { supabaseIsConfigured } from "@/lib/supabase";
+import DatabaseSetup from "./_setup/DatabaseSetup";
 import { loadSermons } from "@/lib/sermons";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -23,6 +26,11 @@ export default async function AdminDashboard({
     canUse(me, "sermon-details") ? loadSermons().catch(() => []) : [],
     canUse(me, "live-notices") ? loadNotices().catch(() => []) : [],
   ]);
+  // Until the database tables exist, the site keeps using its older storage: ask an owner to finish.
+  const tablesMissing =
+    me.role === "owner" && supabaseIsConfigured()
+      ? (await Promise.all(CONTENT_TABLES.map((t) => tableReady(t).catch(() => true)))).some((ok) => !ok)
+      : false;
   const noticeShowing = Boolean(currentNotice(notices));
   const unread = messages.filter((m) => !m.read).length;
   const toReview = sermonsToReview(sermons).length;
@@ -39,6 +47,17 @@ export default async function AdminDashboard({
         <p className="admin-success admin-notice-spaced">
           Your password is saved and you’re signed in.
         </p>
+      )}
+      {tablesMissing && (
+        <div className="admin-notice-spaced">
+          <DatabaseSetup title="Finish setting up the database">
+            <p>
+              Sermons, live notices, messages and settings are moving into your Supabase database, which keeps them
+              safer. Until this script is run they stay where they were, so nothing is lost; the first time the
+              website uses the database, it copies everything across by itself.
+            </p>
+          </DatabaseSetup>
+        </div>
       )}
       {me.role === "admin" && me.tools.length === 0 && (
         <p className="admin-muted">
@@ -141,6 +160,15 @@ export default async function AdminDashboard({
               The church’s logos, colours, fonts and styles, with downloads.
             </p>
           </Link>
+        )}
+        {me.role === "owner" && (
+          <a className="admin-tool" href="/admin/backup/" download>
+            <h2>Download a backup</h2>
+            <p>
+              Every sermon, live notice, message and setting, saved as one file
+              you can keep safe.
+            </p>
+          </a>
         )}
         {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/users/">

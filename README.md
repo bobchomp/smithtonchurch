@@ -75,6 +75,21 @@ Getting started: sign in with the backup PIN, open **Users**, and invite yoursel
 Recommended in Supabase (**Authentication → Sign In / Providers**): turn off **Allow new users to
 sign up**, as logins are only created by invitation. Signing in lasts 12 hours.
 
+### The database
+
+Sermons, live notices, contact messages and settings (who's emailed about messages, analytics
+goals...) are kept in the Supabase **database**, one row each, so a change to one can never
+overwrite the others. It's set up by one script, `supabase/setup.sql`:
+
+1. When the dashboard shows **Finish setting up the database**, press **Copy the setup script**.
+2. In Supabase open **SQL Editor → New query**, paste it and press **Run**.
+
+It's safe to run again whenever the admin panel asks (it only adds what's missing). Until it's run,
+the site keeps using the files it used before; the first time it uses the database it copies them
+across by itself and leaves the files as a backup. Owners can also **Download a backup** of
+everything from the dashboard. Uploaded files (bulletins, pictures, audio) stay in Supabase
+Storage and Cloudflare R2.
+
 ### Analytics
 
 **Admin → Analytics** shows how people use the website: visitors, visits and page views over time,
@@ -91,9 +106,8 @@ these statistics itself, in the Supabase database; nothing is sent to Google or 
 
 To set it up:
 
-1. Open **Admin → Analytics**, press **Copy the setup script**, then in Supabase open **SQL Editor →
-   New query**, paste it and press **Run**. (It's safe to run again; when new reports are added,
-   the page shows the script again to run.)
+1. Run the database setup script (see above). Admin → Analytics shows it too when new reports
+   need adding.
 2. Check the Privacy & Cookies Policy at `/privacy/` (it explains the statistics and how to opt out).
 3. Back in **Admin → Analytics**, tick **Record visits to the website** and save.
 
@@ -207,7 +221,7 @@ The channel is taken from the YouTube link in `content/site.yml`. A full check u
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):
-the details (date, service, title, preacher and Bible book) into the sermon list, and each MP3 into R2. Each imported sermon keeps its number from
+the details (date, service, title, preacher and Bible book) into the sermons in the database (or the older sermon list file, if the database isn't set up yet), and each MP3 into R2. Each imported sermon keeps its number from
 the old site, so `/?sermon_id=1632` there becomes `/sermons/1632-…` here. Run it on your own
 computer, as the old site can't be reached from Vercel or Claude's environment:
 

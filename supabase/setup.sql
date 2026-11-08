@@ -1,8 +1,55 @@
--- Smithton Church website analytics: run this once in Supabase → SQL Editor → New query → Run.
--- It's safe to run again (it updates the functions and leaves existing data alone).
+-- Smithton Church website database: run this in Supabase → SQL Editor → New query → Run.
+-- It's safe to run again (it adds anything new and leaves existing data alone).
 --
--- One table of events (page views, clicks, page leaves...) and functions that summarise it for
--- Admin → Analytics. Only the website's server (secret key) can read or write it.
+-- Tables for the website's content (sermons, live notices, contact messages, settings), and the
+-- analytics: one table of events (page views, clicks...) and functions that summarise it for
+-- Admin → Analytics. Only the website's server (secret key) can read or write any of it.
+
+-- ---------- Website content ----------
+-- Each row keeps the full record in "data" (as the website's code describes it), with a few
+-- columns alongside for sorting and searching.
+
+create table if not exists public.sermons (
+  id integer primary key,
+  date text not null,                -- YYYY-MM-DD
+  service text not null default '', -- 'am', 'pm' or ''
+  title text not null default '',
+  preacher text not null default '',
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+create index if not exists sermons_date_idx on public.sermons (date desc);
+
+create table if not exists public.live_notices (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.contact_messages (
+  id text primary key,               -- also sorts by time received
+  received_at timestamptz not null,
+  read boolean not null default false,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+create index if not exists contact_messages_received_idx on public.contact_messages (received_at desc);
+
+-- Small settings, one row each: who's emailed about messages, analytics on/off, goals...
+create table if not exists public.site_settings (
+  key text primary key,
+  value jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.sermons enable row level security;
+alter table public.live_notices enable row level security;
+alter table public.contact_messages enable row level security;
+alter table public.site_settings enable row level security;
+revoke all on public.sermons, public.live_notices, public.contact_messages, public.site_settings from anon, authenticated;
+grant all on public.sermons, public.live_notices, public.contact_messages, public.site_settings to service_role;
+
+-- ---------- Analytics ----------
 
 create table if not exists public.analytics_events (
   id bigint generated always as identity primary key,

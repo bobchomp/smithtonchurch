@@ -1,10 +1,10 @@
 import "server-only";
 import type { GoalCondition, GoalsConfig } from "./analytics-goals";
-import { readPrivateJson, writePrivateJson, ensurePrivateBucket } from "./private-store";
+import { getSetting, setSetting } from "./db";
 import { supabaseAdmin, supabaseIsConfigured, withTimeout } from "./supabase";
 
 // Website analytics: events are saved in the Supabase database (table analytics_events, set up by
-// supabase/analytics.sql) and summarised by its functions for Admin → Analytics. Whether tracking is
+// supabase/setup.sql) and summarised by its functions for Admin → Analytics. Whether tracking is
 // on is a setting saved in the private bucket (settings/analytics.json).
 
 const SETTINGS_PATH = "settings/analytics.json";
@@ -15,14 +15,13 @@ let cached: { at: number; value: AnalyticsSettings } | undefined;
 export async function analyticsSettings(fresh = false): Promise<AnalyticsSettings> {
   if (!supabaseIsConfigured()) return { enabled: false };
   if (!fresh && cached && Date.now() - cached.at < 60_000) return cached.value;
-  const value = { enabled: false, ...((await readPrivateJson<AnalyticsSettings>(SETTINGS_PATH).catch(() => undefined)) ?? {}) };
+  const value = { enabled: false, ...((await getSetting<AnalyticsSettings>("analytics", SETTINGS_PATH).catch(() => undefined)) ?? {}) };
   cached = { at: Date.now(), value };
   return value;
 }
 
 export async function saveAnalyticsSettings(settings: AnalyticsSettings): Promise<void> {
-  await ensurePrivateBucket();
-  await writePrivateJson(SETTINGS_PATH, settings);
+  await setSetting("analytics", settings, SETTINGS_PATH);
   cached = { at: Date.now(), value: settings };
 }
 
@@ -246,13 +245,13 @@ export async function* allEvents(r: Range): AsyncGenerator<Record<string, unknow
 const GOALS_PATH = "settings/analytics-goals.json";
 
 export async function loadGoals(): Promise<GoalsConfig> {
-  const saved = await readPrivateJson<Partial<GoalsConfig>>(GOALS_PATH).catch(() => undefined);
+  // Throws if they can't be read, so a failed read is never saved over them.
+  const saved = await getSetting<Partial<GoalsConfig>>("analytics.goals", GOALS_PATH);
   return { goals: saved?.goals ?? [], funnels: saved?.funnels ?? [] };
 }
 
 export async function saveGoals(config: GoalsConfig): Promise<void> {
-  await ensurePrivateBucket();
-  await writePrivateJson(GOALS_PATH, config);
+  await setSetting("analytics.goals", config, GOALS_PATH);
 }
 
 export type FunnelResult = { step: number; visits: number; visitors: number }[];
@@ -349,10 +348,9 @@ const STATUS_PATH = "settings/analytics-status.json";
 export type RecordingProblem = { at: string; message: string };
 
 export async function saveRecordingProblem(message: string): Promise<void> {
-  await ensurePrivateBucket();
-  await writePrivateJson(STATUS_PATH, { at: new Date().toISOString(), message: message.slice(0, 500) } satisfies RecordingProblem);
+  await setSetting("analytics.status", { at: new Date().toISOString(), message: message.slice(0, 500) } satisfies RecordingProblem, STATUS_PATH);
 }
 
 export async function recordingProblem(): Promise<RecordingProblem | undefined> {
-  return readPrivateJson<RecordingProblem>(STATUS_PATH).catch(() => undefined);
+  return getSetting<RecordingProblem>("analytics.status", STATUS_PATH).catch(() => undefined);
 }

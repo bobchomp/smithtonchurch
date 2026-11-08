@@ -28,7 +28,16 @@
   Uploading: the PDF box comes first and the date is filled in from the file name (`dateFromFileName`). If a document already
   exists for that date, `startDocumentUpload` returns it as `existing` and the form shows a popup to keep it or use the new one
   (only one per date; the newer upload replaces the older via `removeReplacedDocuments`).
-- Sermons: the list is one JSON file in Supabase Storage (`website/sermons/index.json`, `lib/sermons.ts`);
+- Database (`lib/db.ts`, tables created by `supabase/setup.sql`, which the owner runs in Supabase's SQL editor; safe to re-run):
+  `sermons`, `live_notices`, `contact_messages` (one row each, full record in `data` jsonb) and `site_settings` (key/value:
+  `contact.recipients`, `analytics`, `analytics.goals`, `analytics.status`). Until a table exists, that part falls back to its old
+  file in Supabase Storage; the first time a table is used, `copyInOnce` copies the old file(s) in (marker `copied-from-files.<table>`)
+  and leaves them as a backup. Reads that come before a save must throw on errors (never treat a failed read as empty);
+  `tableReady` must not use head requests (they report a missing table as success); `selectAll` pages past PostgREST's 1,000-row cap.
+  The dashboard shows the setup panel (`app/admin/(panel)/_setup/DatabaseSetup.tsx`) to owners while tables are missing.
+  Owners can download everything as JSON from `/admin/backup/`.
+- Sermons: one row each in the `sermons` table (`lib/sermons.ts`: `loadSermons`, `storeSermon`, `addSermons`, `removeSermon`;
+  before the database, the file `website/sermons/index.json`);
   audio is in Cloudflare R2 (`lib/r2.ts`, S3 API, browser uploads via presigned PUT). Imported sermons keep
   the old media site's `sermon_id` as their id (< 10000); admin-added ones start at 10001. The import merges into an
   existing admin-added sermon with the same date and service (setting its `legacyId`) instead of duplicating it.
@@ -38,7 +47,7 @@
 - The livestream player (site.yml `livestream_embed`) is on its own page, /live/ (with this week's bulletin via
   `components/BulletinBox.tsx`); the footer has a "Live Services" button to it, and the menu has "Live Services" (the full desktop menu shows from 1366px; below that the Menu button. Items can be `mobileOnly` in navigation.yml).
 - Live Notices (Admin → Live Notices, `lib/live-notices.ts`, `lib/live-notice-types.ts`): scheduled text/image notices above the
-  player on /live/. Stored in the private bucket (`live-notices/index.json`, so future ones stay hidden), images in
+  player on /live/. Stored in the `live_notices` table (before: private bucket `live-notices/index.json`), images in
   `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
 - Home page (`app/(site)/page.tsx`, styles under "Home" in globals.css): photo hero, welcome with the church photo, This week,
@@ -59,9 +68,9 @@
   a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
   a stream's description is the preacher's name, sometimes after the title on the line above (`preacherFrom` in lib/youtube.ts), used when creating sermons from streams and to fill a blank preacher in the admin forms;
   the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
-- Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as its own
-  JSON file in the private Supabase bucket `private/messages/` (`lib/messages.ts`), (first + last name, stored as `name`), then emails it via Resend
-  (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk with display name "<Name> (Website)") to the recipients in `private/settings/contact.json`
+- Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as a row in
+  `contact_messages` (`lib/messages.ts`; before: files in `private/messages/`), (first + last name, stored as `name`), then emails it via Resend
+  (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk with display name "<Name> (Website)") to the recipients in the `contact.recipients` setting
   (managed in Admin → Messages). Spam: honeypot field + minimum 3s to submit.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the
   public `website` bucket under a folder per feature (e.g. `bulletins/`). Browsers upload straight to
@@ -72,8 +81,8 @@
   and add them to the sitemap list.
 - Analytics (Admin → Analytics, tool key "analytics"): `components/Analytics.tsx` (in the site layout and not-found) posts
   page views, leave events (active time + scroll %) and clicks to `/api/collect/` (text/plain JSON), which writes rows to the
-  Supabase Postgres table `analytics_events` (`lib/analytics.ts`, setup SQL in `supabase/analytics.sql`, run once by the owner
-  in the SQL editor; reports are SQL functions called with `rpc`). Off until switched on (`private/settings/analytics.json`).
+  Supabase Postgres table `analytics_events` (`lib/analytics.ts`, setup SQL in `supabase/setup.sql`, run once by the owner
+  in the SQL editor; reports are SQL functions called with `rpc`). Off until switched on (the `analytics` setting).
   Cookies: `sc_v` visitor (1y), `sc_s` visit (30 min), `sc_consent` "no" = opted out, `sc_admin` (set on admin sign-in: never counted).
   Not counted: "Don't count me", admins, bots (Global Privacy Control is deliberately not honoured, by the owner's choice) (`lib/analytics-ua.ts`). No IPs stored; town/country from Vercel headers.
   No cookie banner (owner's choice, relying on the PECR statistics exemption): the footer's "Privacy & Cookies Policy" link goes to /privacy/ (`app/(site)/privacy/`), which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
@@ -81,16 +90,16 @@
   progress milestones 0/25/50/75/95 in props.pct; 'search' from SermonBrowser, debounced; 404s are pageviews with props.nf).
   Admin → Analytics has tabs (`?view=`: overview, pages, clicks, sermons, searches, missing; views.tsx, parts.tsx) and CSV
   downloads (`analytics/export/route.ts`, `?report=…`, "events" streams every row). New reports need their SQL function in
-  supabase/analytics.sql; the owner re-runs it (the page shows the setup panel when a function is missing).
+  supabase/setup.sql; the owner re-runs it (the page shows the setup panel when a function is missing).
   Phase 3: every click carries props {sel, fx, fy} (element path + point within it; non-link clicks are kind "none", heatmaps only).
   Heatmaps tab frames the public page with `?sc-heatmap=1` (never counted) and postMessages the clicks to
   `components/HeatmapOverlay.tsx`, which draws them (accepts messages only from ADMIN_HOST or its own origin; frame-ancestors
   header in next.config.ts allows only self + admin). Goals & funnels (`lib/analytics-goals.ts`, saved in
-  `private/settings/analytics-goals.json`) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
+  the `analytics.goals` setting) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
   'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys.
   Checks: the setup panel lists missing report functions (`missingReports`, REPORT_FUNCTIONS in lib/analytics.ts: add new
   functions there too); Overview shows the last recorded event and the last recording error (saved by /api/collect to
-  `private/settings/analytics-status.json`). The live site is served at www.rossmdev.co.uk (the bare domain redirects there).
+  the `analytics.status` setting). The live site is served at www.rossmdev.co.uk (the bare domain redirects there).
 - Admin → Holding Slides (tool "holding-slides"): the live stream's holding slides with every revision, listed in
   `lib/holding-slides.ts`; images in `holding-slides/<slide>/<file>.png|.jpg` (not public, served by
   `app/admin/(panel)/holding-slides/file/[...path]/route.ts` behind requireTool). Made with `scripts/render-holding-slides.cjs`;

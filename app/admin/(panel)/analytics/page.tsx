@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireTool } from "@/lib/admin-auth";
@@ -36,7 +34,7 @@ import {
 import { headers } from "next/headers";
 import { ADMIN_HOST, SITE_HOST } from "@/lib/domains";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
-import CopySql from "./CopySql";
+import DatabaseSetup from "../_setup/DatabaseSetup";
 import { analyticsHref, VIEWS, type ViewKey } from "./parts";
 import { RANGES, rangeFor, type RangeKey } from "./ranges";
 import { ClicksView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
@@ -45,19 +43,9 @@ export const metadata: Metadata = { title: "Analytics" };
 
 function Setup({ error, missing }: { error?: unknown; missing: { fn: string; tab: string }[] }) {
   const tabs = [...new Set(missing.map((m) => m.tab))];
-  let sql = "";
-  try {
-    sql = readFileSync(join(process.cwd(), "supabase/analytics.sql"), "utf8");
-  } catch {
-    sql = "-- The setup script (supabase/analytics.sql) couldn’t be read.";
-  }
   return (
-    <section className="admin-panel admin-panel-narrow analytics-setup">
-      <h2>Set up (or update) the analytics database</h2>
-      <p>
-        The analytics are kept in your Supabase database. It needs setting up once, and again when new reports are
-        added (running it again keeps everything already recorded).
-      </p>
+    <DatabaseSetup title="Set up (or update) the database" details={error ? describeStorageError(error) : undefined}>
+      <p>The analytics are kept in your Supabase database, which needs setting up once, and again when new reports are added.</p>
       {missing.length > 0 && (
         <p className="analytics-missing">
           {missing.length === 21
@@ -65,15 +53,7 @@ function Setup({ error, missing }: { error?: unknown; missing: { fn: string; tab
             : `The database is missing ${missing.length} newer report${missing.length === 1 ? "" : "s"}, needed by: ${tabs.join(", ")}. Run the latest script below to add ${missing.length === 1 ? "it" : "them"}.`}
         </p>
       )}
-      <ol>
-        <li>Press <strong>Copy the setup script</strong> below.</li>
-        <li>In the Supabase dashboard, open your project, then <strong>SQL Editor</strong> → <strong>New query</strong>.</li>
-        <li>Paste the script and press <strong>Run</strong>. It should say “Success. No rows returned”.</li>
-        <li>Come back here and reload this page.</li>
-      </ol>
-      <CopySql sql={sql} />
-      {error ? <p className="admin-muted analytics-setup-error">Details: {describeStorageError(error)}</p> : null}
-    </section>
+    </DatabaseSetup>
   );
 }
 

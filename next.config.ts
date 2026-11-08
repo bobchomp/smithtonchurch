@@ -4,7 +4,8 @@ import { ADMIN_HOST, HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
 const nextConfig: NextConfig = {
   // Files read at run time: the analytics setup script (shown in Admin → Analytics) and the holding slides.
   outputFileTracingIncludes: {
-    "/admin/analytics": ["./supabase/analytics.sql"],
+    "/admin/analytics": ["./supabase/setup.sql"],
+    "/admin": ["./supabase/setup.sql"],
     // The holding slides (not public: served to signed-in admins by this route).
     "/admin/holding-slides/file/[...path]": ["./holding-slides/**/*"],
   },

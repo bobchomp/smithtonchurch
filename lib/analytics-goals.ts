@@ -1,7 +1,7 @@
 // Goals and funnels for Admin → Analytics (shared by the server and the admin forms).
 // A goal is something a visit can do, such as visiting the Live Services page or sending a message;
 // a funnel is several goals in order within one visit. They're matched in the database by
-// analytics_matches() in supabase/analytics.sql, so the types here must match that.
+// analytics_matches() in supabase/setup.sql, so the types here must match that.
 
 export const GOAL_TYPES = [
   { key: "page", label: "Visited a page", match: "Page address, e.g. /live/", needsMatch: true },
