@@ -3,9 +3,9 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireTool } from "@/lib/admin-auth";
-import { bookFromTitle, isBibleBook, sortBooks } from "@/lib/bible";
-import { streamSlot, unmatchedStreams, youtubeId } from "@/lib/livestream-match";
-import { loadLivestreams, syncLivestreams } from "@/lib/livestreams";
+import { isBibleBook, sortBooks } from "@/lib/bible";
+import { unmatchedStreams, youtubeId } from "@/lib/livestream-match";
+import { loadLivestreams, sermonFromStream, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
 import { isSermonDate, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
 import { addSermons, loadSermons, removeSermon, storeSermon } from "@/lib/sermons";
@@ -154,12 +154,15 @@ export async function deleteSermon(formData: FormData): Promise<void> {
 export async function syncLivestreamsNow(): Promise<{ message: string; ok: boolean }> {
   await requireTool("sermons");
   try {
-    const { count, changedPaths } = await syncLivestreams();
+    const { count, changedPaths, created } = await syncLivestreams();
     revalidatePath("/sermons");
     revalidatePath("/");
     for (const path of changedPaths) revalidatePath(path);
     revalidatePath("/admin/sermons");
-    return { ok: true, message: `Found ${count} past livestream${count === 1 ? "" : "s"} on YouTube.` };
+    const added = created.length
+      ? ` Added ${created.length} new sermon${created.length === 1 ? "" : "s"}: ${created.map((s) => `“${s.title}”`).join(", ")} (check ${created.length === 1 ? "it" : "them"} in Sermon Details).`
+      : "";
+    return { ok: true, message: `Found ${count} past livestream${count === 1 ? "" : "s"} on YouTube.${added}` };
   } catch (error) {
     console.error("Could not sync livestreams", error);
     return { ok: false, message: `Couldn’t check YouTube. ${(error as Error).message}` };
@@ -177,20 +180,7 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
     const chosen = [...new Set(streamIds)].map((id) => available.get(id)).filter((s) => s !== undefined);
     if (!chosen.length) return { error: "None of those livestreams still need a sermon." };
     const now = new Date().toISOString();
-    const fresh = chosen.map((stream): Omit<Sermon, "id"> => {
-      const { date, service } = streamSlot(stream);
-      return {
-        title: stream.title.trim(),
-        books: sortBooks([bookFromTitle(stream.title)]),
-        date,
-        service,
-        preacher: stream.preacher ?? "",
-        video: stream.id,
-        duration: stream.duration,
-        createdAt: now,
-      };
-    });
-    const created = await addSermons(fresh);
+    const created = await addSermons(chosen.map((stream) => sermonFromStream(stream, now)));
     refresh(...created);
     return { created: created.length };
   } catch (error) {

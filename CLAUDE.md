@@ -75,6 +75,9 @@
   a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
   a stream's description is the preacher's name, sometimes after the title on the line above (`preacherFrom` in lib/youtube.ts), used when creating sermons from streams and to fill a blank preacher in the admin forms;
   the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
+  Each sync also creates a sermon automatically (`sermonFromStream`) for every unmatched stream (see `unmatchedStreams`: not
+  excluded, not under 10 minutes) dated on or after `AUTO_SERMONS_FROM` (2026-11-08); older streams are left for the media-site
+  import (owner's choice). Auto-created sermons are unchecked, so they appear in Sermon Details.
 - Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as a row in
   `contact_messages` (`lib/messages.ts`; before: files in `private/messages/`), (first + last name, stored as `name`), then emails it via Resend
   (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk with display name "<Name> (Website)") to the recipients in the `contact.recipients` setting

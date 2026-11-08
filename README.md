@@ -192,7 +192,8 @@ Past livestreams from the church's YouTube channel are matched to sermons by dat
 (streams starting before 2pm count as the morning service), so each sermon page shows the video
 with the audio underneath. The list of livestreams is refreshed once a day, or straight away with
 **Check YouTube now** in **Admin → Sermons**, which also lists livestreams that don't have a
-sermon yet. A sermon's video can be changed or switched off on its admin page. Streams with
+sermon yet. A sermon's video can be changed or switched off on its admin page. New livestreams (from 8 November 2026) get a sermon automatically when they're found, ready to
+check in **Admin → Sermon Details**. Streams with
 "Church Night", "funeral" or "thanksgiving service" in the title are left out. When a sermon is
 created from a stream, the preacher comes from the stream's description and the Bible book from
 its title (when the title names one, e.g. "Psalm 124").
@@ -208,7 +209,8 @@ its title (when the title names one, e.g. "Psalm 124").
 4. Set up the daily check at [cron-job.org](https://cron-job.org) (free): **Create cronjob** with
    - **URL:** `https://rossmdev.co.uk/api/cron/sync-livestreams/` (change to `smithtonchurch.com`
      at launch; keep the slash at the end)
-   - **Schedule:** every day, e.g. at 06:00
+   - **Schedule:** every day, e.g. at 06:00. A second job on Sundays at 13:00 and 20:00 (crontab
+     `0 13,20 * * 0`, time zone Europe/London) makes services appear within a few hours
    - under **Advanced → Headers**, add a header with key `Authorization` and value
      `Bearer ` followed by your `CRON_SECRET` (e.g. `Bearer abc123…`)
 

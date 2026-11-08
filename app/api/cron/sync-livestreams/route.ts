@@ -20,10 +20,11 @@ export async function GET(request: Request) {
   if (!authorised(request)) return NextResponse.json({ error: "Not allowed" }, { status: 401 });
   if (!youtubeIsConfigured()) return NextResponse.json({ skipped: "YOUTUBE_API_KEY isn’t set" });
   try {
-    const { count, changedPaths } = await syncLivestreams();
+    const { count, changedPaths, created } = await syncLivestreams();
     revalidatePath("/sermons");
+    if (created.length) revalidatePath("/"); // the home page shows the latest sermon
     for (const path of changedPaths) revalidatePath(path);
-    return NextResponse.json({ livestreams: count, sermonPagesUpdated: changedPaths.length });
+    return NextResponse.json({ livestreams: count, sermonsCreated: created.map((s) => s.title), sermonPagesUpdated: changedPaths.length });
   } catch (error) {
     console.error("Livestream sync failed", error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
