@@ -55,7 +55,33 @@ export async function startAudioUpload(
   }
 }
 
+// Checks the shape of what was sent first (a malformed request gets an error rather than a crash).
+function wellFormed(input: unknown): input is SermonInput {
+  const i = input as Record<string, unknown> | null;
+  const str = (v: unknown, max: number) => typeof v === "string" && v.length <= max;
+  const audio = i?.audio as Record<string, unknown> | undefined;
+  return (
+    !!i &&
+    typeof i === "object" &&
+    str(i.title, 300) &&
+    str(i.date, 10) &&
+    str(i.service, 2) &&
+    str(i.preacher, 150) &&
+    str(i.video, 300) &&
+    Array.isArray(i.books) &&
+    i.books.every((b) => typeof b === "string") &&
+    (i.detailsChecked === undefined || typeof i.detailsChecked === "boolean") &&
+    (audio === undefined ||
+      (!!audio &&
+        typeof audio.key === "string" &&
+        Number.isSafeInteger(audio.size) &&
+        (audio.size as number) > 0 &&
+        (audio.duration === undefined || (typeof audio.duration === "number" && audio.duration >= 0 && audio.duration < 24 * 3600))))
+  );
+}
+
 function validate(input: SermonInput): string | undefined {
+  if (!wellFormed(input)) return "Something went wrong with the form. Please reload the page and try again.";
   if (!input.title.trim()) return "Please enter a title.";
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
@@ -85,7 +111,8 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
 // Step 2: save the sermon's details (after any audio has finished uploading).
 export async function saveSermon(id: number | null, input: SermonInput): Promise<{ id?: number; error?: string }> {
   // Sermon Details may only update existing sermons as it goes through them; everything else needs Sermons.
-  if (id === null || !input.detailsChecked) await requireTool("sermons");
+  if (id !== null && !Number.isSafeInteger(id)) return { error: "That sermon no longer exists." };
+  if (id === null || !input?.detailsChecked) await requireTool("sermons");
   else await requireTool("sermons", "sermon-details");
   const problem = validate(input);
   if (problem) return { error: problem };

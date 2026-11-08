@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ADMIN_HOST } from "@/lib/domains";
 import { emailIsConfigured, sendMessageNotification } from "@/lib/email";
 import { getRecipients, isEmailAddress, messagesAreConfigured, saveNewMessage, updateMessage } from "@/lib/messages";
+import { allowAttempt, senderCode } from "@/lib/rate-limit";
 
 export type ContactState = { ok?: boolean; error?: string; fields?: Record<string, string> };
 
@@ -32,6 +33,10 @@ export async function sendContactMessage(_state: ContactState, formData: FormDat
   if (!fields.message) return { error: "Please write a message.", fields };
   if (fields.message.length > 5000) return { error: "Please shorten your message (5,000 characters at most).", fields };
   if (!messagesAreConfigured()) return { error: "Sorry, messages can’t be sent just now. Please call or email the office.", fields };
+  // Floods: at most 5 messages an hour from one connection.
+  if (!(await allowAttempt(`contact:${await senderCode()}`, 5, 60 * 60))) {
+    return { error: "You’ve sent several messages in a short time. Please try again later, or call or email the office.", fields };
+  }
 
   let saved;
   try {
@@ -44,7 +49,11 @@ export async function sendContactMessage(_state: ContactState, formData: FormDat
 
   try {
     const recipients = await getRecipients();
-    if (emailIsConfigured() && recipients.length) {
+    // At most 100 notification emails a day, so a flood can't fill the inbox (messages are still saved).
+    const withinDailyLimit = recipients.length ? await allowAttempt("contact-emails", 100, 24 * 60 * 60) : true;
+    if (!withinDailyLimit) {
+      await updateMessage({ ...saved, emailed: false, emailError: "Not emailed: more than 100 messages arrived today." });
+    } else if (emailIsConfigured() && recipients.length) {
       await sendMessageNotification(saved, recipients, `https://${ADMIN_HOST}/admin/messages/${saved.id}/`);
       await updateMessage({ ...saved, emailed: true });
     } else {

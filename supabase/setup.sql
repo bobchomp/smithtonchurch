@@ -49,6 +49,52 @@ alter table public.site_settings enable row level security;
 revoke all on public.sermons, public.live_notices, public.contact_messages, public.site_settings from anon, authenticated;
 grant all on public.sermons, public.live_notices, public.contact_messages, public.site_settings to service_role;
 
+-- ---------- Limits on repeated attempts ----------
+-- Stops people (or robots) trying the backup PIN over and over, sending floods of contact messages
+-- or password-reset emails, or filling the analytics. "key" says what's being counted and, for some,
+-- a one-way scrambled code of the sender's internet address (never the address itself). Old rows
+-- are deleted after two days.
+
+create table if not exists public.rate_limits (
+  key text primary key,
+  count integer not null,
+  window_start timestamptz not null
+);
+alter table public.rate_limits enable row level security;
+revoke all on public.rate_limits from anon, authenticated;
+grant all on public.rate_limits to service_role;
+
+-- Counts one attempt and says whether it's within the limit (p_limit attempts per p_window seconds).
+create or replace function public.rate_limit_hit(p_key text, p_limit integer, p_window integer)
+returns boolean
+language plpgsql as $$
+declare
+  n integer;
+begin
+  insert into public.rate_limits as r (key, count, window_start) values (p_key, 1, now())
+  on conflict (key) do update set
+    count = case when r.window_start < now() - make_interval(secs => p_window) then 1 else r.count + 1 end,
+    window_start = case when r.window_start < now() - make_interval(secs => p_window) then now() else r.window_start end
+  returning count into n;
+  if random() < 0.01 then
+    delete from public.rate_limits where window_start < now() - interval '2 days';
+  end if;
+  return n <= p_limit;
+end;
+$$;
+
+-- How many attempts have been counted in the current window (without counting another).
+create or replace function public.rate_limit_count(p_key text, p_window integer)
+returns integer
+language sql stable as $$
+  select coalesce((select count from public.rate_limits where key = p_key and window_start >= now() - make_interval(secs => p_window)), 0);
+$$;
+
+revoke all on function public.rate_limit_hit(text, integer, integer) from public, anon, authenticated;
+revoke all on function public.rate_limit_count(text, integer) from public, anon, authenticated;
+grant execute on function public.rate_limit_hit(text, integer, integer) to service_role;
+grant execute on function public.rate_limit_count(text, integer) to service_role;
+
 -- ---------- Analytics ----------
 
 create table if not exists public.analytics_events (

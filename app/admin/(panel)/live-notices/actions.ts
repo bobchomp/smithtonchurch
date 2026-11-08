@@ -50,7 +50,7 @@ function clean(input: NoticeInput): { notice?: Omit<LiveNotice, "id" | "createdA
   if (input.image && !input.image.alt.trim()) return { error: "Please describe the image (for people who can’t see it)." };
   if (!heading && !text && !input.image) return { error: "Please add a heading, a message or an image." };
   if ((linkLabel || linkUrl) && !(linkLabel && linkUrl)) return { error: "For a button, fill in both its text and its link." };
-  if (linkUrl && !/^(https?:\/\/[^\s]+|\/[^\s]*)$/.test(linkUrl))
+  if (linkUrl && !/^(https?:\/\/[^\s]+|\/(?!\/)[^\s]*)$/.test(linkUrl))
     return { error: "The button link should start with https:// (or / for a page on this website)." };
   const startsAt = input.startsAt ? ukTimeToIso(input.startsAt) : undefined;
   const endsAt = input.endsAt ? ukTimeToIso(input.endsAt) : undefined;

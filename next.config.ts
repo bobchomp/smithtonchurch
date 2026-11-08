@@ -14,9 +14,17 @@ const nextConfig: NextConfig = {
   // Also covers PDFs and images, which can't carry a noindex tag. See lib/domains.ts.
   async headers() {
     // Only this site and its admin panel (for the analytics heatmaps) may show pages in a frame.
-    const framing = { key: "Content-Security-Policy", value: `frame-ancestors 'self' https://${ADMIN_HOST}` };
+    const security = [
+      { key: "Content-Security-Policy", value: `frame-ancestors 'self' https://${ADMIN_HOST}` },
+      // Browsers mustn't guess a file's type (e.g. treat an upload as a web page).
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      // Other websites see only "smithtonchurch.com" as where a visitor came from, never the full address.
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      // The site never needs the camera, microphone or location.
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+    ];
     const noindex = { key: "X-Robots-Tag", value: "noindex, nofollow" };
-    return [{ source: "/:path*", headers: HIDE_FROM_SEARCH_ENGINES ? [framing, noindex] : [framing] }];
+    return [{ source: "/:path*", headers: HIDE_FROM_SEARCH_ENGINES ? [...security, noindex] : security }];
   },
   // Old addresses that have moved, so existing links and search results still work.
   async redirects() {

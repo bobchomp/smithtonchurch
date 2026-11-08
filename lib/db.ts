@@ -7,7 +7,8 @@ import { supabaseAdmin, withTimeout } from "./supabase";
 // part of the site carries on using the files it used before; the first time a table is used, the
 // existing files are copied into it (the files are left alone as a backup).
 
-export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings"] as const;
+// rate_limits (lib/rate-limit.ts) is listed so the dashboard asks for the setup script until it exists.
+export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings", "rate_limits"] as const;
 export type ContentTable = (typeof CONTENT_TABLES)[number];
 
 export function db() {

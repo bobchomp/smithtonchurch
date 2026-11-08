@@ -128,7 +128,8 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     } else if (view === "heatmaps") {
       const size = SCREEN_SIZES.find((s) => s.key === params.size) ?? SCREEN_SIZES[0];
       const top = (await pages(current, 100)).map((p) => p.path);
-      const path = params.page && params.page.startsWith("/") ? params.page.slice(0, 300) : top[0];
+      // A page on this website only ("//..." would be another website).
+      const path = params.page && /^\/(?!\/)/.test(params.page) ? params.page.slice(0, 300) : top[0];
       const [spots, reach] = path ? await Promise.all([heatmapClicks(current, path, size), scrollReach(current, path, size)]) : [[], []];
       // The admin panel is on its own address, so the page comes from the website's address.
       const host = ((await headers()).get("host") ?? "").split(":")[0].toLowerCase();

@@ -38,10 +38,16 @@ function fileDate(kind: DocumentKind, name: string): string | undefined {
 export async function listDocuments(kind: DocumentKind): Promise<UploadedDocument[]> {
   if (!supabaseIsConfigured()) return [];
   const folder = DOCUMENT_TYPES[kind].folder;
-  const { data, error } = await withTimeout(storage().list(folder, { limit: 1000 }));
-  if (error) {
-    if (/not found/i.test(error.message)) return []; // bucket not created yet
-    throw error;
+  // Storage lists at most 1,000 files at a time, so ask for one page after another.
+  const data: Awaited<ReturnType<ReturnType<typeof storage>["list"]>>["data"] & object = [];
+  for (let offset = 0; ; offset += 1000) {
+    const page = await withTimeout(storage().list(folder, { limit: 1000, offset, sortBy: { column: "name", order: "asc" } }));
+    if (page.error) {
+      if (/not found/i.test(page.error.message)) return []; // bucket not created yet
+      throw page.error;
+    }
+    data.push(...page.data);
+    if (page.data.length < 1000) break;
   }
   const names = new Set(data.map((file) => file.name));
   return data

@@ -53,8 +53,11 @@ export async function checkPassword(email: string, password: string): Promise<st
   return data.user.id;
 }
 
-// The address of the admin panel for links in emails.
+// The address of the admin panel for links in emails. On the live site it's always the admin
+// panel's own address (never taken from the request, which could in theory be faked); on previews
+// and when testing, the address being used.
 async function adminOrigin(): Promise<string> {
+  if (process.env.VERCEL_ENV === "production") return `https://${ADMIN_HOST}`;
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? ADMIN_HOST;
   const proto = h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");

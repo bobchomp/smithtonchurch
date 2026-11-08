@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { adminPinIsSet, endSession, pinMatches, sessionsCanBeSigned, startSession } from "@/lib/admin-auth";
 import { checkPassword, MIN_PASSWORD_LENGTH, sendPasswordLink, setPasswordWithToken } from "@/lib/admin-users";
+import { allowAttempt, limitReached, senderCode } from "@/lib/rate-limit";
 import { supabaseIsConfigured } from "@/lib/supabase";
 
 export type FormState = { error?: string; done?: string };
@@ -14,6 +15,9 @@ export async function signIn(_state: FormState, formData: FormData): Promise<For
   const password = String(formData.get("password") ?? "");
   if (!supabaseIsConfigured() || !sessionsCanBeSigned()) return { error: "Sign-in isn’t set up yet. Use the backup PIN." };
   if (!email || !password) return { error: "Please enter your email and password." };
+  if (!(await allowAttempt(`signin:${await senderCode()}`, 20, 15 * 60))) {
+    return { error: "Too many sign-in attempts. Please wait 15 minutes and try again." };
+  }
   const userId = await checkPassword(email, password).catch(() => undefined);
   if (!userId) {
     await slowDown();
@@ -25,7 +29,11 @@ export async function signIn(_state: FormState, formData: FormData): Promise<For
 
 export async function signInWithPin(_state: FormState, formData: FormData): Promise<FormState> {
   if (!adminPinIsSet()) return { error: "The backup PIN hasn’t been set up (ADMIN_PIN in Vercel)." };
+  // After 10 wrong PINs in 15 minutes (from anywhere), the PIN stops working for a while.
+  const locked = "The backup PIN is locked for 15 minutes after too many wrong attempts. Sign in with your email and password instead.";
+  if (await limitReached("pin-failures", 10, 15 * 60)) return { error: locked };
   if (!pinMatches(String(formData.get("pin") ?? "").trim())) {
+    await allowAttempt("pin-failures", 10, 15 * 60);
     await slowDown();
     return { error: "That PIN isn’t right. Please try again." };
   }
@@ -37,7 +45,10 @@ export async function signInWithPin(_state: FormState, formData: FormData): Prom
 export async function requestPasswordReset(_state: FormState, formData: FormData): Promise<FormState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Please enter your email address." };
-  await sendPasswordLink(email, "recovery").catch((error) => console.error("Password reset not sent", error));
+  // At most one email per address every 5 minutes, and 5 an hour from one connection; the reply is
+  // the same either way, so this can't be used to find out who has a login.
+  const allowed = (await allowAttempt(`reset-from:${await senderCode()}`, 5, 60 * 60)) && (await allowAttempt(`reset:${email}`, 1, 5 * 60));
+  if (allowed) await sendPasswordLink(email, "recovery").catch((error) => console.error("Password reset not sent", error));
   return { done: "If that email address has an admin login, we’ve sent it a link to choose a new password." };
 }
 

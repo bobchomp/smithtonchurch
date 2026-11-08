@@ -71,6 +71,11 @@ export default function PrivacyNotice() {
         <p>
           Website statistics don’t identify you, so we keep them to see how the website is used over the years.
         </p>
+        <p>
+          To protect the website from misuse, such as floods of messages or repeated attempts to sign in, we briefly
+          keep a scrambled code made from the internet address of anyone sending a message, signing in or using the
+          website. The code can’t be turned back into the address, and it’s deleted within two days.
+        </p>
 
         <h2 id="statistics">Website statistics</h2>
         <p>

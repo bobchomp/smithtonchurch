@@ -36,6 +36,13 @@
   `tableReady` must not use head requests (they report a missing table as success); `selectAll` pages past PostgREST's 1,000-row cap.
   The dashboard shows the setup panel (`app/admin/(panel)/_setup/DatabaseSetup.tsx`) to owners while tables are missing.
   Owners can download everything as JSON from `/admin/backup/`.
+- Limits on repeated attempts (`lib/rate-limit.ts`, table `rate_limits` + function `rate_limit_hit`): backup PIN locks for 15 min
+  after 10 wrong (global), email sign-in 20/15 min per connection, reset emails 1 per address per 5 min and 5/hour per connection,
+  contact form 5/hour per connection and 100 notification emails/day, analytics 300 requests/10 min per connection. Connections are
+  identified by `senderCode()` (salted one-way hash of the IP, never stored raw; rows deleted after 2 days; in the privacy policy).
+  If the database isn't reachable or set up, attempts are allowed (fail open). Invite/reset links use `https://ADMIN_HOST` in
+  production. Sermon addresses must look like `<id>-<lower-case-words>` (`sermonIdFromParam`), others 404. Security headers
+  (nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors) are in next.config.ts.
 - Sermons: one row each in the `sermons` table (`lib/sermons.ts`: `loadSermons`, `storeSermon`, `addSermons`, `removeSermon`;
   before the database, the file `website/sermons/index.json`);
   audio is in Cloudflare R2 (`lib/r2.ts`, S3 API, browser uploads via presigned PUT). Imported sermons keep

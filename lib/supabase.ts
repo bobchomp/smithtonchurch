@@ -94,8 +94,11 @@ export async function ensureStorageBucket(): Promise<void> {
 // Gives up after a few seconds if Supabase can't be reached (e.g. a paused free project),
 // so pages can fall back instead of hanging.
 export function withTimeout<T>(promise: PromiseLike<T>, ms = 8_000): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
   return Promise.race([
     Promise.resolve(promise),
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Supabase timed out")), ms)),
-  ]);
+    new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error("Supabase timed out")), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
 }

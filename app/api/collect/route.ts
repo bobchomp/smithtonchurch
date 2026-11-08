@@ -2,6 +2,7 @@ import { analyticsSettings, recordEvents, saveRecordingProblem, type EventRow } 
 import { describeStorageError } from "@/lib/supabase";
 import { describeAgent, isBot } from "@/lib/analytics-ua";
 import { MAIN_HOSTS } from "@/lib/domains";
+import { allowAttempt, senderCode } from "@/lib/rate-limit";
 
 // Receives analytics events from the public pages (components/Analytics.tsx). Nothing is recorded
 // when tracking is off, for people who chose "Don't count me", for signed-in admins, or for bots. IP addresses are never stored: the visitor's town
@@ -97,6 +98,8 @@ export async function POST(request: Request) {
   const ua = request.headers.get("user-agent") ?? "";
   if (cookie(cookies, "sc_consent") === "no" || cookie(cookies, "sc_admin") === "1") return off();
   if (isBot(ua)) return Response.json({ on: true });
+  // Floods: at most 300 requests every 10 minutes from one connection (a real visit sends far fewer).
+  if (!(await allowAttempt(`collect:${await senderCode()}`, 300, 10 * 60))) return Response.json({ on: true });
 
   let body: { v?: string; s?: string; e?: Incoming[] };
   try {
@@ -121,9 +124,9 @@ export async function POST(request: Request) {
   const rows: EventRow[] = [];
   for (const e of body.e.slice(0, MAX_EVENTS)) {
     const path = text(e.p, 300);
-    if (!e.t || !TYPES.has(e.t) || !path || !path.startsWith("/") || path.startsWith("/admin")) continue;
+    if (!e.t || !TYPES.has(e.t) || !path || !path.startsWith("/") || path.startsWith("//") || path.startsWith("/admin")) continue;
     const width = whole(e.w, 100, 10_000);
-    if (e.t === "media" && (!e.k || !MEDIA.has(e.k) || !text(e.h, 300)?.startsWith("/"))) continue;
+    if (e.t === "media" && (!e.k || !MEDIA.has(e.k) || !/^\/(?!\/)/.test(text(e.h, 300) ?? ""))) continue;
     if (e.t === "search" && !text(e.l, 100) && !e.f) continue;
     const referrer = e.en ? text(e.r, 500) : null;
     rows.push({

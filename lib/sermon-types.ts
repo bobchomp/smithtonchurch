@@ -62,7 +62,11 @@ export function sermonPath(sermon: Pick<Sermon, "id" | "title">): string {
   return `/sermons/${sermon.id}${s ? `-${s}` : ""}/`;
 }
 
+// The sermon number from its address, e.g. "1632-the-good-shepherd" -> 1632. Only addresses shaped
+// like the site's own (a number, then lower-case words joined by hyphens) are accepted, so made-up
+// addresses get "page not found" instead of each being remembered as a redirect.
 export function sermonIdFromParam(param: string): number | undefined {
+  if (param.length > 120 || !/^\d{1,6}(-[a-z0-9]+)*$/.test(param)) return undefined;
   const id = Number(param.match(/^(\d+)/)?.[1]);
   return Number.isSafeInteger(id) && id > 0 ? id : undefined;
 }
