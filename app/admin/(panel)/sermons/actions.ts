@@ -152,7 +152,7 @@ export async function deleteSermon(formData: FormData): Promise<void> {
 
 // "Check YouTube now" in the admin panel.
 export async function syncLivestreamsNow(): Promise<{ message: string; ok: boolean }> {
-  await requireTool("sermons");
+  await requireTool("sermons", "sermon-details"); // also on the Sermon Details page
   try {
     const { count, changedPaths, created } = await syncLivestreams();
     revalidatePath("/sermons");

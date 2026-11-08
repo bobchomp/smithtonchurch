@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import { canUse, requireTool } from "@/lib/admin-auth";
+import { youtubeIsConfigured } from "@/lib/youtube";
+import SyncButton from "../SyncButton";
 import { videoForSermons } from "@/lib/livestream-match";
 import { loadLivestreams } from "@/lib/livestreams";
 import { audioUrl, r2IsConfigured } from "@/lib/r2";
@@ -42,6 +44,13 @@ export default async function ReviewSermons({
   const sermon = index >= 0 ? queue[index] : undefined;
   const cutoff = formatSermonDate(mediaSiteCutoff(sermons)).replace(/^\w+ /, "");
 
+  // Fetches new livestreams (which get sermons automatically) without leaving this page.
+  const syncBox = youtubeIsConfigured() && (
+    <div className="admin-review-sync">
+      <SyncButton />
+    </div>
+  );
+
   const savedNote = saved && (
     <p className="admin-success admin-notice-spaced">
       Saved “{saved.title}”.{" "}
@@ -54,6 +63,7 @@ export default async function ReviewSermons({
       <>
         <h1>Fill in sermon details</h1>
         {savedNote}
+        {syncBox}
         <section className="admin-panel admin-panel-narrow">
           {queue.length === 0 ? (
             <p>All done: every sermon since the old media site’s last one ({cutoff}) has been gone through.</p>
@@ -89,6 +99,7 @@ export default async function ReviewSermons({
         to do. “Save and next” saves this one, takes it off the list and opens the next.
       </p>
       {savedNote}
+      {syncBox}
 
       <div className="admin-review">
         <div className="admin-review-media">

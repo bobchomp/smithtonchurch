@@ -64,6 +64,31 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
         </div>
       )}
 
+      <section className="admin-panel admin-livestreams admin-livestreams-top">
+        <h2>YouTube livestreams</h2>
+        {youtubeReady ? (
+          <>
+            <p className="admin-muted">
+              Past livestreams are matched to sermons by date and service (before 2pm counts as the morning), and new ones
+              get a sermon automatically. YouTube is checked on a schedule, or straight away with the button below.
+              {livestreams.syncedAt &&
+                ` Last checked ${new Date(livestreams.syncedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" })}: ${livestreams.streams.length} livestreams.`}
+            </p>
+            <SyncButton />
+            {unmatched.length > 0 && (
+              <UnmatchedStreams streams={unmatched} />
+            )}
+          </>
+        ) : (
+          <div className="admin-notice">
+            <p>
+              <strong>YouTube isn’t connected yet.</strong> Add <code>YOUTUBE_API_KEY</code> (and <code>CRON_SECRET</code>{" "}
+              for the daily check) in Vercel. See the README.
+            </p>
+          </div>
+        )}
+      </section>
+
       <div className="admin-toolbar">
         {storageReady && (
           <Link className="button" href="/admin/sermons/new/">Add a sermon</Link>
@@ -128,30 +153,6 @@ export default async function SermonsAdmin({ searchParams }: { searchParams: Pro
         )}
       </section>
 
-      <section className="admin-panel admin-livestreams">
-        <h2>YouTube livestreams</h2>
-        {youtubeReady ? (
-          <>
-            <p className="admin-muted">
-              Past livestreams are matched to sermons by date and service (before 2pm counts as the morning). The list is
-              checked once a day.
-              {livestreams.syncedAt &&
-                ` Last checked ${new Date(livestreams.syncedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" })}: ${livestreams.streams.length} livestreams.`}
-            </p>
-            <SyncButton />
-            {unmatched.length > 0 && (
-              <UnmatchedStreams streams={unmatched} />
-            )}
-          </>
-        ) : (
-          <div className="admin-notice">
-            <p>
-              <strong>YouTube isn’t connected yet.</strong> Add <code>YOUTUBE_API_KEY</code> (and <code>CRON_SECRET</code>{" "}
-              for the daily check) in Vercel. See the README.
-            </p>
-          </div>
-        )}
-      </section>
     </>
   );
 }
