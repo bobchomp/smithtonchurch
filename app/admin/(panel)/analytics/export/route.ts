@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/activity";
 import { requireTool } from "@/lib/admin-auth";
 import {
   allEvents,
@@ -65,6 +66,7 @@ export async function GET(request: Request) {
   const key = (RANGES.find((r) => r.key === url.searchParams.get("range"))?.key ?? "30d") as RangeKey;
   const name = url.searchParams.get("report") ?? "";
   const { current } = rangeFor(key);
+  await logActivity({ area: "Analytics", action: "Downloaded a CSV", target: `${name} (${RANGES.find((r) => r.key === key)?.label ?? key})` });
   const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date());
   const headers = {
     "content-type": "text/csv; charset=utf-8",

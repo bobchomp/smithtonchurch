@@ -49,6 +49,33 @@ alter table public.site_settings enable row level security;
 revoke all on public.sermons, public.live_notices, public.contact_messages, public.site_settings from anon, authenticated;
 grant all on public.sermons, public.live_notices, public.contact_messages, public.site_settings to service_role;
 
+-- ---------- Activity log ----------
+-- Everything done in the admin panel, and by the website itself ("System"), for Admin → Activity Log.
+
+create table if not exists public.activity_log (
+  id bigint generated always as identity primary key,
+  at timestamptz not null default now(),
+  actor_id text,                     -- the admin's login ID, "pin" for the backup PIN, or null for System
+  actor text not null,               -- their name (as it was then), or "System"
+  area text not null,                -- e.g. "Sermons", "Users", "Sign-in"
+  action text not null,              -- what happened, in words
+  target text,                       -- what it happened to (a sermon's title, an email address...)
+  details jsonb
+);
+create index if not exists activity_log_at_idx on public.activity_log (at desc);
+create index if not exists activity_log_area_idx on public.activity_log (area, at desc);
+alter table public.activity_log enable row level security;
+revoke all on public.activity_log from anon, authenticated;
+grant all on public.activity_log to service_role;
+
+-- Everyone named in the activity log (for its "Who" filter).
+create or replace function public.activity_actors()
+returns table (actor text) language sql stable as $$
+  select distinct actor from public.activity_log order by actor;
+$$;
+revoke all on function public.activity_actors() from public, anon, authenticated;
+grant execute on function public.activity_actors() to service_role;
+
 -- ---------- Limits on repeated attempts ----------
 -- Stops people (or robots) trying the backup PIN over and over, sending floods of contact messages
 -- or password-reset emails, or filling the analytics. "key" says what's being counted and, for some,

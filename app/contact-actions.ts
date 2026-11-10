@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { ADMIN_HOST } from "@/lib/domains";
 import { emailIsConfigured, sendMessageNotification } from "@/lib/email";
-import { getRecipients, isEmailAddress, messagesAreConfigured, saveNewMessage, updateMessage } from "@/lib/messages";
+import { getMessage, getRecipients, isEmailAddress, messagesAreConfigured, saveNewMessage, updateMessage } from "@/lib/messages";
 import { allowAttempt, senderCode } from "@/lib/rate-limit";
+import { logActivity, SYSTEM } from "@/lib/activity";
 
 export type ContactState = { ok?: boolean; error?: string; fields?: Record<string, string> };
 
@@ -35,6 +36,7 @@ export async function sendContactMessage(_state: ContactState, formData: FormDat
   if (!messagesAreConfigured()) return { error: "Sorry, messages can’t be sent just now. Please call or email the office.", fields };
   // Floods: at most 5 messages an hour from one connection.
   if (!(await allowAttempt(`contact:${await senderCode()}`, 5, 60 * 60))) {
+    await logActivity({ area: "Messages", action: "Refused a contact form message: too many from one connection", target: `${fields.firstName} ${fields.lastName}` }, SYSTEM);
     return { error: "You’ve sent several messages in a short time. Please try again later, or call or email the office.", fields };
   }
 
@@ -63,6 +65,16 @@ export async function sendContactMessage(_state: ContactState, formData: FormDat
     console.error("Could not email contact message", error);
     await updateMessage({ ...saved, emailed: false, emailError: (error as Error).message }).catch(() => undefined);
   }
+  const latest = await getMessage(saved.id).catch(() => undefined);
+  await logActivity(
+    {
+      area: "Messages",
+      action: latest?.emailed ? "Received a contact form message and emailed it" : "Received a contact form message (not emailed)",
+      target: `From ${saved.name}${saved.subject ? `: ${saved.subject}` : ""}`,
+      details: latest?.emailError ? { emailProblem: latest.emailError } : undefined,
+    },
+    SYSTEM,
+  );
   revalidatePath("/admin/messages");
   revalidatePath("/admin");
   return { ok: true };

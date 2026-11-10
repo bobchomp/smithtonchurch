@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { logActivity, SYSTEM } from "@/lib/activity";
 import { syncLivestreams } from "@/lib/livestreams";
 import { youtubeIsConfigured } from "@/lib/youtube";
 
@@ -21,12 +22,14 @@ export async function GET(request: Request) {
   if (!youtubeIsConfigured()) return NextResponse.json({ skipped: "YOUTUBE_API_KEY isn’t set" });
   try {
     const { count, changedPaths, created } = await syncLivestreams();
+    await logActivity({ area: "Livestreams", action: "Scheduled YouTube check", details: { livestreams: count, sermonsCreated: created.length } }, SYSTEM);
     revalidatePath("/sermons");
     if (created.length) revalidatePath("/"); // the home page shows the latest sermon
     for (const path of changedPaths) revalidatePath(path);
     return NextResponse.json({ livestreams: count, sermonsCreated: created.map((s) => s.title), sermonPagesUpdated: changedPaths.length });
   } catch (error) {
     console.error("Livestream sync failed", error);
+    await logActivity({ area: "Livestreams", action: "Scheduled YouTube check failed", details: { error: (error as Error).message } }, SYSTEM);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

@@ -13,6 +13,7 @@ import {
   removeNotice,
   storeNotice,
 } from "@/lib/live-notices";
+import { logActivity } from "@/lib/activity";
 import { describeStorageError } from "@/lib/supabase";
 
 const MAX_IMAGE_MEGABYTES = 10;
@@ -88,6 +89,12 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
       await storeNotice({ id, ...notice, ...(existing.off ? { off: true } : {}), createdAt: existing.createdAt, updatedAt: now });
     }
     if (oldImage) await deleteNoticeImages([oldImage]);
+    await logActivity({
+      area: "Live notices",
+      action: id === null ? "Added a live notice" : "Edited a live notice",
+      target: notice.heading || notice.text.slice(0, 80) || "(image only)",
+      details: { starts: notice.startsAt ?? "straight away", ends: notice.endsAt ?? "until removed" },
+    });
     revalidatePath("/admin/live-notices");
     return {};
   } catch (error) {
@@ -107,6 +114,7 @@ export async function setNoticeOn(id: string, on: boolean): Promise<{ error?: st
     else notice.off = true;
     notice.updatedAt = new Date().toISOString();
     await storeNotice(notice);
+    await logActivity({ area: "Live notices", action: on ? "Switched a live notice on" : "Switched a live notice off", target: notice.heading || notice.text.slice(0, 80) });
     revalidatePath("/admin/live-notices");
     return {};
   } catch (error) {
@@ -121,6 +129,7 @@ export async function deleteNotice(formData: FormData): Promise<void> {
   const notice = notices.find((n) => n.id === id);
   if (!notice) return;
   await removeNotice(id);
+  await logActivity({ area: "Live notices", action: "Deleted a live notice", target: notice.heading || notice.text.slice(0, 80) });
   if (notice.image) await deleteNoticeImages([notice.image.path]);
   revalidatePath("/admin/live-notices");
 }

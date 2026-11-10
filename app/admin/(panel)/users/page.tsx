@@ -5,7 +5,7 @@ import { requireOwner } from "@/lib/admin-auth";
 import { listAdminUsers } from "@/lib/admin-users";
 import { emailIsConfigured } from "@/lib/email";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
-import { ADMIN_TOOLS, ALL_TOOLS } from "@/lib/admin-tools";
+import { ADMIN_TOOLS, ALL_TOOLS, DEFAULT_TOOLS } from "@/lib/admin-tools";
 import { remove, resendInvite, sendPasswordReset } from "./actions";
 import InviteForm from "./InviteForm";
 
@@ -87,6 +87,8 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
                         ? "Every tool, and manages logins"
                         : u.tools.length === ALL_TOOLS.length
                           ? "All tools"
+                          : u.tools.length === DEFAULT_TOOLS.length && DEFAULT_TOOLS.every((t) => u.tools.includes(t))
+                            ? "All tools except the Activity Log"
                           : u.tools.length === 0
                             ? "No tools"
                             : ADMIN_TOOLS.filter((t) => u.tools.includes(t.key)).map((t) => t.label).join(", ")}{" "}

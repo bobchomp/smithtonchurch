@@ -161,6 +161,15 @@ export default async function AdminDashboard({
             </p>
           </Link>
         )}
+        {canUse(me, "activity-log") && (
+          <Link className="admin-tool" href="/admin/activity/">
+            <h2>Activity Log</h2>
+            <p>
+              Everything done in the admin panel and by the website, and who
+              did it.
+            </p>
+          </Link>
+        )}
         {me.role === "owner" && (
           <a className="admin-tool" href="/admin/backup/" download>
             <h2>Download a backup</h2>

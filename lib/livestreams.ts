@@ -3,6 +3,7 @@ import { bookFromTitle, sortBooks } from "./bible";
 import { streamSlot, unmatchedStreams, videoForSermons, type Livestream } from "./livestream-match";
 import type { Sermon } from "./sermon-types";
 import { sermonPath } from "./sermon-types";
+import { logActivity, SYSTEM } from "./activity";
 import { addSermons, loadSermons } from "./sermons";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
 import { fetchPastLivestreams } from "./youtube";
@@ -70,7 +71,9 @@ export async function syncLivestreams(): Promise<{ count: number; changedPaths: 
 
   const fresh = unmatchedStreams(sermons, streams).filter((s) => streamSlot(s).date >= AUTO_SERMONS_FROM);
   const created = fresh.length ? await addSermons(fresh.map((s) => sermonFromStream(s))) : [];
-  if (created.length) console.log(`Created ${created.length} sermon(s) from new livestreams: ${created.map((s) => s.title).join(", ")}`);
+  for (const s of created) {
+    await logActivity({ area: "Sermons", action: "Created a sermon automatically from a new livestream", target: `${s.title} (${s.date})`, details: { preacher: s.preacher, video: s.video } }, SYSTEM);
+  }
   changedPaths.push(...created.map((s) => sermonPath(s).replace(/\/$/, "")));
   return { count: streams.length, changedPaths, created };
 }

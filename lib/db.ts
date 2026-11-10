@@ -7,8 +7,9 @@ import { supabaseAdmin, withTimeout } from "./supabase";
 // part of the site carries on using the files it used before; the first time a table is used, the
 // existing files are copied into it (the files are left alone as a backup).
 
-// rate_limits (lib/rate-limit.ts) is listed so the dashboard asks for the setup script until it exists.
-export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings", "rate_limits"] as const;
+// rate_limits (lib/rate-limit.ts) and activity_log (lib/activity.ts) are listed so the dashboard asks for the
+// setup script until they exist.
+export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings", "rate_limits", "activity_log"] as const;
 export type ContentTable = (typeof CONTENT_TABLES)[number];
 
 export function db() {
@@ -107,7 +108,18 @@ export async function copyInOnce(table: ContentTable, copy: () => Promise<number
   const done = await getSetting<{ at: string }>(marker);
   if (!done) {
     const count = await copy();
-    await setSetting(marker, { at: new Date().toISOString(), count });
+    // Several servers can do this at the same moment (the copy itself is safe to repeat);
+    // only the one that records the marker first logs it.
+    const { error } = await withTimeout(db().from("site_settings").insert({ key: marker, value: { at: new Date().toISOString(), count } }));
+    if (error) {
+      if (error.code === "23505") { copied.add(table); return; }
+      throw error;
+    }
+    copied.add(table);
+    if (!count) return;
+    const { logActivity, SYSTEM } = await import("./activity");
+    const names: Record<string, string> = { sermons: "sermons", live_notices: "live notices", contact_messages: "messages" };
+    await logActivity({ area: "Database", action: `Copied ${count} ${names[table] ?? table} from the old files into the database` }, SYSTEM);
   }
   copied.add(table);
 }

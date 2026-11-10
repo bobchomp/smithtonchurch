@@ -7,8 +7,9 @@ import { isBibleBook, sortBooks } from "@/lib/bible";
 import { unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, sermonFromStream, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
-import { isSermonDate, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
+import { isSermonDate, sermonBooks, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
 import { addSermons, loadSermons, removeSermon, storeSermon } from "@/lib/sermons";
+import { logActivity } from "@/lib/activity";
 import { describeStorageError } from "@/lib/supabase";
 
 export type SermonInput = {
@@ -108,6 +109,22 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
   };
 }
 
+// What changed between two versions of a sermon, for the activity log.
+function changes(before: Sermon, after: Sermon): Record<string, { from: unknown; to: unknown }> {
+  const out: Record<string, { from: unknown; to: unknown }> = {};
+  const fields: [string, (s: Sermon) => unknown][] = [
+    ["title", (s) => s.title],
+    ["date", (s) => s.date],
+    ["service", (s) => s.service || "none"],
+    ["preacher", (s) => s.preacher],
+    ["books", (s) => sermonBooks(s).join(", ")],
+    ["video", (s) => s.video ?? "automatic"],
+    ["audio", (s) => s.audioKey ?? "none"],
+  ];
+  for (const [name, get] of fields) if (String(get(before)) !== String(get(after))) out[name] = { from: get(before), to: get(after) };
+  return out;
+}
+
 // Step 2: save the sermon's details (after any audio has finished uploading).
 export async function saveSermon(id: number | null, input: SermonInput): Promise<{ id?: number; error?: string }> {
   // Sermon Details may only update existing sermons as it goes through them; everything else needs Sermons.
@@ -132,6 +149,16 @@ export async function saveSermon(id: number | null, input: SermonInput): Promise
       await storeSermon(saved);
     }
     if (replacedAudio) await deleteAudio(replacedAudio).catch((e) => console.error("Could not delete old audio", e));
+    await logActivity(
+      previous
+        ? {
+            area: "Sermons",
+            action: input.detailsChecked && !previous.detailsChecked ? "Filled in a sermon’s details (Sermon Details)" : "Edited a sermon",
+            target: `${saved.title} (${saved.date})`,
+            details: changes(previous, saved),
+          }
+        : { area: "Sermons", action: "Added a sermon", target: `${saved.title} (${saved.date})`, details: { preacher: saved.preacher, audio: Boolean(saved.audioKey) } },
+    );
     refresh(saved, previous);
     return { id: saved.id };
   } catch (error) {
@@ -146,6 +173,7 @@ export async function deleteSermon(formData: FormData): Promise<void> {
   const sermon = (await loadSermons()).find((s) => s.id === id);
   if (!sermon) return;
   await removeSermon(id);
+  await logActivity({ area: "Sermons", action: "Deleted a sermon", target: `${sermon.title} (${sermon.date})`, details: { hadAudio: Boolean(sermon.audioKey) } });
   if (sermon.audioKey && r2IsConfigured()) await deleteAudio(sermon.audioKey).catch((e) => console.error("Could not delete audio", e));
   refresh(sermon);
 }
@@ -155,6 +183,7 @@ export async function syncLivestreamsNow(): Promise<{ message: string; ok: boole
   await requireTool("sermons", "sermon-details"); // also on the Sermon Details page
   try {
     const { count, changedPaths, created } = await syncLivestreams();
+    await logActivity({ area: "Livestreams", action: "Pressed “Check YouTube now”", details: { livestreams: count, sermonsCreated: created.length } });
     revalidatePath("/sermons");
     revalidatePath("/");
     for (const path of changedPaths) revalidatePath(path);
@@ -181,6 +210,11 @@ export async function createSermonsFromLivestreams(streamIds: string[]): Promise
     if (!chosen.length) return { error: "None of those livestreams still need a sermon." };
     const now = new Date().toISOString();
     const created = await addSermons(chosen.map((stream) => sermonFromStream(stream, now)));
+    await logActivity({
+      area: "Sermons",
+      action: `Created ${created.length} sermon${created.length === 1 ? "" : "s"} from livestreams`,
+      target: created.map((s) => `${s.title} (${s.date})`).join("; "),
+    });
     refresh(...created);
     return { created: created.length };
   } catch (error) {

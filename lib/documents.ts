@@ -114,8 +114,10 @@ export async function deleteDocuments(documents: UploadedDocument[]): Promise<vo
 }
 
 // Removes older uploads for the same date, so a re-upload replaces the previous file.
-export async function removeReplacedDocuments(kind: DocumentKind): Promise<void> {
+// Returns the dates of the ones removed.
+export async function removeReplacedDocuments(kind: DocumentKind): Promise<string[]> {
   const seen = new Set<string>();
   const replaced = (await listDocuments(kind)).filter((d) => (seen.has(d.date) ? true : (seen.add(d.date), false)));
   await deleteDocuments(replaced);
+  return replaced.map((d) => d.date);
 }

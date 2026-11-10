@@ -12,18 +12,23 @@ export const ADMIN_TOOLS = [
   { key: "analytics", label: "Analytics", hint: "See how people find and use the website" },
   { key: "holding-slides", label: "Holding Slides", hint: "See and download the live stream’s holding slides" },
   { key: "branding", label: "Branding", hint: "The church’s logos, colours and fonts" },
+  { key: "activity-log", label: "Activity Log", hint: "See everything that’s been done in the admin panel and by the website" },
 ] as const;
 
 export type AdminTool = (typeof ADMIN_TOOLS)[number]["key"];
 export const ALL_TOOLS: AdminTool[] = ADMIN_TOOLS.map((t) => t.key);
+// Tools an admin only gets when an owner ticks them (not included in "all tools" by default).
+export const OFF_BY_DEFAULT: AdminTool[] = ["activity-log"];
+export const DEFAULT_TOOLS: AdminTool[] = ALL_TOOLS.filter((t) => !OFF_BY_DEFAULT.includes(t));
 export const TOOLS_KEY = "smithton_tools"; // in each Supabase user's app_metadata
 
 export function isAdminTool(value: unknown): value is AdminTool {
   return typeof value === "string" && (ALL_TOOLS as string[]).includes(value);
 }
 
-// An admin's tools from their app_metadata. Admins set up before tools could be chosen have them all.
+// An admin's tools from their app_metadata. Admins set up before tools could be chosen have them
+// all, except the ones that are off by default.
 export function toolsOf(appMetadata: Record<string, unknown> | undefined): AdminTool[] {
   const saved = appMetadata?.[TOOLS_KEY];
-  return Array.isArray(saved) ? saved.filter(isAdminTool) : ALL_TOOLS;
+  return Array.isArray(saved) ? saved.filter(isAdminTool) : DEFAULT_TOOLS;
 }

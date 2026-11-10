@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOwner, requireTool } from "@/lib/admin-auth";
+import { logActivity } from "@/lib/activity";
 import { loadGoals, saveAnalyticsSettings, saveGoals } from "@/lib/analytics";
 import {
   describeCondition,
@@ -17,7 +18,9 @@ import {
 // Owners switch tracking on or off.
 export async function setTracking(formData: FormData): Promise<void> {
   await requireOwner();
-  await saveAnalyticsSettings({ enabled: formData.get("enabled") === "on" });
+  const enabled = formData.get("enabled") === "on";
+  await saveAnalyticsSettings({ enabled });
+  await logActivity({ area: "Analytics", action: enabled ? "Switched visit recording on" : "Switched visit recording off" });
   revalidatePath("/admin/analytics");
 }
 
@@ -51,6 +54,7 @@ export async function addGoal(_state: GoalFormState, formData: FormData): Promis
   if (config.goals.length >= MAX_GOALS) return { error: `There can be up to ${MAX_GOALS} goals.` };
   config.goals.push({ id: newId(), name, condition: c });
   await saveGoals(config);
+  await logActivity({ area: "Analytics", action: "Added a goal", target: name, details: { counts: describeCondition(c) } });
   revalidatePath("/admin/analytics");
   return { done: `Added “${name}”.` };
 }
@@ -71,6 +75,7 @@ export async function addFunnel(_state: GoalFormState, formData: FormData): Prom
   if (config.funnels.length >= MAX_FUNNELS) return { error: `There can be up to ${MAX_FUNNELS} funnels.` };
   config.funnels.push({ id: newId(), name, steps });
   await saveGoals(config);
+  await logActivity({ area: "Analytics", action: "Added a funnel", target: name, details: { steps: steps.map((s) => s.name) } });
   revalidatePath("/admin/analytics");
   return { done: `Added “${name}”.` };
 }
@@ -82,10 +87,16 @@ export async function addSuggestion(formData: FormData): Promise<void> {
   const i = Number(formData.get("index"));
   if (formData.get("kind") === "funnel") {
     const f = SUGGESTED_FUNNELS[i];
-    if (f && config.funnels.length < MAX_FUNNELS) config.funnels.push({ id: newId(), ...f });
+    if (f && config.funnels.length < MAX_FUNNELS) {
+      config.funnels.push({ id: newId(), ...f });
+      await logActivity({ area: "Analytics", action: "Added a suggested funnel", target: f.name });
+    }
   } else {
     const g = SUGGESTED_GOALS[i];
-    if (g && config.goals.length < MAX_GOALS && !config.goals.some((x) => x.name === g.name)) config.goals.push({ id: newId(), ...g });
+    if (g && config.goals.length < MAX_GOALS && !config.goals.some((x) => x.name === g.name)) {
+      config.goals.push({ id: newId(), ...g });
+      await logActivity({ area: "Analytics", action: "Added a suggested goal", target: g.name });
+    }
   }
   await saveGoals(config);
   revalidatePath("/admin/analytics");
@@ -95,6 +106,8 @@ export async function removeGoalOrFunnel(formData: FormData): Promise<void> {
   await requireTool("analytics");
   const id = String(formData.get("id") ?? "");
   const config = await loadGoals();
+  const gone = config.goals.find((g) => g.id === id) ?? config.funnels.find((f) => f.id === id);
   await saveGoals({ goals: config.goals.filter((g) => g.id !== id), funnels: config.funnels.filter((f) => f.id !== id) });
+  if (gone) await logActivity({ area: "Analytics", action: "steps" in gone ? "Removed a funnel" : "Removed a goal", target: gone.name });
   revalidatePath("/admin/analytics");
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import { ALL_TOOLS } from "@/lib/admin-tools";
+import { DEFAULT_TOOLS } from "@/lib/admin-tools";
 import ToolChecklist from "./ToolChecklist";
 import { invite, type UserFormState } from "./actions";
 
@@ -35,7 +35,7 @@ export default function InviteForm() {
         </select>
       </label>
       {role === "admin" ? (
-        <ToolChecklist selected={ALL_TOOLS} />
+        <ToolChecklist selected={DEFAULT_TOOLS} />
       ) : (
         <p className="admin-muted">Owners can use every tool.</p>
       )}

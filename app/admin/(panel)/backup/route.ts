@@ -1,3 +1,4 @@
+import { logActivity } from "@/lib/activity";
 import { requireOwner } from "@/lib/admin-auth";
 import { db, selectAll, tableReady } from "@/lib/db";
 import { loadNotices } from "@/lib/live-notices";
@@ -29,6 +30,7 @@ export async function GET() {
       contactRecipients: recipients,
       settings: Object.fromEntries(settings.map((s) => [s.key, s.value])),
     };
+    await logActivity({ area: "Backup", action: "Downloaded a backup", details: { sermons: sermons.length, liveNotices: liveNotices.length, messages: messages.length } });
     const day = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/London" }).format(new Date());
     return new Response(JSON.stringify(backup, null, 1), {
       headers: {

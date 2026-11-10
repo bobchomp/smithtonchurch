@@ -119,6 +119,12 @@
   `scripts/holding-video/` (see its README). Keep video files well under GitHub's 100 MB limit.
 - Admin → Branding (tool "branding", `app/admin/(panel)/branding/`): logos, colours (keep in step with :root in globals.css),
   fonts, tagline, buttons, photos and the Free Church logos we use, with downloads.
+- Activity log (Admin → Activity Log, tool "activity-log", `app/admin/(panel)/activity/`, CSV at `activity/export/`): table
+  `activity_log` (+ `activity_actors()`), written by `logActivity({ area, action, target?, details? }, actor?)` in lib/activity.ts
+  (never throws; skipped while the table is missing). Call it from every new server action/route that changes something;
+  the actor defaults to the signed-in admin ("Backup PIN" for the PIN); pass `SYSTEM` for things the website does itself
+  (cron, auto-created sermons, contact form, copy-ins). Details: `{ field: { from, to } }` for changes. The tool is in
+  OFF_BY_DEFAULT (lib/admin-tools.ts): admins with no saved tools list don't get it; owners always do.
 - Use `revalidatePath("/literal-path")` (no `type`) to refresh a public page after an admin change;
   with a type it matches route files, and the `(site)` group means it won't match.
 

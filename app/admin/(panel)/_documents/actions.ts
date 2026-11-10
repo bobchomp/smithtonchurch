@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin, requireTool } from "@/lib/admin-auth";
 import type { AdminTool } from "@/lib/admin-tools";
-import { DOCUMENT_TYPES, isDocumentDate, isDocumentKind, type DocumentKind } from "@/lib/document-types";
+import { DOCUMENT_TYPES, formatDocumentDate, isDocumentDate, isDocumentKind, type DocumentKind } from "@/lib/document-types";
 import { createDocumentUploadUrls, deleteDocuments, listDocuments, removeReplacedDocuments } from "@/lib/documents";
 import { sermonPath } from "@/lib/sermon-types";
 import { loadSermons } from "@/lib/sermons";
+import { logActivity } from "@/lib/activity";
 import { describeStorageError } from "@/lib/supabase";
 
 // The admin tool each kind of document belongs to.
@@ -56,8 +57,14 @@ export async function finishDocumentUpload(kind: string, date?: string): Promise
   await requireAdmin();
   if (!isDocumentKind(kind)) return;
   await requireTool(TOOL[kind]);
-  await removeReplacedDocuments(kind);
-  await refreshPages(kind, date && isDocumentDate(kind, date) ? date : undefined);
+  const replaced = await removeReplacedDocuments(kind);
+  const valid = date && isDocumentDate(kind, date) ? date : undefined;
+  await logActivity({
+    area: kind === "bulletin" ? "Bulletins" : "Newsletters",
+    action: `${valid && replaced.includes(valid) ? "Replaced" : "Uploaded"} the ${DOCUMENT_TYPES[kind].singular}`,
+    target: valid ? formatDocumentDate(kind, valid) : undefined,
+  });
+  await refreshPages(kind, valid);
 }
 
 export async function deleteDocument(formData: FormData): Promise<void> {
@@ -68,6 +75,13 @@ export async function deleteDocument(formData: FormData): Promise<void> {
   await requireTool(TOOL[kind]);
   // Only delete files that really are documents of this kind.
   const found = (await listDocuments(kind)).find((d) => d.path === path);
-  if (found) await deleteDocuments([found]);
+  if (found) {
+    await deleteDocuments([found]);
+    await logActivity({
+      area: kind === "bulletin" ? "Bulletins" : "Newsletters",
+      action: `Deleted the ${DOCUMENT_TYPES[kind].singular}`,
+      target: formatDocumentDate(kind, found.date),
+    });
+  }
   await refreshPages(kind, found?.date);
 }

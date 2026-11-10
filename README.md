@@ -123,6 +123,15 @@ robots are never counted. Records are kept until deleted.
 services ("The service will be broadcast shortly" and so on). Each one shows its current version,
 ready to download as a 1920×1080 PNG, and every earlier version with what changed.
 
+### Activity log
+
+**Admin → Activity Log** lists everything done in the admin panel (sign-ins, sermons, bulletins,
+notices, messages, users, settings and downloads) with who did it, newest first. Things the
+website does by itself, such as the scheduled YouTube check, sermons created from livestreams and
+contact form messages, are shown as "System". It can be filtered by area, person and date, and
+downloaded as a CSV file. Owners always see it; admins only if it's ticked for them in
+**User Permissions** (it's off for admins by default).
+
 ### File storage (Supabase)
 
 Files uploaded in the admin panel, such as the weekly bulletin, are stored in

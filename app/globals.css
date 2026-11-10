@@ -1176,3 +1176,30 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .admin-livestreams-top { margin-bottom: 1.5rem; }
 .admin-livestreams.admin-livestreams-top { margin-top: 0; }
 .admin-review-sync { margin: 0 0 1.25rem; }
+
+/* Admin → Activity Log */
+.activity-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.75rem 1rem; margin-bottom: 1.5rem; }
+.activity-filters label { display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.92rem; }
+.activity-filters select { font: inherit; font-weight: 400; padding: 0.55rem 0.7rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff; min-width: 0; max-width: 100%; }
+.activity-filters .button { padding: 0.55rem 1.25rem; }
+.activity-csv { align-self: center; margin-left: auto; }
+.activity-day { margin-bottom: 1.25rem; }
+.activity-day h2 { font-size: 1.05rem; margin-bottom: 0.5rem; }
+.activity-list { list-style: none; margin: 0; padding: 0; }
+.activity-list li { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: 0.25rem 1rem; align-items: start; padding: 0.7rem 0; border-top: 1px solid var(--border); }
+.activity-list li:first-child { border-top: 0; }
+.activity-list time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 0.92rem; padding-top: 0.05rem; }
+.activity-what p { margin: 0; overflow-wrap: anywhere; }
+.activity-who { color: var(--blue); }
+.activity-system { color: var(--muted); font-style: italic; }
+.activity-target { color: var(--muted); }
+.activity-area { white-space: nowrap; }
+.activity-details { display: grid; gap: 0.1rem; margin: 0.35rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.activity-details div { display: flex; gap: 0.5rem; min-width: 0; }
+.activity-details dt { font-weight: 600; text-transform: capitalize; }
+.activity-details dd { margin: 0; overflow-wrap: anywhere; min-width: 0; }
+.activity-older { margin-left: auto; }
+@media (max-width: 600px) {
+  .activity-list li { grid-template-columns: 3rem minmax(0, 1fr); }
+  .activity-area { grid-column: 2; justify-self: start; }
+}
