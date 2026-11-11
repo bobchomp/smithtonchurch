@@ -15,7 +15,6 @@ import {
   scrollReach,
   isMissingSetup,
   lastRecorded,
-  missingReports,
   recordingProblem,
   journeys,
   live,
@@ -41,18 +40,10 @@ import { ClicksView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesVi
 
 export const metadata: Metadata = { title: "Analytics" };
 
-function Setup({ error, missing }: { error?: unknown; missing: { fn: string; tab: string }[] }) {
-  const tabs = [...new Set(missing.map((m) => m.tab))];
+function Setup({ error }: { error?: unknown }) {
   return (
     <DatabaseSetup title="Set up (or update) the database" details={error ? describeStorageError(error) : undefined}>
       <p>The analytics are kept in your Supabase database, which needs setting up once, and again when new reports are added.</p>
-      {missing.length > 0 && (
-        <p className="analytics-missing">
-          {missing.length === 21
-            ? "The database hasn’t been set up yet."
-            : `The database is missing ${missing.length} newer report${missing.length === 1 ? "" : "s"}, needed by: ${tabs.join(", ")}. Run the latest script below to add ${missing.length === 1 ? "it" : "them"}.`}
-        </p>
-      )}
     </DatabaseSetup>
   );
 }
@@ -169,11 +160,10 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     }
   } catch (error) {
     if (isMissingSetup(error)) {
-      const missing = await missingReports().catch(() => []);
       return (
         <>
           {heading}
-          <Setup error={error} missing={missing} />
+          <Setup error={error} />
         </>
       );
     }

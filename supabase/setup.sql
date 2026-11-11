@@ -4,11 +4,27 @@
 -- Tables for the website's content (sermons, live notices, contact messages, settings), and the
 -- analytics: one table of events (page views, clicks...) and functions that summarise it for
 -- Admin → Analytics. Only the website's server (secret key) can read or write any of it.
+--
+-- Each "@part" below is one table or function with everything it needs, so the admin panel can
+-- offer just the parts your database is missing instead of the whole script.
 
+-- @part function setup_status
+-- What the database already has, so the admin panel knows which parts of this script are missing.
+create or replace function public.setup_status()
+returns table (kind text, name text) language sql stable as $$
+  select 'table', c.relname::text from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public' and c.relkind in ('r', 'p')
+  union all
+  select 'function', p.proname::text from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public';
+$$;
+revoke all on function public.setup_status() from public, anon, authenticated;
+grant execute on function public.setup_status() to service_role;
+
+-- @part table sermons
 -- ---------- Website content ----------
 -- Each row keeps the full record in "data" (as the website's code describes it), with a few
 -- columns alongside for sorting and searching.
-
 create table if not exists public.sermons (
   id integer primary key,
   date text not null,                -- YYYY-MM-DD
@@ -19,13 +35,21 @@ create table if not exists public.sermons (
   updated_at timestamptz not null default now()
 );
 create index if not exists sermons_date_idx on public.sermons (date desc);
+alter table public.sermons enable row level security;
+revoke all on public.sermons from anon, authenticated;
+grant all on public.sermons to service_role;
 
+-- @part table live_notices
 create table if not exists public.live_notices (
   id text primary key,
   data jsonb not null,
   updated_at timestamptz not null default now()
 );
+alter table public.live_notices enable row level security;
+revoke all on public.live_notices from anon, authenticated;
+grant all on public.live_notices to service_role;
 
+-- @part table contact_messages
 create table if not exists public.contact_messages (
   id text primary key,               -- also sorts by time received
   received_at timestamptz not null,
@@ -34,24 +58,24 @@ create table if not exists public.contact_messages (
   updated_at timestamptz not null default now()
 );
 create index if not exists contact_messages_received_idx on public.contact_messages (received_at desc);
+alter table public.contact_messages enable row level security;
+revoke all on public.contact_messages from anon, authenticated;
+grant all on public.contact_messages to service_role;
 
+-- @part table site_settings
 -- Small settings, one row each: who's emailed about messages, analytics on/off, goals...
 create table if not exists public.site_settings (
   key text primary key,
   value jsonb not null,
   updated_at timestamptz not null default now()
 );
-
-alter table public.sermons enable row level security;
-alter table public.live_notices enable row level security;
-alter table public.contact_messages enable row level security;
 alter table public.site_settings enable row level security;
-revoke all on public.sermons, public.live_notices, public.contact_messages, public.site_settings from anon, authenticated;
-grant all on public.sermons, public.live_notices, public.contact_messages, public.site_settings to service_role;
+revoke all on public.site_settings from anon, authenticated;
+grant all on public.site_settings to service_role;
 
+-- @part table activity_log
 -- ---------- Activity log ----------
 -- Everything done in the admin panel, and by the website itself ("System"), for Admin → Activity Log.
-
 create table if not exists public.activity_log (
   id bigint generated always as identity primary key,
   at timestamptz not null default now(),
@@ -68,6 +92,7 @@ alter table public.activity_log enable row level security;
 revoke all on public.activity_log from anon, authenticated;
 grant all on public.activity_log to service_role;
 
+-- @part function activity_actors
 -- Everyone named in the activity log (for its "Who" filter).
 create or replace function public.activity_actors()
 returns table (actor text) language sql stable as $$
@@ -76,12 +101,12 @@ $$;
 revoke all on function public.activity_actors() from public, anon, authenticated;
 grant execute on function public.activity_actors() to service_role;
 
+-- @part table rate_limits
 -- ---------- Limits on repeated attempts ----------
 -- Stops people (or robots) trying the backup PIN over and over, sending floods of contact messages
 -- or password-reset emails, or filling the analytics. "key" says what's being counted and, for some,
 -- a one-way scrambled code of the sender's internet address (never the address itself). Old rows
 -- are deleted after two days.
-
 create table if not exists public.rate_limits (
   key text primary key,
   count integer not null,
@@ -91,6 +116,7 @@ alter table public.rate_limits enable row level security;
 revoke all on public.rate_limits from anon, authenticated;
 grant all on public.rate_limits to service_role;
 
+-- @part function rate_limit_hit
 -- Counts one attempt and says whether it's within the limit (p_limit attempts per p_window seconds).
 create or replace function public.rate_limit_hit(p_key text, p_limit integer, p_window integer)
 returns boolean
@@ -109,21 +135,21 @@ begin
   return n <= p_limit;
 end;
 $$;
+revoke all on function public.rate_limit_hit(text, integer, integer) from public, anon, authenticated;
+grant execute on function public.rate_limit_hit(text, integer, integer) to service_role;
 
+-- @part function rate_limit_count
 -- How many attempts have been counted in the current window (without counting another).
 create or replace function public.rate_limit_count(p_key text, p_window integer)
 returns integer
 language sql stable as $$
   select coalesce((select count from public.rate_limits where key = p_key and window_start >= now() - make_interval(secs => p_window)), 0);
 $$;
-
-revoke all on function public.rate_limit_hit(text, integer, integer) from public, anon, authenticated;
 revoke all on function public.rate_limit_count(text, integer) from public, anon, authenticated;
-grant execute on function public.rate_limit_hit(text, integer, integer) to service_role;
 grant execute on function public.rate_limit_count(text, integer) to service_role;
 
+-- @part table analytics_events
 -- ---------- Analytics ----------
-
 create table if not exists public.analytics_events (
   id bigint generated always as identity primary key,
   created_at timestamptz not null default now(),
@@ -152,16 +178,15 @@ create table if not exists public.analytics_events (
   target_label text,               -- 'click': the button or link text; 'media': sermon title; 'search': the words searched for
   props jsonb                      -- extra details: 'media' {pct}, 'search' {results, filters}, missing pages {nf, from}
 );
-
 create index if not exists analytics_events_created_idx on public.analytics_events (created_at);
 create index if not exists analytics_events_type_created_idx on public.analytics_events (type, created_at);
 create index if not exists analytics_events_session_idx on public.analytics_events (session_id, created_at);
 create index if not exists analytics_events_visitor_idx on public.analytics_events (visitor_id, created_at);
-
 alter table public.analytics_events enable row level security; -- no public access at all
 revoke all on public.analytics_events from anon, authenticated;
 grant all on public.analytics_events to service_role;
 
+-- @part function analytics_overview
 -- Headline numbers for a period.
 create or replace function public.analytics_overview(p_from timestamptz, p_to timestamptz)
 returns table (visitors bigint, sessions bigint, pageviews bigint, bounce_rate numeric, avg_visit_seconds numeric)
@@ -183,7 +208,10 @@ language sql stable as $$
     (select round(100.0 * avg((n = 1)::int), 1) from s),
     (select round(avg(ms) / 1000.0) from t);
 $$;
+revoke all on function public.analytics_overview(timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.analytics_overview(timestamptz, timestamptz) to service_role;
 
+-- @part function analytics_series
 -- Visitors and page views over time, in UK time. p_unit: 'hour', 'day', 'week' or 'month'.
 create or replace function public.analytics_series(p_from timestamptz, p_to timestamptz, p_unit text)
 returns table (bucket timestamp, visitors bigint, pageviews bigint)
@@ -194,7 +222,10 @@ language sql stable as $$
   where type = 'pageview' and created_at >= p_from and created_at < p_to
   group by 1 order by 1;
 $$;
+revoke all on function public.analytics_series(timestamptz, timestamptz, text) from public, anon, authenticated;
+grant execute on function public.analytics_series(timestamptz, timestamptz, text) to service_role;
 
+-- @part function analytics_pages
 -- Pages: views, visitors, time on page, scroll depth, and how often visits start or end there.
 create or replace function public.analytics_pages(p_from timestamptz, p_to timestamptz, p_limit integer)
 returns table (path text, pageviews bigint, visitors bigint, avg_seconds numeric, avg_scroll numeric, entries bigint, exits bigint)
@@ -223,7 +254,10 @@ language sql stable as $$
   order by count(*) desc
   limit p_limit;
 $$;
+revoke all on function public.analytics_pages(timestamptz, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.analytics_pages(timestamptz, timestamptz, integer) to service_role;
 
+-- @part function analytics_breakdown
 -- Counts by one property. Sources and campaigns count visits (from each visit's first page);
 -- everything else counts page views.
 create or replace function public.analytics_breakdown(p_from timestamptz, p_to timestamptz, p_dim text, p_limit integer)
@@ -261,7 +295,10 @@ language sql stable as $$
   order by count(*) desc
   limit p_limit;
 $$;
+revoke all on function public.analytics_breakdown(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
+grant execute on function public.analytics_breakdown(timestamptz, timestamptz, text, integer) to service_role;
 
+-- @part function analytics_live
 -- People on the site in the last five minutes, and the pages they're on.
 create or replace function public.analytics_live()
 returns table (path text, visitors bigint)
@@ -274,27 +311,20 @@ language sql stable as $$
   ) latest
   group by path order by 2 desc;
 $$;
+revoke all on function public.analytics_live() from public, anon, authenticated;
+grant execute on function public.analytics_live() to service_role;
 
+-- @part function analytics_storage
 -- Database space used by the analytics, in bytes, and the number of events.
 create or replace function public.analytics_storage()
 returns table (bytes bigint, events bigint, since timestamptz)
 language sql stable as $$
   select pg_total_relation_size('public.analytics_events'), count(*), min(created_at) from public.analytics_events;
 $$;
-
-revoke all on function public.analytics_overview(timestamptz, timestamptz) from public, anon, authenticated;
-revoke all on function public.analytics_series(timestamptz, timestamptz, text) from public, anon, authenticated;
-revoke all on function public.analytics_pages(timestamptz, timestamptz, integer) from public, anon, authenticated;
-revoke all on function public.analytics_breakdown(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
-revoke all on function public.analytics_live() from public, anon, authenticated;
 revoke all on function public.analytics_storage() from public, anon, authenticated;
-grant execute on function public.analytics_overview(timestamptz, timestamptz) to service_role;
-grant execute on function public.analytics_series(timestamptz, timestamptz, text) to service_role;
-grant execute on function public.analytics_pages(timestamptz, timestamptz, integer) to service_role;
-grant execute on function public.analytics_breakdown(timestamptz, timestamptz, text, integer) to service_role;
-grant execute on function public.analytics_live() to service_role;
 grant execute on function public.analytics_storage() to service_role;
 
+-- @part function analytics_clicks
 -- ---------- Phase 2 ----------
 
 -- Clicks on links and buttons, by what was clicked. p_kind: null for every kind.
@@ -310,7 +340,10 @@ language sql stable as $$
   order by 4 desc
   limit p_limit;
 $$;
+revoke all on function public.analytics_clicks(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
+grant execute on function public.analytics_clicks(timestamptz, timestamptz, text, integer) to service_role;
 
+-- @part function analytics_click_kinds
 -- Number of clicks of each kind.
 create or replace function public.analytics_click_kinds(p_from timestamptz, p_to timestamptz)
 returns table (kind text, clicks bigint, visitors bigint)
@@ -319,7 +352,10 @@ language sql stable as $$
   where type = 'click' and created_at >= p_from and created_at < p_to and target_kind is not null
   group by 1 order by 2 desc;
 $$;
+revoke all on function public.analytics_click_kinds(timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.analytics_click_kinds(timestamptz, timestamptz) to service_role;
 
+-- @part function analytics_sermons
 -- Sermon plays: one play is a visit pressing play on a sermon's audio or video. Progress is the
 -- furthest point reached in that play (0, 25, 50, 75 or 95%, which counts as finished).
 create or replace function public.analytics_sermons(p_from timestamptz, p_to timestamptz, p_limit integer)
@@ -337,7 +373,10 @@ language sql stable as $$
   from plays group by path order by 3 desc, 1
   limit p_limit;
 $$;
+revoke all on function public.analytics_sermons(timestamptz, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.analytics_sermons(timestamptz, timestamptz, integer) to service_role;
 
+-- @part function analytics_sermon_totals
 -- The same, for all sermons together.
 create or replace function public.analytics_sermon_totals(p_from timestamptz, p_to timestamptz)
 returns table (plays bigint, audio bigint, video bigint, listeners bigint, avg_progress numeric, finished bigint)
@@ -352,7 +391,10 @@ language sql stable as $$
          count(distinct visitor_id), round(avg(furthest)), count(*) filter (where furthest >= 95)
   from plays;
 $$;
+revoke all on function public.analytics_sermon_totals(timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.analytics_sermon_totals(timestamptz, timestamptz) to service_role;
 
+-- @part function analytics_searches
 -- What people searched for in the sermon archive, and how many sermons it found.
 create or replace function public.analytics_searches(p_from timestamptz, p_to timestamptz, p_limit integer)
 returns table (term text, searches bigint, visitors bigint, avg_results numeric, no_results bigint)
@@ -364,7 +406,10 @@ language sql stable as $$
   group by 1 order by 2 desc, 1
   limit p_limit;
 $$;
+revoke all on function public.analytics_searches(timestamptz, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.analytics_searches(timestamptz, timestamptz, integer) to service_role;
 
+-- @part function analytics_search_filters
 -- The filters chosen in the sermon archive (preacher, book, year, service).
 create or replace function public.analytics_search_filters(p_from timestamptz, p_to timestamptz, p_limit integer)
 returns table (filter text, value text, uses bigint)
@@ -375,7 +420,10 @@ language sql stable as $$
   group by 1, 2 order by 3 desc, 1, 2
   limit p_limit;
 $$;
+revoke all on function public.analytics_search_filters(timestamptz, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.analytics_search_filters(timestamptz, timestamptz, integer) to service_role;
 
+-- @part function analytics_not_found
 -- Addresses that don't exist, and where people most often came to them from.
 create or replace function public.analytics_not_found(p_from timestamptz, p_to timestamptz, p_limit integer)
 returns table (path text, views bigint, visitors bigint, last_seen timestamptz, came_from text)
@@ -386,7 +434,10 @@ language sql stable as $$
   group by path order by 2 desc, 4 desc
   limit p_limit;
 $$;
+revoke all on function public.analytics_not_found(timestamptz, timestamptz, integer) from public, anon, authenticated;
+grant execute on function public.analytics_not_found(timestamptz, timestamptz, integer) to service_role;
 
+-- @part function analytics_page_flow
 -- For one page: where visitors were just before it, and where they went next.
 create or replace function public.analytics_page_flow(p_from timestamptz, p_to timestamptz, p_path text, p_limit integer)
 returns table (direction text, label text, visits bigint)
@@ -410,7 +461,10 @@ language sql stable as $$
   union all
   select 'to', label, n from went;
 $$;
+revoke all on function public.analytics_page_flow(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
+grant execute on function public.analytics_page_flow(timestamptz, timestamptz, text, integer) to service_role;
 
+-- @part function analytics_journeys
 -- The most common routes through the website: the first few pages of each visit, in order.
 create or replace function public.analytics_journeys(p_from timestamptz, p_to timestamptz, p_steps integer, p_limit integer)
 returns table (journey text, visits bigint, visitors bigint)
@@ -429,7 +483,10 @@ language sql stable as $$
   from j group by 1 order by 2 desc, 1
   limit p_limit;
 $$;
+revoke all on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
+grant execute on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) to service_role;
 
+-- @part function analytics_visits
 -- Individual visits, newest first: where they came from, the pages they looked at, and for how long.
 create or replace function public.analytics_visits(p_from timestamptz, p_to timestamptz, p_limit integer, p_offset integer)
 returns table (started timestamptz, source text, place text, device text, browser text, pages text[], seconds numeric, returning_visitor boolean)
@@ -451,28 +508,10 @@ language sql stable as $$
   from s order by started desc
   limit p_limit offset p_offset;
 $$;
-
-revoke all on function public.analytics_clicks(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
-revoke all on function public.analytics_click_kinds(timestamptz, timestamptz) from public, anon, authenticated;
-revoke all on function public.analytics_sermons(timestamptz, timestamptz, integer) from public, anon, authenticated;
-revoke all on function public.analytics_sermon_totals(timestamptz, timestamptz) from public, anon, authenticated;
-revoke all on function public.analytics_searches(timestamptz, timestamptz, integer) from public, anon, authenticated;
-revoke all on function public.analytics_search_filters(timestamptz, timestamptz, integer) from public, anon, authenticated;
-revoke all on function public.analytics_not_found(timestamptz, timestamptz, integer) from public, anon, authenticated;
-revoke all on function public.analytics_page_flow(timestamptz, timestamptz, text, integer) from public, anon, authenticated;
-revoke all on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
 revoke all on function public.analytics_visits(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
-grant execute on function public.analytics_clicks(timestamptz, timestamptz, text, integer) to service_role;
-grant execute on function public.analytics_click_kinds(timestamptz, timestamptz) to service_role;
-grant execute on function public.analytics_sermons(timestamptz, timestamptz, integer) to service_role;
-grant execute on function public.analytics_sermon_totals(timestamptz, timestamptz) to service_role;
-grant execute on function public.analytics_searches(timestamptz, timestamptz, integer) to service_role;
-grant execute on function public.analytics_search_filters(timestamptz, timestamptz, integer) to service_role;
-grant execute on function public.analytics_not_found(timestamptz, timestamptz, integer) to service_role;
-grant execute on function public.analytics_page_flow(timestamptz, timestamptz, text, integer) to service_role;
-grant execute on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) to service_role;
 grant execute on function public.analytics_visits(timestamptz, timestamptz, integer, integer) to service_role;
 
+-- @part function analytics_matches
 -- ---------- Phase 3 ----------
 
 -- Whether an event meets a goal or funnel step. c is {"type": ..., "match": ...}:
@@ -497,7 +536,10 @@ language sql immutable as $$
     else false
   end;
 $$;
+revoke all on function public.analytics_matches(public.analytics_events, jsonb) from public, anon, authenticated;
+grant execute on function public.analytics_matches(public.analytics_events, jsonb) to service_role;
 
+-- @part function analytics_funnel
 -- A funnel: how many visits did step 1, then step 2 later in the same visit, and so on.
 -- p_steps is a JSON array of conditions (see analytics_matches). A goal is a one-step funnel.
 create or replace function public.analytics_funnel(p_from timestamptz, p_to timestamptz, p_steps jsonb)
@@ -532,7 +574,10 @@ language sql stable as $$
   from steps s left join r on r.i = s.i
   group by s.i order by s.i;
 $$;
+revoke all on function public.analytics_funnel(timestamptz, timestamptz, jsonb) from public, anon, authenticated;
+grant execute on function public.analytics_funnel(timestamptz, timestamptz, jsonb) to service_role;
 
+-- @part function analytics_goal_sources
 -- For a goal: where the visits that reached it came from, and the page they started on.
 create or replace function public.analytics_goal_sources(p_from timestamptz, p_to timestamptz, p_goal jsonb, p_limit integer)
 returns table (kind text, label text, visits bigint)
@@ -553,7 +598,10 @@ language sql stable as $$
   union all
   select kind, label, n from ent;
 $$;
+revoke all on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) from public, anon, authenticated;
+grant execute on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) to service_role;
 
+-- @part function analytics_heatmap
 -- Clicks on one page for the heatmap: where on the page (the clicked element and the point within
 -- it) for screens between p_min_w and p_max_w pixels wide.
 create or replace function public.analytics_heatmap(p_from timestamptz, p_to timestamptz, p_path text, p_min_w integer, p_max_w integer, p_limit integer)
@@ -566,7 +614,10 @@ language sql stable as $$
   order by created_at desc
   limit p_limit;
 $$;
+revoke all on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) from public, anon, authenticated;
+grant execute on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) to service_role;
 
+-- @part function analytics_scroll_reach
 -- How far down one page visitors scrolled: the share of page views that reached each 10%.
 create or replace function public.analytics_scroll_reach(p_from timestamptz, p_to timestamptz, p_path text, p_min_w integer, p_max_w integer)
 returns table (pct integer, views bigint, total bigint)
@@ -579,7 +630,10 @@ language sql stable as $$
   select g.pct, (select count(*) from l where scroll_pct >= g.pct), (select count(*) from l)
   from generate_series(0, 100, 10) as g(pct);
 $$;
+revoke all on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) from public, anon, authenticated;
+grant execute on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) to service_role;
 
+-- @part function analytics_flow
 -- The flow diagram: page by page through visits. Each step's most visited pages are shown and the
 -- rest grouped as "Other pages"; visits that end are "Left the website".
 create or replace function public.analytics_flow(p_from timestamptz, p_to timestamptz, p_steps integer, p_nodes integer)
@@ -607,18 +661,8 @@ language sql stable as $$
   group by 1, 2, 3
   order by 1, 4 desc;
 $$;
-
-revoke all on function public.analytics_matches(public.analytics_events, jsonb) from public, anon, authenticated;
-revoke all on function public.analytics_funnel(timestamptz, timestamptz, jsonb) from public, anon, authenticated;
-revoke all on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) from public, anon, authenticated;
-revoke all on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) from public, anon, authenticated;
-revoke all on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) from public, anon, authenticated;
 revoke all on function public.analytics_flow(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
-grant execute on function public.analytics_matches(public.analytics_events, jsonb) to service_role;
-grant execute on function public.analytics_funnel(timestamptz, timestamptz, jsonb) to service_role;
-grant execute on function public.analytics_goal_sources(timestamptz, timestamptz, jsonb, integer) to service_role;
-grant execute on function public.analytics_heatmap(timestamptz, timestamptz, text, integer, integer, integer) to service_role;
-grant execute on function public.analytics_scroll_reach(timestamptz, timestamptz, text, integer, integer) to service_role;
 grant execute on function public.analytics_flow(timestamptz, timestamptz, integer, integer) to service_role;
 
+-- @end
 notify pgrst, 'reload schema'; -- so the website can see the new functions straight away

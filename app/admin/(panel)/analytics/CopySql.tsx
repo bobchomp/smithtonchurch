@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function CopySql({ sql }: { sql: string }) {
+export default function CopySql({ sql, label = "Copy the setup script" }: { sql: string; label?: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="analytics-sql">
@@ -16,10 +16,10 @@ export default function CopySql({ sql }: { sql: string }) {
           });
         }}
       >
-        {copied ? "Copied" : "Copy the setup script"}
+        {copied ? "Copied" : label}
       </button>
       <details>
-        <summary>Show the script</summary>
+        <summary>Show it</summary>
         <pre>{sql}</pre>
       </details>
     </div>

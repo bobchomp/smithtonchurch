@@ -36,6 +36,11 @@
   `tableReady` must not use head requests (they report a missing table as success); `selectAll` pages past PostgREST's 1,000-row cap.
   The dashboard shows the setup panel (`app/admin/(panel)/_setup/DatabaseSetup.tsx`) to owners while tables are missing.
   Owners can download everything as JSON from `/admin/backup/`.
+  setup.sql is split into `-- @part <table|function> <name>` sections (each self-contained: table + indexes/RLS/grants, or a
+  function + its revoke/grant), ending at `-- @end` (then `notify pgrst`). Keep that shape when adding things. The setup panel
+  shows only the parts the database is missing (`lib/db-setup.ts`: `setup_status()` lists what exists; older databases are
+  probed). When the owner needs to run SQL, give them only the necessary statements, never the whole script (owner's
+  request). Changed function bodies/new columns aren't detected as missing, so hand those over in chat.
 - Limits on repeated attempts (`lib/rate-limit.ts`, table `rate_limits` + function `rate_limit_hit`): backup PIN locks for 15 min
   after 10 wrong (global), email sign-in 20/15 min per connection, reset emails 1 per address per 5 min and 5/hour per connection,
   contact form 5/hour per connection and 100 notification emails/day, analytics 300 requests/10 min per connection. Connections are
