@@ -68,6 +68,16 @@
   page) and this week's bulletin (links to /weekly-bulletin/). The home page revalidates hourly and on sermon/bulletin changes.
 - Missions: partners with a specific place have a location map (`map`/`map_place` in content/missions.yml, images in
   public/images/missions/maps/, 1000×750, made from Natural Earth data in the site's colours) shown under their photo.
+- Flipbook viewer (https://newsletter.smithtonchurch.com, docs at /llms.txt): every link that used to open a bulletin/newsletter
+  PDF goes to its own page, `/weekly-bulletin/<date>/` and `/missions/marsalis-newsletter/<YYYY-MM>/` (`documentHref`,
+  `components/DocumentViewerPage.tsx`, ISR). The page is cached, so `DocumentFlipbook` fetches a viewer link from
+  `/api/flipbook/viewer/` (looks the PDF up itself; links cached per server for ~22h) and shows it with `components/Flipbook.tsx`
+  (copied SDK). Without FLIPBOOK_API_KEY it goes straight to the PDF; on errors it offers the PDF. Document IDs:
+  `<kind>-<date>` (`documentId`). `lib/flipbook-server.ts` is the copied server SDK (server-only); `lib/flipbook.ts` wraps it.
+  Stats: `/api/flipbook/webhook/` (verifyWebhook + FLIPBOOK_WEBHOOK_SECRET) saves to `flipbook_events` by event id (duplicates
+  ignored; a failed save returns 500 so the flipbook retries); `syncFlipbookEvents` catches up from GET /api/v1/events with the
+  cursor in the `flipbook.cursor` setting, run by the sync-livestreams cron and when Analytics → Bulletins & newsletters
+  (`?view=documents`, SQL `analytics_documents`/`_document_pages`/`_document_links`) is opened. FLIPBOOK_BASE_URL is only for tests.
 - Each Sunday sermon's page links to that Sunday's bulletin (`bulletinForDate` in lib/documents.ts; weekday services get none);
   uploading or deleting a bulletin refreshes that Sunday's sermon pages.
 - Sermons record only Bible books (no chapter/verse), by the owner's choice. A sermon can have several: `books` (array,

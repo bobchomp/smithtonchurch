@@ -664,5 +664,78 @@ $$;
 revoke all on function public.analytics_flow(timestamptz, timestamptz, integer, integer) from public, anon, authenticated;
 grant execute on function public.analytics_flow(timestamptz, timestamptz, integer, integer) to service_role;
 
+-- @part table flipbook_events
+-- ---------- Bulletins & newsletters (flipbook viewer) ----------
+-- Views, page views and link clicks in the flipbook viewer (https://newsletter.smithtonchurch.com),
+-- sent to the website by webhook and caught up daily. One row per event, by the flipbook's event id.
+create table if not exists public.flipbook_events (
+  id text primary key,               -- the flipbook's event id (aevt_…)
+  sequence bigint,
+  type text not null,                -- 'view.started', 'page.viewed' or 'link.clicked'
+  occurred_at timestamptz not null,
+  view_id text,                      -- groups one visit's events
+  document_id text not null,         -- e.g. 'bulletin-2026-11-08', 'newsletter-2026-07'
+  document_title text,
+  page_number integer,
+  url text,                          -- the link clicked
+  visitor jsonb,                     -- device, browser, country, region, referrer (view.started only)
+  received_at timestamptz not null default now()
+);
+create index if not exists flipbook_events_occurred_idx on public.flipbook_events (occurred_at);
+create index if not exists flipbook_events_document_idx on public.flipbook_events (document_id, occurred_at);
+alter table public.flipbook_events enable row level security;
+revoke all on public.flipbook_events from anon, authenticated;
+grant all on public.flipbook_events to service_role;
+
+-- @part function analytics_documents
+-- Each bulletin and newsletter: views, page views, different pages read per view, and link clicks.
+create or replace function public.analytics_documents(p_from timestamptz, p_to timestamptz)
+returns table (document_id text, title text, views integer, page_views integer, pages_read integer, link_clicks integer, last_viewed timestamptz)
+language sql stable as $$
+  select e.document_id,
+    (array_agg(e.document_title order by e.occurred_at desc) filter (where e.document_title is not null))[1],
+    (count(*) filter (where e.type = 'view.started'))::int,
+    (count(*) filter (where e.type = 'page.viewed'))::int,
+    (count(distinct e.view_id || ':' || e.page_number) filter (where e.type = 'page.viewed'))::int,
+    (count(*) filter (where e.type = 'link.clicked'))::int,
+    max(e.occurred_at) filter (where e.type = 'view.started')
+  from public.flipbook_events e
+  where e.occurred_at >= p_from and e.occurred_at < p_to
+  group by e.document_id
+  order by 3 desc, 4 desc, 1 desc;
+$$;
+revoke all on function public.analytics_documents(timestamptz, timestamptz) from public, anon, authenticated;
+grant execute on function public.analytics_documents(timestamptz, timestamptz) to service_role;
+
+-- @part function analytics_document_pages
+-- For one bulletin or newsletter: how often each page was looked at, and in how many views.
+create or replace function public.analytics_document_pages(p_from timestamptz, p_to timestamptz, p_document text)
+returns table (page_number integer, page_views integer, views integer)
+language sql stable as $$
+  select e.page_number, count(*)::int, count(distinct e.view_id)::int
+  from public.flipbook_events e
+  where e.occurred_at >= p_from and e.occurred_at < p_to and e.document_id = p_document
+    and e.type = 'page.viewed' and e.page_number is not null
+  group by e.page_number
+  order by e.page_number;
+$$;
+revoke all on function public.analytics_document_pages(timestamptz, timestamptz, text) from public, anon, authenticated;
+grant execute on function public.analytics_document_pages(timestamptz, timestamptz, text) to service_role;
+
+-- @part function analytics_document_links
+-- For one bulletin or newsletter (or all of them, p_document null): the links clicked in it.
+create or replace function public.analytics_document_links(p_from timestamptz, p_to timestamptz, p_document text)
+returns table (url text, document_id text, clicks integer, views integer)
+language sql stable as $$
+  select e.url, e.document_id, count(*)::int, count(distinct e.view_id)::int
+  from public.flipbook_events e
+  where e.occurred_at >= p_from and e.occurred_at < p_to and e.type = 'link.clicked' and e.url is not null
+    and (p_document is null or e.document_id = p_document)
+  group by e.url, e.document_id
+  order by 3 desc, 1;
+$$;
+revoke all on function public.analytics_document_links(timestamptz, timestamptz, text) from public, anon, authenticated;
+grant execute on function public.analytics_document_links(timestamptz, timestamptz, text) to service_role;
+
 -- @end
 notify pgrst, 'reload schema'; -- so the website can see the new functions straight away

@@ -68,6 +68,24 @@ export const MONTH_NAMES = [
 // What the public site needs to know about each document.
 export type PublicDocument = { date: string; label: string; url: string; coverUrl?: string };
 
+// The page on this website that shows a document in the flipbook viewer (e.g. /weekly-bulletin/2026-11-08/).
+// Documents without a date (the old copies shown until the first upload) are linked straight to their PDF.
+export function documentHref(kind: DocumentKind, doc: PublicDocument): string {
+  return doc.date ? `${DOCUMENT_TYPES[kind].publicPath}/${doc.date}/` : doc.url;
+}
+
+// This website's ID for a document, as the flipbook service knows it (e.g. "bulletin-2026-11-08").
+export function documentId(kind: DocumentKind, date: string): string {
+  return `${kind}-${date}`;
+}
+
+// The kind and date in one of those IDs, if it is one.
+export function parseDocumentId(id: string): { kind: DocumentKind; date: string } | undefined {
+  const match = /^([a-z]+)-(\d{4}-\d{2}(?:-\d{2})?)$/.exec(id);
+  if (!match || !isDocumentKind(match[1]) || !isDocumentDate(match[1], match[2])) return undefined;
+  return { kind: match[1], date: match[2] };
+}
+
 // The Sunday on or before a date (YYYY-MM-DD): the weekly bulletin a day belongs to.
 export function bulletinSunday(date: string): string {
   const day = new Date(`${date}T12:00:00Z`);

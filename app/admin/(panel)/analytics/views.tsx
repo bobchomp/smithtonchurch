@@ -14,7 +14,9 @@ import type {
   VisitRow,
 } from "@/lib/analytics";
 import { describeCondition, SUGGESTED_FUNNELS, SUGGESTED_GOALS, type Funnel, type Goal, type GoalsConfig } from "@/lib/analytics-goals";
-import { SCREEN_SIZES, type FlowLink, type FunnelResult } from "@/lib/analytics";
+import { SCREEN_SIZES, type DocumentLinkRow, type DocumentPageRow, type DocumentRow, type FlowLink, type FunnelResult } from "@/lib/analytics";
+import { DOCUMENT_TYPES, parseDocumentId } from "@/lib/document-types";
+import { SITE_HOST } from "@/lib/domains";
 import DeleteButton from "../_documents/DeleteButton";
 import { addSuggestion, removeGoalOrFunnel, setTracking } from "./actions";
 import Chart from "./Chart";
@@ -693,6 +695,129 @@ export function GoalsView({ range, config, goals, funnels, sessions, chosen, sou
           <h2>Add a funnel</h2>
           <FunnelForm />
         </section>
+      </div>
+    </>
+  );
+}
+
+// ---------- Bulletins & newsletters ----------
+
+function documentName(id: string, title: string | null): string {
+  return title ?? id;
+}
+
+// The document's flipbook page on the website.
+function documentPage(id: string): string | undefined {
+  const parsed = parseDocumentId(id);
+  return parsed && `https://www.${SITE_HOST}${DOCUMENT_TYPES[parsed.kind].publicPath}/${parsed.date}/`;
+}
+
+export function DocumentsView({ range, rows, links, chosen, pages, configured, synced }: {
+  range: RangeKey;
+  rows: DocumentRow[];
+  links: DocumentLinkRow[];
+  chosen?: DocumentRow;
+  pages: DocumentPageRow[];
+  configured: boolean;
+  synced: string | null;
+}) {
+  const views = rows.reduce((n, d) => n + d.views, 0);
+  const pageViews = rows.reduce((n, d) => n + d.page_views, 0);
+  const pagesRead = rows.reduce((n, d) => n + d.pages_read, 0);
+  const clicks = rows.reduce((n, d) => n + d.link_clicks, 0);
+  const perView = (read: number, v: number) => (v ? (read / v).toFixed(1) : "–");
+  const titles = new Map(rows.map((d) => [d.document_id, documentName(d.document_id, d.title)]));
+  const linkColumns: Column<DocumentLinkRow>[] = [
+    { head: "Link", cell: (l) => <a href={l.url} target="_blank" rel="noopener noreferrer">{l.url}</a> },
+    ...(chosen ? [] : [{ head: "In", cell: (l: DocumentLinkRow) => titles.get(l.document_id) ?? l.document_id, text: true }]),
+    { head: "Clicks", cell: (l) => nf.format(l.clicks) },
+    { head: "Views", cell: (l) => nf.format(l.views) },
+  ];
+  return (
+    <>
+      {!configured && (
+        <p className="admin-error">
+          The flipbook isn’t connected yet (FLIPBOOK_API_KEY isn’t set), so bulletins and newsletters open as plain PDFs and
+          nothing is recorded here.
+        </p>
+      )}
+      <div className="analytics-stats">
+        <Stat label="Views" value={nf.format(views)} />
+        <Stat label="Page views" value={nf.format(pageViews)} />
+        <Stat label="Pages per view" value={perView(pagesRead, views)} note="different pages looked at" />
+        <Stat label="Link clicks" value={nf.format(clicks)} />
+        <Stat label="Documents read" value={nf.format(rows.filter((d) => d.views).length)} />
+      </div>
+      <p className="analytics-compare">
+        From the flipbook viewer: a view is someone opening a bulletin or newsletter, and a page view is a page shown to them.
+        Admins and people who chose “Don’t count me” are included here.
+        {synced ? ` Last caught up with the flipbook ${ukDateTime(synced)}.` : ""}
+      </p>
+      <Report
+        title="Bulletins & newsletters"
+        rows={rows}
+        range={range}
+        csv="documents"
+        bar={(d) => d.views}
+        rowKey={(d) => d.document_id}
+        wide
+        empty="Nobody has opened a bulletin or newsletter in the flipbook in this period."
+        columns={[
+          {
+            head: "Document",
+            cell: (d) => (
+              <>
+                <Link href={analyticsHref("documents", range, { doc: d.document_id })}>{documentName(d.document_id, d.title)}</Link>
+                {documentPage(d.document_id) && (
+                  <span className="analytics-sub">
+                    <a href={documentPage(d.document_id)} target="_blank" rel="noopener noreferrer">Open its page</a>
+                  </span>
+                )}
+              </>
+            ),
+          },
+          { head: "Views", cell: (d) => nf.format(d.views) },
+          { head: "Page views", cell: (d) => nf.format(d.page_views) },
+          { head: "Pages per view", cell: (d) => perView(d.pages_read, d.views) },
+          { head: "Link clicks", cell: (d) => nf.format(d.link_clicks) },
+          { head: "Last opened", cell: (d) => (d.last_viewed ? ukDateTime(d.last_viewed) : "–"), text: true },
+        ]}
+      />
+      {chosen && (
+        <h2 className="analytics-section-title" id="document">
+          {documentName(chosen.document_id, chosen.title)}{" "}
+          <Link className="analytics-csv" href={analyticsHref("documents", range)}>Show all</Link>
+        </h2>
+      )}
+      <div className={chosen ? "analytics-grid" : undefined}>
+        {chosen && (
+          <Report
+            title="Pages looked at"
+            rows={pages}
+            range={range}
+            bar={(p) => p.views}
+            rowKey={(p) => String(p.page_number)}
+            empty="No pages recorded in this period."
+            note="How many of the views reached each page. Later pages usually get fewer."
+            columns={[
+              { head: "Page", cell: (p) => `Page ${p.page_number}` },
+              { head: "Views", cell: (p) => nf.format(p.views) },
+              { head: "Share of views", cell: (p) => percent(p.views, chosen.views) },
+              { head: "Times shown", cell: (p) => nf.format(p.page_views) },
+            ]}
+          />
+        )}
+        <Report
+          title={chosen ? "Links clicked in it" : "Links clicked"}
+          rows={links}
+          range={range}
+          csv={chosen ? undefined : "document-links"}
+          bar={(l) => l.clicks}
+          rowKey={(l) => `${l.document_id} ${l.url}`}
+          wide={!chosen}
+          empty="No links clicked in this period."
+          columns={linkColumns}
+        />
       </div>
     </>
   );

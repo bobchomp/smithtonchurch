@@ -4,6 +4,9 @@ import { requireTool } from "@/lib/admin-auth";
 import {
   analyticsSettings,
   breakdown,
+  documentLinks,
+  documentPages,
+  documentViews,
   clickKinds,
   clicks,
   flow,
@@ -36,7 +39,9 @@ import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import DatabaseSetup from "../_setup/DatabaseSetup";
 import { analyticsHref, VIEWS, type ViewKey } from "./parts";
 import { RANGES, rangeFor, type RangeKey } from "./ranges";
-import { ClicksView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
+import { flipbookIsConfigured, syncFlipbookEvents } from "@/lib/flipbook";
+import { getSetting } from "@/lib/db";
+import { ClicksView, DocumentsView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -48,7 +53,7 @@ function Setup({ error }: { error?: unknown }) {
   );
 }
 
-type Params = { range?: string; view?: string; page?: string; older?: string; size?: string; goal?: string };
+type Params = { range?: string; view?: string; page?: string; older?: string; size?: string; goal?: string; doc?: string };
 
 export default async function AnalyticsPage({ searchParams }: { searchParams: Promise<Params> }) {
   const me = await requireTool("analytics");
@@ -152,6 +157,16 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     } else if (view === "sermons") {
       const [totals, rows] = await Promise.all([sermonTotals(current), sermonPlays(current, 100)]);
       body = <SermonsView range={key} totals={totals} rows={rows} />;
+    } else if (view === "documents") {
+      // Fetch anything the webhook missed (at most every 5 minutes).
+      await syncFlipbookEvents({ minGapSeconds: 300 }).catch((error) => console.error("Flipbook catch-up failed", error));
+      const [rows, cursor] = await Promise.all([documentViews(current), getSetting<{ at?: string }>("flipbook.cursor").catch(() => undefined)]);
+      const chosen = rows.find((d) => d.document_id === params.doc);
+      const [docPages, links] = await Promise.all([
+        chosen ? documentPages(current, chosen.document_id) : Promise.resolve([]),
+        documentLinks(current, chosen?.document_id ?? null),
+      ]);
+      body = <DocumentsView range={key} rows={rows} links={links} chosen={chosen} pages={docPages} configured={flipbookIsConfigured()} synced={cursor?.at ?? null} />;
     } else if (view === "searches") {
       const [terms, filters] = await Promise.all([searches(current, 1000), searchFilters(current, 50)]);
       body = <SearchesView range={key} terms={terms} filters={filters} />;

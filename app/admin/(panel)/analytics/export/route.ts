@@ -4,6 +4,8 @@ import {
   allEvents,
   breakdown,
   clicks,
+  documentLinks,
+  documentViews,
   journeys,
   notFound,
   pages,
@@ -51,6 +53,8 @@ async function report(name: string, r: Range): Promise<Rows | undefined> {
     case "searches": return searches(r, BIG);
     case "filters": return searchFilters(r, BIG);
     case "missing": return notFound(r, BIG);
+    case "documents": return documentViews(r);
+    case "document-links": return documentLinks(r, null);
     case "clicks-download": return clicks(r, "download", BIG);
     case "clicks-outbound": return clicks(r, "outbound", BIG);
     case "clicks-internal": return clicks(r, "internal", BIG);

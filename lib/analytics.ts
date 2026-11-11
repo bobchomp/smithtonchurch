@@ -169,6 +169,36 @@ export async function sermonTotals(r: Range): Promise<SermonPlays> {
   return plays(row ?? {});
 }
 
+// ---------- Bulletins & newsletters (flipbook viewer stats, from the flipbook_events table) ----------
+
+export type DocumentRow = { document_id: string; title: string | null; views: number; page_views: number; pages_read: number; link_clicks: number; last_viewed: string | null };
+export type DocumentPageRow = { page_number: number; page_views: number; views: number };
+export type DocumentLinkRow = { url: string; document_id: string; clicks: number; views: number };
+
+export async function documentViews(r: Range): Promise<DocumentRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_documents", span(r));
+  return rows.map((x) => ({
+    document_id: String(x.document_id),
+    title: str(x.title),
+    views: Number(x.views ?? 0),
+    page_views: Number(x.page_views ?? 0),
+    pages_read: Number(x.pages_read ?? 0),
+    link_clicks: Number(x.link_clicks ?? 0),
+    last_viewed: str(x.last_viewed),
+  }));
+}
+
+export async function documentPages(r: Range, documentId: string): Promise<DocumentPageRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_document_pages", { ...span(r), p_document: documentId });
+  return rows.map((x) => ({ page_number: Number(x.page_number), page_views: Number(x.page_views ?? 0), views: Number(x.views ?? 0) }));
+}
+
+// Links clicked in one document, or in all of them (documentId null).
+export async function documentLinks(r: Range, documentId: string | null): Promise<DocumentLinkRow[]> {
+  const rows = await rpc<Record<string, unknown>>("analytics_document_links", { ...span(r), p_document: documentId });
+  return rows.map((x) => ({ url: String(x.url), document_id: String(x.document_id), clicks: Number(x.clicks ?? 0), views: Number(x.views ?? 0) }));
+}
+
 export type SearchRow = { term: string; searches: number; visitors: number; avg_results: number | null; no_results: number };
 
 export async function searches(r: Range, limit = 50): Promise<SearchRow[]> {
@@ -317,6 +347,9 @@ const REPORT_FUNCTIONS: { fn: string; tab: string; args: (r: Range) => Record<st
   { fn: "analytics_searches", tab: "Searches", args: (r) => ({ ...span(r), p_limit: 1 }) },
   { fn: "analytics_search_filters", tab: "Searches", args: (r) => ({ ...span(r), p_limit: 1 }) },
   { fn: "analytics_not_found", tab: "Missing pages", args: (r) => ({ ...span(r), p_limit: 1 }) },
+  { fn: "analytics_documents", tab: "Bulletins & newsletters", args: span },
+  { fn: "analytics_document_pages", tab: "Bulletins & newsletters", args: (r) => ({ ...span(r), p_document: "" }) },
+  { fn: "analytics_document_links", tab: "Bulletins & newsletters", args: (r) => ({ ...span(r), p_document: "" }) },
 ];
 
 // The report functions the database doesn't have yet, and the tabs they're for.

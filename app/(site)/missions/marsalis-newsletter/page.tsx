@@ -31,7 +31,7 @@ export default function MarsalisNewsletter() {
             </p>
           </>
         }
-        readLabel="Read the newsletter (PDF)"
+        readLabel="Read the newsletter"
       />
     </>
   );

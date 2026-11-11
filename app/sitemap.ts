@@ -1,8 +1,10 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/lib/content";
+import { documentHref } from "@/lib/document-types";
+import { getPublicDocuments } from "@/lib/documents";
 import { getPublicSermons } from "@/lib/sermons";
 
-// /sitemap.xml: every public page, including each sermon. Rebuilt hourly so new sermons appear.
+// /sitemap.xml: every public page, including each sermon, bulletin and newsletter. Rebuilt hourly so new sermons appear.
 export const revalidate = 3600;
 
 const pages = [
@@ -22,9 +24,19 @@ const pages = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const sermons = await getPublicSermons();
+  const [sermons, bulletins, newsletters] = await Promise.all([
+    getPublicSermons(),
+    getPublicDocuments("bulletin"),
+    getPublicDocuments("newsletter"),
+  ]);
+  // Each bulletin's and newsletter's flipbook page.
+  const documents = [
+    ...bulletins.archive.map((d) => documentHref("bulletin", d)),
+    ...newsletters.archive.map((d) => documentHref("newsletter", d)),
+  ];
   return [
     ...pages.map((page) => ({ url: `${site.url}/${page ? `${page}/` : ""}` })),
     ...sermons.map((s) => ({ url: `${site.url}${s.path}`, lastModified: s.date })),
+    ...documents.map((path) => ({ url: `${site.url}${path}` })),
   ];
 }

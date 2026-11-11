@@ -9,7 +9,7 @@ import { supabaseAdmin, withTimeout } from "./supabase";
 
 // rate_limits (lib/rate-limit.ts) and activity_log (lib/activity.ts) are listed so the dashboard asks for the
 // setup script until they exist.
-export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings", "rate_limits", "activity_log"] as const;
+export const CONTENT_TABLES = ["sermons", "live_notices", "contact_messages", "site_settings", "rate_limits", "activity_log", "flipbook_events"] as const;
 export type ContentTable = (typeof CONTENT_TABLES)[number];
 
 export function db() {

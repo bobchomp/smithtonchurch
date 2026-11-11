@@ -1203,3 +1203,18 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
   .activity-list li { grid-template-columns: 3rem minmax(0, 1fr); }
   .activity-area { grid-column: 2; justify-self: start; }
 }
+
+/* Bulletin / newsletter flipbook pages (components/DocumentViewerPage.tsx) */
+.document-viewer-section { padding-top: 2rem; }
+.document-viewer-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem 1.5rem; margin-bottom: 1rem; }
+.document-viewer-head h2 { margin: 0; }
+.document-viewer-back { font-weight: 600; }
+.document-viewer { height: min(85vh, 1100px); min-height: 480px; background: #0f2044; border-radius: 10px; overflow: hidden; }
+.document-viewer iframe { height: 100%; }
+.document-viewer-message { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 1.5rem; text-align: center; color: #fff; }
+.document-viewer-message p { margin: 0 0 0.5rem; }
+.document-viewer-pdf { margin: 0.9rem 0 0; color: var(--muted); font-size: 0.95rem; }
+@media (max-width: 600px) {
+  .document-viewer { height: 78vh; min-height: 420px; border-radius: 6px; }
+}
+.analytics-section-title { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 2rem 0 1rem; font-size: 1.25rem; }

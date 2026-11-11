@@ -11,6 +11,7 @@ export const VIEWS = [
   { key: "goals", label: "Goals & funnels" },
   { key: "clicks", label: "Clicks & downloads" },
   { key: "sermons", label: "Sermons" },
+  { key: "documents", label: "Bulletins & newsletters" },
   { key: "searches", label: "Searches" },
   { key: "missing", label: "Missing pages" },
 ] as const;

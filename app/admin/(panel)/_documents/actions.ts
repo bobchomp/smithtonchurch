@@ -17,6 +17,7 @@ const TOOL: Record<DocumentKind, AdminTool> = { bulletin: "bulletin", newsletter
 async function refreshPages(kind: DocumentKind, date?: string) {
   revalidatePath(DOCUMENT_TYPES[kind].publicPath);
   revalidatePath(DOCUMENT_TYPES[kind].adminPath);
+  if (date) revalidatePath(`${DOCUMENT_TYPES[kind].publicPath}/${date}`); // its flipbook page
   if (kind === "bulletin") {
     revalidatePath("/live");
     revalidatePath("/"); // the home page shows this week's bulletin

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { DOCUMENT_TYPES, type DocumentKind } from "@/lib/document-types";
+import { DOCUMENT_TYPES, documentHref, type DocumentKind } from "@/lib/document-types";
 import { getPublicDocuments } from "@/lib/documents";
 import DocumentCard from "./DocumentCard";
 import DocumentFinder from "./DocumentFinder";
@@ -25,7 +25,7 @@ export default async function DocumentShowcase({
     <>
       <section className="section">
         <div className="container narrow bulletin">
-          <a className="bulletin-cover" href={current.url}>
+          <a className="bulletin-cover" href={documentHref(kind, current)}>
             {current.coverUrl ? (
               // A picture of the document's first page, made when it was uploaded.
               <Image src={current.coverUrl} alt={`Front page of the ${singular} for ${current.label}`} width={700} height={990} unoptimized />
@@ -38,7 +38,7 @@ export default async function DocumentShowcase({
             <h2>{current.label}</h2>
             {intro}
             <p>
-              <a className="button" href={current.url}>{readLabel}</a>
+              <a className="button" href={documentHref(kind, current)}>{readLabel}</a>
             </p>
           </div>
         </div>

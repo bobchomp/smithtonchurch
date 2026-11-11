@@ -1,11 +1,14 @@
 import type { NextConfig } from "next";
 import { ADMIN_HOST, HIDE_FROM_SEARCH_ENGINES } from "./lib/domains";
 
+const FLIPBOOK_ORIGIN = "https://newsletter.smithtonchurch.com"; // see lib/flipbook.ts
+
 const nextConfig: NextConfig = {
   // Files read at run time: the analytics setup script (shown in Admin → Analytics) and the holding slides.
   outputFileTracingIncludes: {
     "/admin/analytics": ["./supabase/setup.sql"],
     "/admin": ["./supabase/setup.sql"],
+    "/admin/activity": ["./supabase/setup.sql"],
     // The holding slides (not public: served to signed-in admins by this route).
     "/admin/holding-slides/file/[...path]": ["./holding-slides/**/*"],
   },
@@ -24,7 +27,11 @@ const nextConfig: NextConfig = {
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
     ];
     const noindex = { key: "X-Robots-Tag", value: "noindex, nofollow" };
-    return [{ source: "/:path*", headers: HIDE_FROM_SEARCH_ENGINES ? [...security, noindex] : security }];
+    return [
+      { source: "/:path*", headers: HIDE_FROM_SEARCH_ENGINES ? [...security, noindex] : security },
+      // The flipbook viewer fetches PDFs in the visitor's browser, including the old copies kept here.
+      { source: "/docs/:path*", headers: [{ key: "Access-Control-Allow-Origin", value: FLIPBOOK_ORIGIN }] },
+    ];
   },
   // Old addresses that have moved, so existing links and search results still work.
   async redirects() {

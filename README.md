@@ -229,6 +229,24 @@ its title (when the title names one, e.g. "Psalm 124").
 The channel is taken from the YouTube link in `content/site.yml`. A full check uses about
 1 unit for every 50 videos of YouTube's free allowance of 10,000 units a day.
 
+### Flipbook viewer for bulletins and newsletters
+
+Bulletins and Marsali's newsletter open on their own page (e.g. `/weekly-bulletin/2026-11-08/`)
+in the flipbook viewer from [newsletter.smithtonchurch.com](https://newsletter.smithtonchurch.com),
+which reports views, page views and link clicks back to **Admin → Analytics → Bulletins &
+newsletters**. Until it's set up, those pages go straight to the PDF as before.
+
+1. On newsletter.smithtonchurch.com, open this site's project under **Developers**. Add the website
+   addresses `https://www.rossmdev.co.uk`, `https://rossmdev.co.uk`, `https://smithtonchurch.com` and
+   `https://www.smithtonchurch.com`, and create a secret API key (`fbsk_…`).
+2. Set the webhook URL to `https://www.rossmdev.co.uk/api/flipbook/webhook/` (with the slash at the
+   end; change to `https://www.smithtonchurch.com/...` at launch) and copy the signing secret (`whsec_…`).
+3. In Vercel, add `FLIPBOOK_API_KEY` and `FLIPBOOK_WEBHOOK_SECRET`, then redeploy.
+4. Run the new part of the database setup (the admin dashboard shows it).
+
+Anything the webhook misses is fetched by the daily cron-job.org check (above) and whenever the
+report is opened. The PDFs are in Supabase Storage, which already lets the viewer fetch them.
+
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):

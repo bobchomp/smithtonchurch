@@ -19,7 +19,7 @@ export default function WeeklyBulletin() {
         kind="bulletin"
         eyebrow="This week’s bulletin"
         intro={<p>Catch up on the news, notices and prayer points for the week ahead.</p>}
-        readLabel="Read the bulletin (PDF)"
+        readLabel="Read the bulletin"
       />
     </>
   );
