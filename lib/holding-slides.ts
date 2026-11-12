@@ -87,6 +87,19 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
       },
     ],
   },
+  {
+    key: "background",
+    title: "Background only",
+    use: "Whenever a plain slide is needed: the drone photo with the blue tint, with no words or logo",
+    revisions: [
+      {
+        version: 1,
+        date: "2026-11-12T12:00",
+        changes: "First version: the same tinted drone photo as the other slides, with nothing on top.",
+        files: [{ file: "v1" }],
+      },
+    ],
+  },
 ];
 
 // Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's

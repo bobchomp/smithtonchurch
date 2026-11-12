@@ -39,6 +39,7 @@ const jobs = [
   ['thank-you-morning/v2', photo({ title: M[0], sub: M[1], raised: true, balance: true })],
   ['thank-you-evening/v1', photo({ title: E[0], sub: E[1], balance: true })],
   ['thank-you-evening/v2', photo({ title: E[0], sub: E[1], raised: true, balance: true })],
+  ['background/v1', `<div style="position:fixed;inset:0;width:1920px;height:1080px;overflow:hidden;${PHOTO}"></div>`],
   ['thank-you-evening-sunday/v1', photo({ title: E[0], sub: 'Join us on Sunday at 10:30 and 17:30', raised: true, balance: true })],
 ];
 (async () => {
