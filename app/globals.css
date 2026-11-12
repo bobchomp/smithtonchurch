@@ -1088,6 +1088,11 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .slides-version { margin: 0; font-weight: 600; }
 .slides-revisions .slides-changes { margin-top: 0.3rem; color: var(--muted); }
 .slides-download { font-size: 0.88rem; }
+.slides-copy { background: none; border: 0; padding: 0; font: inherit; font-size: 0.88rem; font-weight: 600; color: var(--blue); text-decoration: underline; cursor: pointer; }
+.slides-images-large .button-outline { border-radius: 999px; padding: 0.5rem 1.2rem; }
+.slides-images .button-outline, .slides-video-actions .button-outline { background: transparent; color: var(--blue); }
+.slides-images .button-outline:hover, .slides-video-actions .button-outline:hover { background: var(--blue); color: #fff; }
+.slides-link-text { flex-basis: 100%; font: inherit; font-weight: 400; font-size: 0.85rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 6px; min-width: 0; }
 @media (max-width: 700px) { .slides-revisions li { grid-template-columns: minmax(0, 1fr); } }
 
 /* Admin → Branding */

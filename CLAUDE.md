@@ -130,6 +130,8 @@
   `lib/holding-slides.ts`; images in `holding-slides/<slide>/<file>.png|.jpg` (not public, served by
   `app/admin/(panel)/holding-slides/file/[...path]/route.ts` behind requireTool). Made with `scripts/render-holding-slides.cjs`;
   add new revisions there and at the end of the slide's `revisions`.
+  "Copy link" (`CopyLink.tsx`) copies a public, unlisted address for each PNG, `/holding-slides/<PUBLIC_SLIDES_KEY>/<slide>/<file>.png`
+  (`app/holding-slides/[key]/[...path]/route.ts`, owner's choice: anyone with the link), and for videos their public file.
   Videos (`HOLDING_VIDEOS`) live in `public/holding-videos/` (too big for the route; proxy.ts skips that folder), e.g. the
   15-minute "service will start shortly" verses video: NIV (Anglicised) verses in `content/holding-video-verses-v<N>.json`, made with
   `scripts/holding-video/` (see its README). Keep video files well under GitHub's 100 MB limit.

@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element -- the images are served to signed-in admins only, so not through next/image */
 import type { Metadata } from "next";
 import { requireTool } from "@/lib/admin-auth";
-import { HOLDING_SLIDES, HOLDING_VIDEOS, slideFileUrl, type HoldingSlide, type SlideRevision } from "@/lib/holding-slides";
+import { HOLDING_SLIDES, HOLDING_VIDEOS, publicSlidePath, slideFileUrl, type HoldingSlide, type SlideRevision } from "@/lib/holding-slides";
+import CopyLink from "./CopyLink";
 
 export const metadata: Metadata = { title: "Holding Slides" };
 
@@ -25,6 +26,7 @@ function Images({ slide, revision, size }: { slide: HoldingSlide; revision: Slid
             <a className={size === "large" ? "button" : "slides-download"} href={`${slideFileUrl(slide.key, f.file, "png")}?download=1`} download>
               Download PNG
             </a>
+            <CopyLink path={publicSlidePath(slide.key, f.file)} className={size === "large" ? "button button-outline" : "slides-download slides-copy"} />
           </figcaption>
         </figure>
       ))}
@@ -55,7 +57,8 @@ export default async function HoldingSlides() {
       <h1>Holding Slides</h1>
       <p className="admin-intro">
         The slides shown in the live stream player before and after services, with every earlier version. Each is
-        1920×1080; download the PNG to use it in the streaming software, or click a picture to see it full size.
+        1920×1080; download the PNG to use it in the streaming software, or copy its link (anyone with the link can open
+        it), or click a picture to see it full size.
       </p>
       <div className="slides-list">
         {HOLDING_VIDEOS.map((video) => {
@@ -72,7 +75,8 @@ export default async function HoldingSlides() {
                 <source src={current.file} type="video/mp4" />
               </video>
               <p className="slides-video-actions">
-                <a className="button" href={current.file} download>Download MP4</a>
+                <a className="button" href={current.file} download>Download MP4</a>{" "}
+                <CopyLink path={current.file} className="button button-outline" />
               </p>
               <p className="slides-changes">
                 <strong>{when(current.date)}:</strong> {current.changes}
@@ -96,6 +100,7 @@ export default async function HoldingSlides() {
                             </a>
                             <figcaption>
                               <a className="slides-download" href={r.file} download>Download MP4</a>
+                              <CopyLink path={r.file} className="slides-download slides-copy" />
                             </figcaption>
                           </figure>
                         </div>

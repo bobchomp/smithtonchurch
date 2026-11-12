@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     "/admin/activity": ["./supabase/setup.sql"],
     // The holding slides (not public: served to signed-in admins by this route).
     "/admin/holding-slides/file/[...path]": ["./holding-slides/**/*"],
+    // Their public, unlisted copies (the "Copy link" buttons).
+    "/holding-slides/[key]/[...path]": ["./holding-slides/**/*"],
   },
   // Keep the trailing slash so page addresses match the old WordPress site (e.g. /about-us/).
   trailingSlash: true,

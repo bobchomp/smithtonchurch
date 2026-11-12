@@ -146,3 +146,8 @@ export const HOLDING_VIDEOS: HoldingVideo[] = [
 ];
 
 export const slideFileUrl = (slide: string, file: string, kind: "png" | "jpg") => `/admin/holding-slides/file/${slide}/${file}.${kind}`;
+
+// Public, unlisted addresses for the slides ("Copy link" in Admin → Holding Slides), for streaming software
+// and sharing. The random part keeps them from being guessed; app/holding-slides/[key]/[...path]/route.ts serves them.
+export const PUBLIC_SLIDES_KEY = "cyklmmvxtx2m";
+export const publicSlidePath = (slide: string, file: string) => `/holding-slides/${PUBLIC_SLIDES_KEY}/${slide}/${file}.png`;
