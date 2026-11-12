@@ -70,7 +70,8 @@
   public/images/missions/maps/, 1000×750, made from Natural Earth data in the site's colours) shown under their photo.
 - Flipbook viewer (https://newsletter.smithtonchurch.com, docs at /llms.txt): every link that used to open a bulletin/newsletter
   PDF goes to its own page, `/weekly-bulletin/<date>/` and `/missions/marsalis-newsletter/<YYYY-MM>/` (`documentHref`,
-  `components/DocumentViewerPage.tsx`, ISR). The page is cached, so `DocumentFlipbook` fetches a viewer link from
+  `components/DocumentViewerPage.tsx`, ISR; no banner/heading, the viewer fills the window below the sticky header, height from
+  `--site-header-h` measured in DocumentFlipbook). The page is cached, so `DocumentFlipbook` fetches a viewer link from
   `/api/flipbook/viewer/` (looks the PDF up itself; links cached per server for ~22h) and shows it with `components/Flipbook.tsx`
   (copied SDK). Without FLIPBOOK_API_KEY it goes straight to the PDF; on errors it offers the PDF. Document IDs:
   `<kind>-<date>` (`documentId`). `lib/flipbook-server.ts` is the copied server SDK (server-only); `lib/flipbook.ts` wraps it.

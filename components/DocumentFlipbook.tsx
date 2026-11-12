@@ -30,27 +30,31 @@ export default function DocumentFlipbook({ kind, date, pdfUrl, title, singular }
     };
   }, [kind, date, pdfUrl]);
 
+  // The viewer fills the window below the header, whose height changes with the screen width.
+  useEffect(() => {
+    const header = document.querySelector<HTMLElement>(".site-header");
+    if (!header) return;
+    const update = () => document.documentElement.style.setProperty("--site-header-h", `${header.offsetHeight}px`);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <>
-      <div className="document-viewer" aria-busy={!state.url && !state.failed}>
-        {state.url ? (
-          <Flipbook url={state.url} title={title} height="100%" />
-        ) : state.failed ? (
-          <div className="document-viewer-message">
-            <p>The {singular} can’t be shown here just now.</p>
-            <a className="button" href={pdfUrl}>Open the {singular} (PDF)</a>
-          </div>
-        ) : (
-          <div className="document-viewer-message">
-            <p>Opening the {singular}…</p>
-          </div>
-        )}
-      </div>
-      {!state.failed && (
-        <p className="document-viewer-pdf">
-          Prefer the PDF? <a href={pdfUrl}>Open the {singular} as a PDF</a>.
-        </p>
+    <div className="document-viewer" aria-busy={!state.url && !state.failed}>
+      {state.url ? (
+        <Flipbook url={state.url} title={title} height="100%" />
+      ) : state.failed ? (
+        <div className="document-viewer-message">
+          <p>The {singular} can’t be shown here just now.</p>
+          <a className="button" href={pdfUrl}>Open the {singular} (PDF)</a>
+        </div>
+      ) : (
+        <div className="document-viewer-message">
+          <p>Opening the {singular}…</p>
+        </div>
       )}
-    </>
+    </div>
   );
 }
