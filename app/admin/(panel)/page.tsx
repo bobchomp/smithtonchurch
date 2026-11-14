@@ -188,6 +188,14 @@ export default async function AdminDashboard({
           </Link>
         )}
         {me.role === "owner" && (
+          <Link className="admin-tool" href="/admin/claude-skills/">
+            <h2>Claude Skills</h2>
+            <p>
+              The useful commands for the Claude Code skills used on this website.
+            </p>
+          </Link>
+        )}
+        {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/user-permissions/">
             <h2>User Permissions</h2>
             <p>

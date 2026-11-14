@@ -137,6 +137,8 @@
   `scripts/holding-video/` (see its README). Keep video files well under GitHub's 100 MB limit.
 - Admin → Branding (tool "branding", `app/admin/(panel)/branding/`): logos, colours (keep in step with :root in globals.css),
   fonts, tagline, buttons, photos and the Free Church logos we use, with downloads.
+- Admin → Claude Skills (owners only, `app/admin/(panel)/claude-skills/`): the useful commands and install commands for the
+  Claude Code skills used on this project (Humanizer, marketingskills, mattpocock-skills), listed in `skills.ts`; keep it current.
 - Activity log (Admin → Activity Log, tool "activity-log", `app/admin/(panel)/activity/`, CSV at `activity/export/`): table
   `activity_log` (+ `activity_actors()`), written by `logActivity({ area, action, target?, details? }, actor?)` in lib/activity.ts
   (never throws; skipped while the table is missing). Call it from every new server action/route that changes something;

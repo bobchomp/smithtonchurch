@@ -1216,3 +1216,24 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .document-viewer-message { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 1.5rem; text-align: center; color: #fff; }
 .document-viewer-message p { margin: 0 0 0.5rem; }
 .analytics-section-title { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; margin: 2rem 0 1rem; font-size: 1.25rem; }
+
+/* Admin → Claude Skills (owners) */
+.skills-list { display: grid; gap: 1.5rem; }
+.skills-pack h2 { margin-bottom: 0.25rem; }
+.skills-about { margin: 0 0 0.75rem; }
+.skills-install { margin-bottom: 1rem; }
+.skills-install summary { cursor: pointer; font-weight: 600; color: var(--blue); }
+.skills-install ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.4rem; }
+.skills-install .brand-copy, .skills-table .brand-copy { white-space: normal; overflow-wrap: anywhere; text-align: left; }
+.skills-group h3 { font-size: 1rem; margin: 1.25rem 0 0.4rem; }
+.skills-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.skills-table th { text-align: left; font: 600 0.72rem var(--font-head); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 0 0.75rem 0.4rem 0; }
+.skills-table td { padding: 0.55rem 0.75rem 0.55rem 0; border-top: 1px solid var(--border); vertical-align: top; }
+.skills-table td:first-child { width: 34%; }
+.skills-skip { margin: 1rem 0 0; font-size: 0.9rem; }
+@media (max-width: 640px) {
+  .skills-table thead { display: none; }
+  .skills-table tr, .skills-table td { display: block; width: auto; }
+  .skills-table td:first-child { width: auto; padding-bottom: 0.15rem; }
+  .skills-table td + td { border-top: 0; padding-top: 0; }
+}
