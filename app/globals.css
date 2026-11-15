@@ -638,6 +638,14 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 .venue-intro img { border-radius: var(--radius); box-shadow: var(--shadow); }
 .feature-row { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
 .feature-row h2 { font-size: 1.4rem; }
+/* Side by side, each column's heading, line of text and photos share rows, so the photos line up. */
+@supports (grid-template-rows: subgrid) {
+  @media (min-width: 801px) {
+    .feature-row { row-gap: 0; }
+    .feature-row > div { display: grid; grid-row: span 3; grid-template-rows: subgrid; align-content: start; }
+    .feature-row > div > * { margin-top: 0; }
+  }
+}
 .photo-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
 .photo-strip img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; }
 @media (max-width: 800px) {

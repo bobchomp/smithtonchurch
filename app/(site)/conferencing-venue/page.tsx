@@ -70,6 +70,7 @@ export default function ConferencingVenue() {
         <div className="container feature-row">
           <div>
             <h2>Audio, visual and live stream facilities</h2>
+            <p>Cameras, digital sound and live streaming for your event.</p>
             <PhotoStrip photos={avPhotos} />
           </div>
           <div>
