@@ -136,6 +136,15 @@ export default function PrivacyNotice() {
             </a>
             .
           </li>
+          <li>
+            <strong>Bulletins and newsletters</strong>: the weekly bulletin and Marsali’s newsletter open in a
+            page-turning viewer at newsletter.smithtonchurch.com, which is run for the church by our website developer.
+            It records when a bulletin or newsletter is opened, which pages are looked at and which links in it are
+            pressed, along with the type of device and browser, the approximate country and region, and the website that
+            brought you to it. It doesn’t record your name and doesn’t set cookies. The viewer keeps these records for 30
+            days and sends them to us, and we keep them with our website statistics. If you’ve chosen not to be counted
+            (see above), bulletins and newsletters open as a plain PDF instead, and nothing is recorded.
+          </li>
         </ul>
         <p>
           Links to other websites, such as ChurchSuite, our online giving page and the Free Church of Scotland, are

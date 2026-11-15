@@ -73,7 +73,8 @@
   `components/DocumentViewerPage.tsx`, ISR; no banner/heading, the viewer fills the window below the sticky header, height from
   `--site-header-h` measured in DocumentFlipbook). The page is cached, so `DocumentFlipbook` fetches a viewer link from
   `/api/flipbook/viewer/` (looks the PDF up itself; links cached per server for ~22h) and shows it with `components/Flipbook.tsx`
-  (copied SDK). Without FLIPBOOK_API_KEY it goes straight to the PDF; on errors it offers the PDF. Document IDs:
+  (copied SDK). Without FLIPBOOK_API_KEY, or for visitors who chose "Don't count me" (sc_consent=no), it goes straight to the
+  PDF; on errors it offers the PDF. The privacy policy describes the viewer (run by the owner). Document IDs:
   `<kind>-<date>` (`documentId`). `lib/flipbook-server.ts` is the copied server SDK (server-only); `lib/flipbook.ts` wraps it.
   Stats: `/api/flipbook/webhook/` (verifyWebhook + FLIPBOOK_WEBHOOK_SECRET) saves to `flipbook_events` by event id (duplicates
   ignored; a failed save returns 500 so the flipbook retries); `syncFlipbookEvents` catches up from GET /api/v1/events with the

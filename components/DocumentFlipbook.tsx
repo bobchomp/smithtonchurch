@@ -16,6 +16,11 @@ export default function DocumentFlipbook({ kind, date, pdfUrl, title, singular }
   const [state, setState] = useState<{ url?: string; failed?: boolean }>({});
 
   useEffect(() => {
+    // Someone who chose "Don't count me" (privacy page) gets the plain PDF: the flipbook records views.
+    if (/(?:^|;\s*)sc_consent=no(?:;|$)/.test(document.cookie)) {
+      window.location.replace(pdfUrl);
+      return;
+    }
     let cancelled = false;
     fetch(`/api/flipbook/viewer/?${new URLSearchParams({ kind, date })}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
