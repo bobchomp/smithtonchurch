@@ -8,7 +8,7 @@ import ExternalIcon from "@/components/ExternalIcon";
 export const metadata: Metadata = pageMetadata("/giving/", {
   title: "Giving",
   description:
-    "Ways to give to the ministry of Smithton Church, Inverness – online, by bank transfer, card, cheque or phone.",
+    "Ways to give to Smithton Church, Inverness: online, by bank transfer, card, cheque or phone.",
 });
 
 export default function Giving() {

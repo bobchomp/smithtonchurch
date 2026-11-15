@@ -8,7 +8,7 @@ import { slugify, whatsOn } from "@/lib/content";
 export const metadata: Metadata = pageMetadata("/community/", {
   title: "What's On",
   description:
-    "Groups and activities at Smithton Church, Inverness, through the week – from toddler groups and kids' club to Bible studies, community food night and more.",
+    "Groups and activities at Smithton Church, Inverness, through the week, from toddler groups and Kids' Club to Bible studies and Community Food Night.",
 });
 
 export default function WhatsOn() {

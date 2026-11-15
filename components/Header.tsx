@@ -44,7 +44,7 @@ export default function Header({ navigation, churchsuiteLink }: { navigation: Na
         <div className="logo">
           <Image
             src="/images/logo.png"
-            alt="Smithton Church – knowing Jesus, making Jesus known"
+            alt="Smithton Church: knowing Jesus, making Jesus known"
             width={600}
             height={123}
             priority

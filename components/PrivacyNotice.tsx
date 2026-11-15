@@ -52,7 +52,7 @@ export default function PrivacyNotice() {
         <p>
           Your message is stored securely and can only be read by the church office staff.
         </p>
-        <p>We use trusted service providers to run the website, who handle information on our behalf:</p>
+        <p>We use these service providers to run the website, who handle information on our behalf:</p>
         <ul>
           <li><strong>Vercel</strong>, which hosts the website</li>
           <li><strong>Supabase</strong>, which stores contact form messages, website statistics and website files</li>

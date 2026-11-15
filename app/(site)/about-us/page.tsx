@@ -7,7 +7,7 @@ import ExternalIcon from "@/components/ExternalIcon";
 export const metadata: Metadata = pageMetadata("/about-us/", {
   title: "About Us",
   description:
-    "Find out about Smithton Church in Inverness – what we believe, our Quiet Room, children's ministry and support for those with additional needs.",
+    "Find out about Smithton Church in Inverness: what we believe, our children's ministry and our support for people with additional needs.",
 });
 
 // Documents and websites about what the Free Church believes (they open in a new tab).

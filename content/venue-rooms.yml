@@ -2,9 +2,9 @@
 - name: Auditorium
   image: auditorium.jpg
   details: >-
-    Our auditorium is fully equipped for live events and conferences, featuring 3 HD broadcast
-    cameras, vision mixing, a 12-channel audio mixer, radio microphones, 2 large 16×9 screens, and
-    HD projectors. Live streaming lets you reach a larger audience, connecting more people to your event.
+    Our auditorium is equipped for live events and conferences, with 3 HD broadcast cameras,
+    vision mixing, a 12-channel audio mixer, digital microphones, 2 large 16×9 screens and HD
+    projectors. Events can also be streamed live, so people can join from elsewhere.
 - name: Café
   image: cafe.jpg
   capacity: >-

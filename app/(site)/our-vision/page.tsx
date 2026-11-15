@@ -6,7 +6,7 @@ import { site } from "@/lib/content";
 export const metadata: Metadata = pageMetadata("/our-vision/", {
   title: "Our Vision",
   description:
-    "The vision and mission of Smithton Church, Inverness – knowing Jesus and making Jesus known – for our eldership, congregation, community and city.",
+    "The vision of Smithton Church, Inverness, knowing Jesus and making Jesus known, and what it means for our eldership, congregation, community and city.",
 });
 
 export default function OurVision() {
