@@ -1,26 +1,45 @@
 # Rooms shown on the "Conferencing Venue" page. Images live in public/images/venue/.
+# "details" is shown first, then "capacity" (after the word "Capacity:"). Both are optional.
 - name: Auditorium
   image: auditorium.jpg
   details: >-
     Our auditorium is equipped for live events and conferences, with 3 HD broadcast cameras,
     vision mixing, a 12-channel audio mixer, digital microphones, 2 large 16×9 screens and HD
     projectors. Events can also be streamed live, so people can join from elsewhere.
+  capacity: Around 300 people.
 - name: Café
   image: cafe.jpg
+  details: >-
+    A bright room with round tables and large windows, and a screen at one end for presentations.
+    It suits lunches, receptions and workshops.
   capacity: >-
     Up to 70 people (10 tables of 7), or a more comfortable 56 people (8 tables of 7).
 - name: Small Hall
   image: small-hall.jpg
+  details: >-
+    A carpeted room for smaller meetings, training sessions or breakout groups during a larger event.
   capacity: 20 with tables, 40 without.
 - name: Small Creche
   image: creche.jpg
+  details: >-
+    A small room with a large table and a whiteboard, suited to a small meeting, or to children’s
+    activities during your event.
   capacity: 10–12 adults.
 - name: Quiet Room
   image: quiet-room.jpg
+  details: >-
+    The Quiet Room has a TV that can show a live feed from the auditorium, so people can follow
+    your event from somewhere quieter.
   capacity: >-
     Seating for 7 adults, though 4 is more comfortable. Perfect for one-to-one meetings.
 - name: Games Hall
   image: games-hall.jpg
+  details: >-
+    A large, high-ceilinged hall with a sports floor and court markings. It suits sports, games and
+    activities, or can be used as a large open space for exhibitions and displays.
   capacity: Varies depending on purpose.
 - name: Kitchen
   image: kitchen.jpg
+  details: >-
+    A commercial kitchen with stainless steel worktops and a commercial dishwasher, for catering at
+    your event. Ask the church office about using it.
