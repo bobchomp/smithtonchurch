@@ -178,7 +178,6 @@ export default async function Branding() {
             <span><span className="button">Main button</span><small>Main actions</small></span>
             <span><span className="button button-outline">Outline button</span><small>Second choices, beside a main button</small></span>
             <span><span className="button brand-pill">Pill button</span><small>Small actions, such as “Open the bulletin”</small></span>
-            <span className="brand-on-blue"><span className="footer-button">Live Services</span><small>On blue (the footer)</small></span>
           </div>
           <ul className="brand-rules">
             <li>Corners are gently rounded: 8px on boxes and cards, 6px on buttons and pictures; pills are fully round.</li>

@@ -673,11 +673,6 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 .footer-freechurch { display: inline-block; margin-top: 1.75rem; opacity: 0.95; }
 .footer-freechurch:hover { opacity: 1; }
 .footer-brand .footer-freechurch img { width: 230px; height: auto; margin: 0; }
-.site-footer a.footer-button {
-  display: inline-block; padding: 0.5rem 1.25rem; border-radius: 999px; background: #fff; color: var(--blue);
-  font: 600 0.95rem var(--font-head); text-decoration: none; transition: background 0.15s;
-}
-.site-footer a.footer-button:hover { background: var(--blue-light); color: var(--blue-dark); }
 .footer-bottom {
   display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.25); margin-top: 2.5rem; padding-top: 1.25rem;
@@ -1149,9 +1144,6 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .brand-buttons > span { display: grid; gap: 0.4rem; justify-items: start; }
 .brand-buttons small { color: var(--muted); font-size: 0.82rem; max-width: 190px; }
 .brand-pill { border-radius: 999px; padding: 0.45rem 1.2rem; font-size: 0.92rem; }
-.brand-on-blue { background: var(--blue); padding: 0.9rem 1rem; border-radius: 8px; }
-.brand-on-blue small { color: #e7edf5; }
-.brand-on-blue .footer-button { display: inline-block; background: #fff; color: var(--blue); border-radius: 999px; padding: 0.45rem 1.1rem; font: 600 0.92rem var(--font-head); text-decoration: none; }
 .brand-photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1.25rem; }
 .brand-photos img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
 .brand-more { margin-top: 1.25rem; }
