@@ -112,6 +112,12 @@ p { margin: 0 0 1em; }
 
 .submenu-toggle { display: none; }
 @media (min-width: 1366px) { .main-nav .nav-mobile-only { display: none; } }
+/* With the full menu showing, the logo sits midway between the left edge of the screen and "Home". The menu stays
+   where it was (the right-hand side of the 1440px-wide area); the logo's box fills everything to its left. */
+@media (min-width: 1366px) {
+  .header-inner { max-width: none; gap: 0; padding-left: 0; padding-right: max(1.25rem, calc((100% - 1440px) / 2 + 1.25rem)); }
+  .logo { flex: 1 1 auto; justify-content: center; }
+}
 .submenu {
   position: absolute; left: 0; top: 100%;
   min-width: 190px; padding: 0.4rem !important;
