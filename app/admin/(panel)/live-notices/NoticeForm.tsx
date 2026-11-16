@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { isoToUkTime, type LiveNotice, NOTICE_STYLES } from "@/lib/live-notice-types";
+import { useEffect, useRef, useState } from "react";
+import LiveNoticeBox from "@/components/LiveNoticeBox";
+import { isoToUkTime, type LiveNotice, NOTICE_STYLES, type NoticeStyle } from "@/lib/live-notice-types";
 import { saveNotice, startNoticeImageUpload, type NoticeInput } from "./actions";
 
 // Sends the image straight from the browser to Supabase.
@@ -26,6 +27,45 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
   const [preview, setPreview] = useState<string | null>(null);
   // The image already uploaded for the chosen file, so trying again after a mistake doesn't upload it twice.
   const [uploaded, setUploaded] = useState<{ file: File; path: string } | null>(null);
+  // The preview is laid out at the Live Services page's real width on a computer (780px of content) and
+  // shrunk to fit, so the lines break where they will on the page. On a phone it shows the phone layout.
+  const PAGE_WIDTH = 780;
+  const frame = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState<{ width?: number; scale: number }>({ width: PAGE_WIDTH, scale: 1 });
+  useEffect(() => {
+    const el = frame.current;
+    if (!el) return;
+    const fit = () => {
+      const room = el.clientWidth - 2 * 20; // the frame's padding
+      const phone = window.innerWidth < 700;
+      setLayout(phone ? { scale: 1 } : { width: PAGE_WIDTH, scale: Math.min(1, room / PAGE_WIDTH) });
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  // What the preview shows, kept in step with the form as it's filled in.
+  const [draft, setDraft] = useState({
+    style: (notice?.style ?? "info") as NoticeStyle,
+    heading: notice?.heading ?? "",
+    text: notice?.text ?? "",
+    alt: notice?.image?.alt ?? "",
+    linkLabel: notice?.link?.label ?? "",
+    linkUrl: notice?.link?.url ?? "",
+  });
+  function updateDraft(form: HTMLFormElement) {
+    const data = new FormData(form);
+    const text = (name: string) => String(data.get(name) ?? "");
+    setDraft({
+      style: text("style") === "warning" ? "warning" : "info",
+      heading: text("heading").trim(),
+      text: text("text").trim(),
+      alt: text("imageAlt"),
+      linkLabel: text("linkLabel").trim(),
+      linkUrl: text("linkUrl").trim(),
+    });
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -68,9 +108,19 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
   }
 
   const showImage = preview ?? (keepImage ? imageUrl : undefined);
+  const previewNotice = {
+    style: draft.style,
+    heading: draft.heading,
+    text: draft.text,
+    ...(showImage ? { imageUrl: showImage, imageAlt: draft.alt } : {}),
+    ...(draft.linkLabel && draft.linkUrl ? { link: { label: draft.linkLabel, url: draft.linkUrl } } : {}),
+  };
+  const empty = !previewNotice.heading && !previewNotice.text && !showImage;
 
   return (
-    <form className="admin-form" onSubmit={handleSubmit}>
+    <div className="notice-editor">
+    <section className="admin-panel">
+    <form className="admin-form" onSubmit={handleSubmit} onChange={(e) => updateDraft(e.currentTarget)} onInput={(e) => updateDraft(e.currentTarget)}>
       <fieldset className="admin-notice-styles">
         <legend>Box colour</legend>
         {NOTICE_STYLES.map((s) => (
@@ -165,5 +215,23 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
         {busy ? "Saving…" : notice ? "Save changes" : "Add notice"}
       </button>
     </form>
+    </section>
+
+    <aside className="notice-preview" aria-label="Preview">
+      <h2>Preview</h2>
+      <p className="admin-muted">How it will look on the Live Services page, above the player. It changes as you type.</p>
+      <div className="notice-preview-page" ref={frame}>
+        <div className="notice-preview-scale" style={{ width: layout.width, zoom: layout.scale }}>
+        <p className="section-intro">Sunday services are streamed live. Can’t join us in person? Watch along here.</p>
+        {empty ? (
+          <p className="notice-preview-empty">Add a heading, a message or an image to see the notice here.</p>
+        ) : (
+          <LiveNoticeBox notice={previewNotice} preview />
+        )}
+        <div className="notice-preview-player" aria-hidden="true">Live stream player</div>
+        </div>
+      </div>
+    </aside>
+    </div>
   );
 }

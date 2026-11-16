@@ -9,9 +9,7 @@ export default async function NewNotice() {
   return (
     <>
       <h1>Add a notice</h1>
-      <section className="admin-panel admin-panel-narrow">
-        <NoticeForm />
-      </section>
+      <NoticeForm />
     </>
   );
 }

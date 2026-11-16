@@ -14,9 +14,7 @@ export default async function EditNotice({ params }: { params: Promise<{ id: str
   return (
     <>
       <h1>Edit notice</h1>
-      <section className="admin-panel admin-panel-narrow">
-        <NoticeForm notice={notice} imageUrl={notice.image ? noticeImageUrl(notice.image.path) : undefined} />
-      </section>
+      <NoticeForm notice={notice} imageUrl={notice.image ? noticeImageUrl(notice.image.path) : undefined} />
     </>
   );
 }

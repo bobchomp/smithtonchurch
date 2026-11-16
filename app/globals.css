@@ -1273,8 +1273,24 @@ h2.live-notice-title { margin: 0 0 0.6rem; }
 .live-notice-title-text { margin: 0 0 1rem; }
 .live-notice-icon { flex: none; width: 1.15em; height: 1.15em; margin-top: 0.12em; color: var(--blue); }
 .live-notice-warning .live-notice-icon { color: #9a6700; }
-.live-notice p { margin: 0 0 1rem; }
+.live-notice p { margin: 0 0 1rem; white-space: pre-line; }
 .admin-notice-styles { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; border: 0; padding: 0; margin: 0; }
 .admin-notice-styles legend { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; padding: 0; }
 .admin-notice-style { display: flex !important; align-items: center; gap: 0.5rem; font-weight: 400 !important; padding: 0.45rem 0.8rem; border-radius: 6px; border: 1px solid #c9d6e6; background: var(--blue-light); cursor: pointer; }
 .admin-notice-style-warning { background: #fff8e6; border-color: #f0cf7a; }
+
+/* Admin → Live Notices editor: the form and, beside it on wide screens, a preview of the notice. */
+.notice-editor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.notice-editor > * { min-width: 0; }
+.notice-editor > .admin-panel { max-width: 640px; }
+@media (min-width: 1100px) {
+  .notice-editor { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .notice-preview { position: sticky; top: 1rem; }
+}
+.notice-preview > h2 { margin: 0 0 0.25rem; font-size: 1.15rem; }
+.notice-preview > .admin-muted { margin: 0 0 0.75rem; }
+.notice-preview-page { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem 20px; box-shadow: 0 2px 10px rgba(30, 45, 70, 0.05); }
+.notice-preview-page { overflow: hidden; }
+.notice-preview-page .section-intro { margin: 0 auto 1.5rem; }
+.notice-preview-empty { margin: 0 0 1.5rem; padding: 1.25rem; border: 1px dashed var(--border); border-radius: var(--radius); text-align: center; color: var(--muted); }
+.notice-preview-player { aspect-ratio: 16 / 9; border-radius: var(--radius); background: #111; color: #9aa4b2; display: grid; place-items: center; font-size: 0.9rem; }
