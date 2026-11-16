@@ -146,7 +146,7 @@ export default async function Branding() {
             <div>
               <p className="brand-font-name">Poppins</p>
               <p className="brand-font-use">Headings, buttons and the menu. Weights 400, 500, 600 (most headings) and 700.</p>
-              <p className="brand-sample-head">Welcome to Smithton Church!</p>
+              <p className="brand-sample-head">Welcome to Smithton Church</p>
               <p className="brand-weights">
                 {[400, 500, 600, 700].map((w) => (
                   <span key={w} style={{ fontWeight: w }}>{w}</span>
