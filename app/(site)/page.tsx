@@ -75,7 +75,7 @@ export default function Home() {
           sizes="100vw"
         />
         <div className="home-hero-inner">
-          <h1>Welcome to Smithton Church!</h1>
+          <h1>Welcome to Smithton Church</h1>
           <p>{site.tagline.replace(" - ", " – ")}</p>
         </div>
       </section>
