@@ -233,6 +233,7 @@ export async function journeys(r: Range, steps = 4, limit = 20): Promise<{ journ
 export type VisitRow = {
   started: string; source: string | null; place: string | null; device: string | null; browser: string | null;
   pages: string[]; seconds: number | null; returning: boolean;
+  visitId: string | null; // null until the database has the newer analytics_visits (see supabase/setup.sql)
 };
 
 export async function visits(r: Range, limit = 30, offset = 0): Promise<VisitRow[]> {
@@ -246,7 +247,23 @@ export async function visits(r: Range, limit = 30, offset = 0): Promise<VisitRow
     pages: Array.isArray(x.pages) ? x.pages.map(String) : [],
     seconds: num(x.seconds),
     returning: Boolean(x.returning_visitor),
+    visitId: str(x.visit_id),
   }));
+}
+
+// Removes one visit (every event recorded in it), e.g. a test visit. Returns how many events went.
+export async function removeVisit(visitId: string): Promise<{ events: number; pages: string[]; started: string | null }> {
+  const db = supabaseAdmin();
+  const { data, error } = await withTimeout(
+    db.from("analytics_events").select("id, type, path, created_at").eq("session_id", visitId).order("id").limit(5000),
+  );
+  if (error) throw error;
+  const rows = (data ?? []) as { type: string; path: string; created_at: string }[];
+  if (rows.length) {
+    const { error: deleteError } = await withTimeout(db.from("analytics_events").delete().eq("session_id", visitId));
+    if (deleteError) throw deleteError;
+  }
+  return { events: rows.length, pages: rows.filter((r) => r.type === "pageview").map((r) => r.path), started: rows[0]?.created_at ?? null };
 }
 
 // Every event in a period, oldest first, a page at a time (for the CSV download).

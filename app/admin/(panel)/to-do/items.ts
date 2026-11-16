@@ -57,7 +57,8 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Remove test visits from Analytics",
-            detail: "A button in the admin panel instead of running SQL.",
+            done: "2026-11-16",
+            detail: "Owners have a “Remove” button on each visit in Analytics → Pages & journeys → Individual visits (needs the updated analytics_visits database function).",
           },
           {
             title: "Activity log clean-up",

@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireOwner, requireTool } from "@/lib/admin-auth";
 import { logActivity } from "@/lib/activity";
-import { loadGoals, saveAnalyticsSettings, saveGoals } from "@/lib/analytics";
+import { loadGoals, removeVisit, saveAnalyticsSettings, saveGoals } from "@/lib/analytics";
 import {
   describeCondition,
   GOAL_TYPES,
@@ -21,6 +21,23 @@ export async function setTracking(formData: FormData): Promise<void> {
   const enabled = formData.get("enabled") === "on";
   await saveAnalyticsSettings({ enabled });
   await logActivity({ area: "Analytics", action: enabled ? "Switched visit recording on" : "Switched visit recording off" });
+  revalidatePath("/admin/analytics");
+}
+
+// Owners remove a single visit from the statistics (e.g. their own test visits).
+export async function removeVisitAction(formData: FormData): Promise<void> {
+  await requireOwner();
+  const visitId = String(formData.get("visit") ?? "");
+  if (!/^[\w-]{4,100}$/.test(visitId)) return;
+  const removed = await removeVisit(visitId);
+  if (removed.events) {
+    await logActivity({
+      area: "Analytics",
+      action: "Removed a visit from the statistics",
+      target: removed.pages.slice(0, 5).join(" → ") || undefined,
+      details: { started: removed.started, events: removed.events },
+    });
+  }
   revalidatePath("/admin/analytics");
 }
 

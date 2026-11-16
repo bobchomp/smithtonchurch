@@ -120,7 +120,7 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       const [all, routes, recent, links] = await Promise.all([pages(current, 100), journeys(current, 4, 20), visits(current, 30, offset), flow(current, 4, 6)]);
       const chosen = params.page && params.page.startsWith("/") ? params.page : all[0]?.path;
       const before = chosen ? await pageFlow(current, chosen, 10) : [];
-      body = <PagesView range={key} pages={all} chosen={chosen} flow={before} flowLinks={links} journeys={routes} visits={recent} offset={offset} />;
+      body = <PagesView range={key} pages={all} chosen={chosen} flow={before} flowLinks={links} journeys={routes} visits={recent} offset={offset} isOwner={me.role === "owner"} />;
     } else if (view === "heatmaps") {
       const size = SCREEN_SIZES.find((s) => s.key === params.size) ?? SCREEN_SIZES[0];
       const top = (await pages(current, 100)).map((p) => p.path);

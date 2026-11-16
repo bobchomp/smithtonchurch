@@ -128,7 +128,9 @@
   `components/HeatmapOverlay.tsx`, which draws them (accepts messages only from ADMIN_HOST or its own origin; frame-ancestors
   header in next.config.ts allows only self + admin). Goals & funnels (`lib/analytics-goals.ts`, saved in
   the `analytics.goals` setting) are matched in SQL by `analytics_matches`/`analytics_funnel`; the contact form sends a
-  'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys.
+  'form' event. The flow diagram (`FlowDiagram.tsx`, `analytics_flow`) is on Pages & journeys. Owners can remove a single visit there
+  ("Remove" on Individual visits: `removeVisitAction` → `removeVisit`, deletes its events by session_id, logged); `analytics_visits` returns
+  `visit_id` (the button hides until the owner has re-created that function).
   Checks: the setup panel lists missing report functions (`missingReports`, REPORT_FUNCTIONS in lib/analytics.ts: add new
   functions there too); Overview shows the last recorded event and the last recording error (saved by /api/collect to
   the `analytics.status` setting). The live site is served at www.rossmdev.co.uk (the bare domain redirects there).

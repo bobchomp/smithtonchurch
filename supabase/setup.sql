@@ -487,9 +487,11 @@ revoke all on function public.analytics_journeys(timestamptz, timestamptz, integ
 grant execute on function public.analytics_journeys(timestamptz, timestamptz, integer, integer) to service_role;
 
 -- @part function analytics_visits
--- Individual visits, newest first: where they came from, the pages they looked at, and for how long.
+-- Individual visits, newest first: where they came from, the pages they looked at, and for how long,
+-- with each visit's id (so a test visit can be removed in Admin → Analytics).
+drop function if exists public.analytics_visits(timestamptz, timestamptz, integer, integer);
 create or replace function public.analytics_visits(p_from timestamptz, p_to timestamptz, p_limit integer, p_offset integer)
-returns table (started timestamptz, source text, place text, device text, browser text, pages text[], seconds numeric, returning_visitor boolean)
+returns table (started timestamptz, source text, place text, device text, browser text, pages text[], seconds numeric, returning_visitor boolean, visit_id text)
 language sql stable as $$
   with s as (
     select session_id, min(created_at) as started, max(visitor_id) as visitor_id,
@@ -504,7 +506,8 @@ language sql stable as $$
     having count(*) filter (where type = 'pageview') > 0
   )
   select started, source, place, device, browser, pages, seconds,
-         exists (select 1 from public.analytics_events e where e.visitor_id = s.visitor_id and e.created_at < s.started)
+         exists (select 1 from public.analytics_events e where e.visitor_id = s.visitor_id and e.created_at < s.started),
+         session_id
   from s order by started desc
   limit p_limit offset p_offset;
 $$;

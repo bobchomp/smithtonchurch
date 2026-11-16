@@ -18,7 +18,7 @@ import { SCREEN_SIZES, type DocumentLinkRow, type DocumentPageRow, type Document
 import { DOCUMENT_TYPES, parseDocumentId } from "@/lib/document-types";
 import { SITE_HOST } from "@/lib/domains";
 import DeleteButton from "../_documents/DeleteButton";
-import { addSuggestion, removeGoalOrFunnel, setTracking } from "./actions";
+import { addSuggestion, removeGoalOrFunnel, removeVisitAction, setTracking } from "./actions";
 import Chart from "./Chart";
 import FlowDiagram from "./FlowDiagram";
 import { FunnelForm, GoalForm } from "./GoalForms";
@@ -180,9 +180,9 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
 
 // ---------- Pages & journeys ----------
 
-export function PagesView({ range, pages, chosen, flow, flowLinks, journeys, visits, offset }: {
+export function PagesView({ range, pages, chosen, flow, flowLinks, journeys, visits, offset, isOwner }: {
   range: RangeKey; pages: PageRow[]; chosen?: string; flow: FlowRow[]; flowLinks: FlowLink[];
-  journeys: { journey: string; visits: number; visitors: number }[]; visits: VisitRow[]; offset: number;
+  journeys: { journey: string; visits: number; visitors: number }[]; visits: VisitRow[]; offset: number; isOwner: boolean;
 }) {
   const came = flow.filter((f) => f.direction === "from");
   const went = flow.filter((f) => f.direction === "to");
@@ -263,7 +263,13 @@ export function PagesView({ range, pages, chosen, flow, flowLinks, journeys, vis
           <h2>Individual visits</h2>
           {visits.length > 0 && <a className="analytics-csv" href={csvHref("visits", range)} download>CSV</a>}
         </div>
-        <p className="admin-muted analytics-note">Newest first. Visitors aren’t identified: each visit is just a list of pages.</p>
+        <p className="admin-muted analytics-note">
+          Newest first. Visitors aren’t identified: each visit is just a list of pages.
+          {isOwner && visits.length > 0 &&
+            (visits[0].visitId
+              ? " To remove a visit from the statistics (e.g. a test), use “Remove”."
+              : " Removing a visit needs a small database update first: ask Claude for it.")}
+        </p>
         {visits.length === 0 ? (
           <p className="admin-muted">{offset ? "No older visits in this period." : "Nothing yet."}</p>
         ) : (
@@ -276,6 +282,15 @@ export function PagesView({ range, pages, chosen, flow, flowLinks, journeys, vis
                   <span>{v.source ? `from ${v.source}` : "direct or unknown"}</span>
                   {v.seconds !== null && <span>{duration(v.seconds)}</span>}
                   {v.returning && <span className="admin-badge">Returning</span>}
+                  {isOwner && v.visitId && (
+                    <form action={removeVisitAction} className="analytics-visit-remove">
+                      <input type="hidden" name="visit" value={v.visitId} />
+                      <DeleteButton
+                        question={`Remove this visit (${ukDateTime(v.started)}, ${v.pages.length} page${v.pages.length === 1 ? "" : "s"}) from the statistics? This can’t be undone.`}
+                        label="Remove"
+                      />
+                    </form>
+                  )}
                 </div>
                 <p className="analytics-visit-pages">
                   {v.pages.map((p, j) => (
