@@ -134,7 +134,8 @@ export const TO_DO: ToDoGroup[] = [
         items: [
           {
             title: "About Us: two dashes",
-            detail: "Left from the Humanizer review, in two friendly sentences. Suggestion: leave them.",
+            done: "2026-11-16",
+            detail: "Left from the Humanizer review, in two friendly sentences. Decided: rewritten without the dashes.",
           },
         ],
       },

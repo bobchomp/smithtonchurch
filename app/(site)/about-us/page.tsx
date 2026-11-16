@@ -31,7 +31,7 @@ export default function AboutUs() {
           </p>
           <p>
             You’ll find the Quiet Room on the right-hand side as you enter the auditorium. If you need any assistance,
-            just speak to a member of our Welcome Team – they’ll be happy to help.
+            just speak to a member of our Welcome Team, who will be happy to help.
           </p>
           <p>
             Our aim is to support you in whatever way you need, so you can feel relaxed and
@@ -39,7 +39,7 @@ export default function AboutUs() {
           </p>
           <p>
             We also have a thriving children’s ministry and do our best to support those with additional needs. Please
-            don’t hesitate to talk to us – we’re here for you.
+            don’t hesitate to talk to us. We’re here for you.
           </p>
         </div>
       </section>
