@@ -188,6 +188,14 @@ export default async function AdminDashboard({
           </Link>
         )}
         {me.role === "owner" && (
+          <Link className="admin-tool" href="/admin/to-do/">
+            <h2>To-do list</h2>
+            <p>
+              What’s left to do on the website, with finished items crossed out.
+            </p>
+          </Link>
+        )}
+        {me.role === "owner" && (
           <Link className="admin-tool" href="/admin/claude-skills/">
             <h2>Claude Skills</h2>
             <p>

@@ -138,6 +138,8 @@
   `scripts/holding-video/` (see its README). Keep video files well under GitHub's 100 MB limit.
 - Admin → Branding (tool "branding", `app/admin/(panel)/branding/`): logos, colours (keep in step with :root in globals.css),
   fonts, tagline, buttons, photos and the Free Church logos we use, with downloads.
+- Admin → To-do list (owners only, `app/admin/(panel)/to-do/`, items in `items.ts`): the owner's to-do list for the website. When
+  you finish an item, set its `done` date (it's struck through, never removed); add new agreed items to it.
 - Admin → Claude Skills (owners only, `app/admin/(panel)/claude-skills/`): the useful commands and install commands for the
   Claude Code skills used on this project (Humanizer, marketingskills, mattpocock-skills), listed in `skills.ts`; keep it current.
 - Activity log (Admin → Activity Log, tool "activity-log", `app/admin/(panel)/activity/`, CSV at `activity/export/`): table

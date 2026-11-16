@@ -1244,3 +1244,16 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
   .skills-table td:first-child { width: auto; padding-bottom: 0.15rem; }
   .skills-table td + td { border-top: 0; padding-top: 0; }
 }
+
+/* Admin → To-do list (owners) */
+.todo-list { display: grid; gap: 1.5rem; }
+.todo-section h3 { font-size: 1rem; margin: 1.25rem 0 0.25rem; }
+.todo-section ul { list-style: none; margin: 0; padding: 0; }
+.todo-section li { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.75rem; padding: 0.75rem 0; border-top: 1px solid var(--border); }
+.todo-section li:first-child { border-top: 0; }
+.todo-number { display: inline-grid; place-items: center; width: 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--blue-light); color: var(--blue); font: 600 0.85rem var(--font-head); }
+.todo-title { margin: 0; font-weight: 600; }
+.todo-detail { margin: 0.2rem 0 0; color: var(--muted); font-size: 0.95rem; }
+.todo-section li.is-done .todo-title, .todo-section li.is-done .todo-detail { color: var(--muted); }
+.todo-section li.is-done .todo-number { background: #e3f1e6; color: #2f6b3d; }
+.todo-done { margin: 0.25rem 0 0; font-size: 0.85rem; font-weight: 600; color: #2f6b3d; }
