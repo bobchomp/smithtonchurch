@@ -235,7 +235,6 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
       <p className="admin-muted">How it will look on the Live Services page, above the player. It changes as you type.</p>
       <div className="notice-preview-page" ref={frame}>
         <div className="notice-preview-scale" style={{ width: layout.width, zoom: layout.scale }}>
-        <p className="section-intro">Sunday services are streamed live. Can’t join us in person? Watch along here.</p>
         {empty ? (
           <p className="notice-preview-empty">Add a heading, a message or an image to see the notice here.</p>
         ) : (

@@ -25,9 +25,6 @@ export default async function WatchLive() {
       <PageBanner title="Watch Live" />
       <section className="section">
         <div className="container narrow live-page">
-          <p className="section-intro">
-            Sunday services are streamed live at {serviceTimesText}. Can’t join us in person? Watch along here.
-          </p>
           <LiveNotice />
           <div className="livestream">
             <iframe
