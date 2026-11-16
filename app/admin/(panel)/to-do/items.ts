@@ -35,11 +35,13 @@ export const TO_DO: ToDoGroup[] = [
         items: [
           {
             title: "Email alerts when something fails",
-            detail: "YouTube checks, contact form emails not sending, or the flipbook not making viewer links.",
+            done: "2026-11-16",
+            detail: "YouTube checks, contact form emails not sending, or the flipbook not making viewer links. Decided: not needed for now.",
           },
           {
             title: "Automatic tests saved in the project",
-            detail: "Sign-in, the contact form, sermon pages, bulletins and the flipbook, so breakages are caught before going live.",
+            done: "2026-11-16",
+            detail: "Sign-in, the contact form, sermon pages, bulletins and the flipbook, so breakages are caught before going live. Decided: not needed for now.",
           },
           {
             title: "Accessibility and speed check",
