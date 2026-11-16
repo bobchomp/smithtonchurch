@@ -61,7 +61,8 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Activity log clean-up",
-            detail: "Automatically delete entries after a set time, e.g. a year. At the moment they’re kept for ever.",
+            done: "2026-11-16",
+            detail: "Automatically delete entries after a set time, e.g. a year. Decided: keep everything for now, and revisit if it becomes a problem.",
           },
           {
             title: "Keep the Claude skills between sessions",
