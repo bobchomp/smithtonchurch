@@ -45,7 +45,8 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Accessibility and speed check",
-            detail: "Screen readers, keyboard use, colour contrast and page load times.",
+            done: "2026-11-16",
+            detail: "Screen readers, keyboard use, colour contrast and page load times. Decided: not needed for now (speed was already checked in the SEO audit: about 1 second on a phone).",
           },
         ],
       },
