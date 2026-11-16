@@ -7,11 +7,21 @@ export const NOTICE_STYLES: { key: NoticeStyle; label: string }[] = [
   { key: "warning", label: "Yellow (warning)" },
 ];
 
+// The size of the notice's title.
+export type NoticeTitleSize = "large" | "medium" | "small";
+export const NOTICE_TITLE_SIZES: { key: NoticeTitleSize; label: string }[] = [
+  { key: "large", label: "Large" },
+  { key: "medium", label: "Medium" },
+  { key: "small", label: "Small" },
+];
+export const noticeTitleSize = (value: unknown): NoticeTitleSize => (value === "medium" || value === "small" ? value : "large");
+
 export type LiveNotice = {
   id: string;
   heading: string;
   text: string;
   style?: NoticeStyle; // unset = "info"
+  titleSize?: NoticeTitleSize; // unset = "large"
   image?: { path: string; alt: string }; // in the public "website" bucket
   link?: { label: string; url: string };
   startsAt?: string; // ISO time; unset = straight away
@@ -24,6 +34,7 @@ export type LiveNotice = {
 // What the live page gets: only the notice that's showing now.
 export type PublicLiveNotice = {
   style: NoticeStyle;
+  titleSize?: NoticeTitleSize;
   heading: string;
   text: string;
   imageUrl?: string;

@@ -1270,6 +1270,8 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .live-notice-body > :last-child { margin-bottom: 0; }
 .live-notice-title { display: flex; align-items: flex-start; gap: 0.6rem; }
 h2.live-notice-title { margin: 0 0 0.6rem; }
+h2.live-notice-title-medium { font-size: clamp(1.25rem, 2.4vw, 1.6rem); }
+h2.live-notice-title-small { font-size: 1.2rem; }
 .live-notice-title-text { margin: 0 0 1rem; }
 .live-notice-icon { flex: none; width: 1.15em; height: 1.15em; margin-top: 0.12em; color: var(--blue); }
 .live-notice-warning .live-notice-icon { color: #9a6700; }
@@ -1294,3 +1296,7 @@ h2.live-notice-title { margin: 0 0 0.6rem; }
 .notice-preview-page .section-intro { margin: 0 auto 1.5rem; }
 .notice-preview-empty { margin: 0 0 1.5rem; padding: 1.25rem; border: 1px dashed var(--border); border-radius: var(--radius); text-align: center; color: var(--muted); }
 .notice-preview-player { aspect-ratio: 16 / 9; border-radius: var(--radius); background: #111; color: #9aa4b2; display: grid; place-items: center; font-size: 0.9rem; }
+
+.admin-notice-sizes { display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem; border: 0; padding: 0; margin: 0; }
+.admin-notice-sizes legend { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; padding: 0; }
+.admin-notice-sizes label { display: flex !important; align-items: center; gap: 0.4rem; font-weight: 400 !important; cursor: pointer; }

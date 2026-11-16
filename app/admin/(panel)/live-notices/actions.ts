@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireTool } from "@/lib/admin-auth";
-import { ukTimeToIso, type LiveNotice } from "@/lib/live-notice-types";
+import { ukTimeToIso, type LiveNotice, noticeTitleSize } from "@/lib/live-notice-types";
 import {
   createNoticeImageUpload,
   deleteNoticeImages,
@@ -20,6 +20,7 @@ const MAX_IMAGE_MEGABYTES = 10;
 
 export type NoticeInput = {
   style: string; // "info" or "warning"
+  titleSize?: string; // "large", "medium" or "small"
   heading: string;
   text: string;
   image: { path: string; alt: string } | null; // null = no image
@@ -62,6 +63,7 @@ function clean(input: NoticeInput): { notice?: Omit<LiveNotice, "id" | "createdA
   return {
     notice: {
       ...(input.style === "warning" ? { style: "warning" as const } : {}),
+      ...(noticeTitleSize(input.titleSize) !== "large" ? { titleSize: noticeTitleSize(input.titleSize) } : {}),
       heading,
       text,
       ...(input.image ? { image: { path: input.image.path, alt: input.image.alt.trim().slice(0, 300) } } : {}),
@@ -95,7 +97,7 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
       area: "Live notices",
       action: id === null ? "Added a live notice" : "Edited a live notice",
       target: notice.heading || notice.text.slice(0, 80) || "(image only)",
-      details: { colour: notice.style === "warning" ? "yellow" : "light blue", starts: notice.startsAt ?? "straight away", ends: notice.endsAt ?? "until removed" },
+      details: { colour: notice.style === "warning" ? "yellow" : "light blue", "title size": notice.titleSize ?? "large", starts: notice.startsAt ?? "straight away", ends: notice.endsAt ?? "until removed" },
     });
     revalidatePath("/admin/live-notices");
     return {};

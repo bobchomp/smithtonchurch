@@ -24,7 +24,7 @@ export default function LiveNoticeBox({ notice, preview = false }: { notice: Pub
       {(notice.heading || notice.text || notice.link) && (
         <div className="live-notice-body">
           {notice.heading ? (
-            <h2 className="live-notice-title">
+            <h2 className={`live-notice-title live-notice-title-${notice.titleSize ?? "large"}`}>
               <InfoIcon />
               <span>{notice.heading}</span>
             </h2>

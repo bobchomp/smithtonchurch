@@ -1,6 +1,6 @@
 import "server-only";
 import { randomUUID } from "node:crypto";
-import { currentNotice, type LiveNotice, type PublicLiveNotice } from "./live-notice-types";
+import { currentNotice, type LiveNotice, type PublicLiveNotice, noticeTitleSize } from "./live-notice-types";
 import { copyInOnce, db, selectAll, tableReady, upsertRows } from "./db";
 import { ensurePrivateBucket, readPrivateJsonStrict, writePrivateJson } from "./private-store";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
@@ -87,6 +87,7 @@ export async function getCurrentPublicNotice(): Promise<PublicLiveNotice | null>
     if (!notice) return null;
     return {
       style: notice.style === "warning" ? "warning" : "info",
+      titleSize: noticeTitleSize(notice.titleSize),
       heading: notice.heading,
       text: notice.text,
       ...(notice.image ? { imageUrl: noticeImageUrl(notice.image.path), imageAlt: notice.image.alt } : {}),

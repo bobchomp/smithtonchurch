@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import LiveNoticeBox from "@/components/LiveNoticeBox";
-import { isoToUkTime, type LiveNotice, NOTICE_STYLES, type NoticeStyle } from "@/lib/live-notice-types";
+import { isoToUkTime, type LiveNotice, NOTICE_STYLES, NOTICE_TITLE_SIZES, noticeTitleSize, type NoticeStyle } from "@/lib/live-notice-types";
 import { saveNotice, startNoticeImageUpload, type NoticeInput } from "./actions";
 
 // Sends the image straight from the browser to Supabase.
@@ -48,6 +48,7 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
   // What the preview shows, kept in step with the form as it's filled in.
   const [draft, setDraft] = useState({
     style: (notice?.style ?? "info") as NoticeStyle,
+    titleSize: noticeTitleSize(notice?.titleSize),
     heading: notice?.heading ?? "",
     text: notice?.text ?? "",
     alt: notice?.image?.alt ?? "",
@@ -59,6 +60,7 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
     const text = (name: string) => String(data.get(name) ?? "");
     setDraft({
       style: text("style") === "warning" ? "warning" : "info",
+      titleSize: noticeTitleSize(text("titleSize")),
       heading: text("heading").trim(),
       text: text("text").trim(),
       alt: text("imageAlt"),
@@ -90,6 +92,7 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
       }
       const result = await saveNotice(notice?.id ?? null, {
         style: text("style"),
+        titleSize: text("titleSize"),
         heading: text("heading"),
         text: text("text"),
         image,
@@ -110,6 +113,7 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
   const showImage = preview ?? (keepImage ? imageUrl : undefined);
   const previewNotice = {
     style: draft.style,
+    titleSize: draft.titleSize,
     heading: draft.heading,
     text: draft.text,
     ...(showImage ? { imageUrl: showImage, imageAlt: draft.alt } : {}),
@@ -136,6 +140,15 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
         </span>
         <input type="text" name="heading" defaultValue={notice?.heading} maxLength={150} />
       </label>
+      <fieldset className="admin-notice-sizes">
+        <legend>Title size</legend>
+        {NOTICE_TITLE_SIZES.map((s) => (
+          <label key={s.key} className="admin-checkbox">
+            <input type="radio" name="titleSize" value={s.key} defaultChecked={noticeTitleSize(notice?.titleSize) === s.key} />
+            {s.label}
+          </label>
+        ))}
+      </fieldset>
       <label>
         <span>
           Message <span className="admin-optional">(optional)</span>
