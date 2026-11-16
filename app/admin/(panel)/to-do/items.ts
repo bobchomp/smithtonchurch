@@ -26,7 +26,7 @@ export const TO_DO: ToDoGroup[] = [
           {
             title: "Launch plan and checklist",
             detail:
-              "Walk through the domain move, then a step-by-step list of the parts only the owner can do. smithtonchurch.com (without www) must be the main domain, with www redirecting to it, and pages must stop saying noindex. The domain is used in the website’s settings, Vercel domains, Supabase sign-in links, Resend, the cron-job.org address, and the flipbook’s website list and webhook address. Holding slide links copied before the move will stop working.",
+              "Walk through the domain move, then a step-by-step list of the parts only the owner can do. smithtonchurch.com (without www) must be the main domain, with www redirecting to it, and pages must stop saying noindex. The domain is used in the website’s settings, Vercel domains, Supabase sign-in links, Resend, the cron-job.org address, and the flipbook’s website list and webhook address. Holding slide links copied before the move will stop working. After launch, submit the new sitemap in Google Search Console (already set up) and watch its “Pages” report for addresses not found.",
           },
         ],
       },
@@ -104,8 +104,9 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Set up Google Search Console and Bing Webmaster Tools",
+            done: "2026-11-16",
             detail:
-              "Before launch: add smithtonchurch.com as a Domain property to see which old pages get visitors. After launch: submit the sitemap and watch for pages not found. Bing can import from Search Console.",
+              "Search Console was already set up for the current smithtonchurch.com site, so it carries on after launch (submitting the new sitemap is in the launch checklist). Bing is optional: it can import from Search Console.",
           },
           {
             title: "Check the Google Business Profile",
@@ -120,6 +121,7 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Flipbook app: fix its schema check",
+            done: "2026-11-16",
             detail:
               "The flipbook dashboard’s check fails with SQLITE_AUTH, because D1 doesn’t allow pragma_table_info. It would have warned about the missing page_url column.",
           },
