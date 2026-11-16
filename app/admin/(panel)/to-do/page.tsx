@@ -18,8 +18,13 @@ export default async function ToDoList() {
       <h1>To-do list</h1>
       <p className="admin-intro">
         What’s left to do on the website. Finished items are crossed out but kept, so you can see what’s been done.{" "}
-        <strong>{done} of {all.length} done.</strong>
+        {all.length > 0 && <strong>{done} of {all.length} done.</strong>}
       </p>
+      {TO_DO.length === 0 && (
+        <section className="admin-panel">
+          <p className="admin-muted">Nothing on the list at the moment.</p>
+        </section>
+      )}
       <div className="todo-list">
         {TO_DO.map((group) => (
           <section key={group.heading} className="admin-panel">
