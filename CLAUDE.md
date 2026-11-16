@@ -22,6 +22,8 @@
   `/admin/set-password/` (token verified with verifyOtp on submit), not by Supabase. Pages inside `app/admin/(panel)/`
   are guarded by its layout, but every server action and route handler must call `requireAdmin()` (or `requireOwner()`) itself.
 - Add each new admin tool as a card on `app/admin/(panel)/page.tsx`.
+- Admin "page not found": `app/admin/(panel)/not-found.tsx` (LostPage with `admin`, inside the admin bar) for notFound() in the panel, and
+  `(panel)/[...missing]/page.tsx` for unknown admin addresses (signed-in only).
 - Admin → Pages to Review (`app/admin/(panel)/pagestoreview/`): drafts for the owner to look at before they go live, at
   `/admin/pagestoreview/<random slug>/` (`app/admin/(review)/pagestoreview/`, listed in `_shared/options.ts`; empty when there's nothing to review). They render with the public
   header/footer behind `requireAdmin()` and noindex. Keep slugs random (not guessable). The live pages are untouched by them.

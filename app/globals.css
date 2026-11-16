@@ -1261,3 +1261,4 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 .todo-done { margin: 0.25rem 0 0; font-size: 0.85rem; font-weight: 600; color: #2f6b3d; }
 
 .analytics-visit-remove { margin-left: auto; }
+.admin-main .lost { background: transparent; }

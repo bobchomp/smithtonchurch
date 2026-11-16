@@ -8,7 +8,8 @@ const POEM = [
   "Jesus is the Way, the Truth, the Light.",
 ];
 
-export default function LostPage() {
+// "admin": the admin panel's version, with a way back to the dashboard instead of the website's pages.
+export default function LostPage({ admin = false }: { admin?: boolean }) {
   return (
     <section className="lost">
       <div className="container lost-inner">
@@ -22,11 +23,22 @@ export default function LostPage() {
           ))}
         </p>
         <div className="lost-after" style={{ animationDelay: `${0.6 + POEM.length * 1.1 + 0.2}s` }}>
-          <p>Sorry, we couldn’t find the page you were looking for. It may have moved when the website was updated.</p>
-          <p className="actions">
-            <Link className="button" href="/">Go to the home page</Link>
-            <Link className="button button-outline" href="/about-us/#what-we-believe">What we believe</Link>
-          </p>
+          {admin ? (
+            <>
+              <p>Sorry, there’s no page at this address in the admin panel. It may have moved, or the link may be mistyped.</p>
+              <p className="actions">
+                <Link className="button" href="/admin/">Go to the dashboard</Link>
+              </p>
+            </>
+          ) : (
+            <>
+              <p>Sorry, we couldn’t find the page you were looking for. It may have moved when the website was updated.</p>
+              <p className="actions">
+                <Link className="button" href="/">Go to the home page</Link>
+                <Link className="button button-outline" href="/about-us/#what-we-believe">What we believe</Link>
+              </p>
+            </>
+          )}
         </div>
       </div>
     </section>
