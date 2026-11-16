@@ -2,6 +2,9 @@
 
 - Next.js (App Router) site deployed on Vercel from `main`. Editable content lives in `content/*.yml`.
 - Run `npm run build` before committing; it must pass.
+- Sunday service times are set once in content/site.yml (`service_times`); use `serviceTimes`/`serviceTimesText`/`withServiceTimes`
+  (lib/content.ts; `{morning}`/`{evening}` in YAML text), never write the times into pages. Holding slide images have them baked in.
+- The cloud environment's setup script installs npm packages and the three Claude skill packs (see Admin → Claude Skills).
 - The owner wants changes to go live automatically: after committing and pushing your working
   branch, merge it into `main` and push `main` (fast-forward where possible). No pull request needed.
 
@@ -142,6 +145,12 @@
   you finish an item, set its `done` date (it's struck through, never removed); add new agreed items to it.
 - Admin → Claude Skills (owners only, `app/admin/(panel)/claude-skills/`): the useful commands and install commands for the
   Claude Code skills used on this project (Humanizer, marketingskills, mattpocock-skills), listed in `skills.ts`; keep it current.
+- Old WordPress addresses (pre-launch SEO): `content/old-sermon-pages.json` lists the old site's 642 sermon pages (slug: date,
+  service, title, preacher); `/sermons/<old-slug>/` redirects (308) to the sermon on the same date (title match if several) or to the
+  archive searching its title (`lib/old-sermon-urls.ts`, used by sermons/[sermon]/page.tsx); `/sermons/<book|minister|series|…>/<name>/`
+  go to the archive filtered (`sermons/[sermon]/[name]/route.ts`); old team pages redirect in next.config.ts. Sermon titles have outer
+  quote marks removed (`cleanSermonTitle`, applied on load, save and stream import). Bulletin/newsletter viewer pages are noindex
+  and not in the sitemap. The sermon archive's paging uses real `?page=` links.
 - Activity log (Admin → Activity Log, tool "activity-log", `app/admin/(panel)/activity/`, CSV at `activity/export/`): table
   `activity_log` (+ `activity_actors()`), written by `logActivity({ area, action, target?, details? }, actor?)` in lib/activity.ts
   (never throws; skipped while the table is missing). Call it from every new server action/route that changes something;

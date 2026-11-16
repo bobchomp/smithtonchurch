@@ -7,7 +7,7 @@ import { isBibleBook, sortBooks } from "@/lib/bible";
 import { unmatchedStreams, youtubeId } from "@/lib/livestream-match";
 import { loadLivestreams, sermonFromStream, syncLivestreams } from "@/lib/livestreams";
 import { createAudioUploadUrl, deleteAudio, r2IsConfigured } from "@/lib/r2";
-import { isSermonDate, sermonBooks, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
+import { cleanSermonTitle, isSermonDate, sermonBooks, sermonPath, type Sermon, type Service } from "@/lib/sermon-types";
 import { addSermons, loadSermons, removeSermon, storeSermon } from "@/lib/sermons";
 import { logActivity } from "@/lib/activity";
 import { describeStorageError } from "@/lib/supabase";
@@ -96,7 +96,7 @@ function validate(input: SermonInput): string | undefined {
 function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
 
   return {
-    title: input.title.trim(),
+    title: cleanSermonTitle(input.title),
     date: input.date,
     service: input.service,
     preacher: input.preacher.trim(),

@@ -12,8 +12,12 @@ export default async function ClaudeSkills() {
       <h1>Claude Skills</h1>
       <p className="admin-intro">
         The useful commands from the Claude Code skills tried on this website. Type a command in a Claude Code session
-        (click one to copy it), or just ask in plain words and Claude picks the right skill. Cloud sessions start fresh,
-        so a new session may need the install commands first.
+        (click one to copy it), or just ask in plain words and Claude picks the right skill. New cloud sessions install all
+        three packs by themselves (the environment's setup script), so the install commands are only needed elsewhere.
+      </p>
+      <p className="admin-muted">
+        The Claude app’s suggestion box (when you type “/”) may only list skills added to your Claude account, such as
+        “anthropic-skills:humanizer”. The commands below still work when typed in full, e.g. <code>/humanizer:humanizer</code>.
       </p>
       <div className="skills-list">
         {SKILL_PACKS.map((pack) => (

@@ -18,6 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMetadata(`/missions/marsalis-newsletter/${month}/`, {
     title: doc ? `${title}: ${doc.label}` : title,
     description: doc ? `Read the Smithton Church ${DOCUMENT_TYPES.newsletter.singular} for ${doc.label}.` : undefined,
+    // Just the flipbook frame (little text for search engines) and the bulletins name people on rotas: kept out of search results.
+    robots: { index: false, follow: true },
   });
 }
 

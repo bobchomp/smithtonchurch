@@ -9,7 +9,7 @@ import { site, venueRooms } from "@/lib/content";
 export const metadata: Metadata = pageMetadata("/conferencing-venue/", {
   title: "Conferencing Venue",
   description:
-    "Hire Smithton Church in Inverness for conferences, meetings and events. We have an auditorium with live streaming, meeting rooms, a café and kitchen, free wifi and parking for around 200 cars.",
+    "Hire Smithton Church, Inverness, for conferences, meetings and events: an auditorium with live streaming, meeting rooms, a café, kitchen and large car park.",
 });
 
 const avPhotos = [

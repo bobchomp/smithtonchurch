@@ -2,7 +2,7 @@ import "server-only";
 import { bookFromTitle, sortBooks } from "./bible";
 import { streamSlot, unmatchedStreams, videoForSermons, type Livestream } from "./livestream-match";
 import type { Sermon } from "./sermon-types";
-import { sermonPath } from "./sermon-types";
+import { cleanSermonTitle, sermonPath } from "./sermon-types";
 import { logActivity, SYSTEM } from "./activity";
 import { addSermons, loadSermons } from "./sermons";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
@@ -32,7 +32,7 @@ export async function loadLivestreams(): Promise<LivestreamIndex> {
 export function sermonFromStream(stream: Livestream, now = new Date().toISOString()): Omit<Sermon, "id"> {
   const { date, service } = streamSlot(stream);
   return {
-    title: stream.title.trim(),
+    title: cleanSermonTitle(stream.title),
     books: sortBooks([bookFromTitle(stream.title)]),
     date,
     service,

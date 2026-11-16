@@ -568,7 +568,7 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 .sermon-audio-heading { font-size: 1.1rem; margin-bottom: 0.6rem; }
 .sermon-item-noaudio { font-style: italic; }
 .sermon-pages { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; }
-.sermon-pages .button:disabled { opacity: 0.4; cursor: default; }
+.sermon-pages .button:disabled, .sermon-pages .button.is-disabled { opacity: 0.4; cursor: default; pointer-events: none; }
 @media (max-width: 900px) {
   .sermon-filters { grid-template-columns: 1fr 1fr; }
 }

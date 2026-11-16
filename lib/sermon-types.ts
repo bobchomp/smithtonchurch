@@ -71,6 +71,14 @@ export function sermonIdFromParam(param: string): number | undefined {
   return Number.isSafeInteger(id) && id > 0 ? id : undefined;
 }
 
+// Removes quote marks around a whole title, as YouTube stream titles often have them:
+// "'Rediscover Christmas #2 - Timing'" -> "Rediscover Christmas #2 - Timing". Quotes inside a title are kept.
+export function cleanSermonTitle(title: string): string {
+  const t = title.trim();
+  const m = /^(['‘’"“”])(.+)(['‘’"“”])$/.exec(t);
+  return m ? m[2].trim() : t;
+}
+
 // "2026-02-15" -> "Sunday 15 February 2026"
 export function formatSermonDate(date: string): string {
   return new Date(`${date}T12:00:00Z`)

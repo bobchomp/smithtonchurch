@@ -42,6 +42,9 @@ const nextConfig: NextConfig = {
       { source: "/weekly-devotional", destination: "/weekly-bulletin/", permanent: true },
       { source: "/missions/marsalis-musings", destination: "/missions/marsalis-newsletter/", permanent: true },
       { source: "/admin/musings", destination: "/admin/marsalis-newsletter/", permanent: true },
+      // Old WordPress team pages.
+      { source: "/team-2", destination: "/team/", permanent: true },
+      { source: "/team-deacons-page-for-c-suite", destination: "/team/", permanent: true },
     ];
   },
   images: {

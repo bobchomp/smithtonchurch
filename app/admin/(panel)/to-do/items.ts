@@ -13,13 +13,20 @@ export const TO_DO: ToDoGroup[] = [
         items: [
           {
             title: "SEO audit",
+            done: "2026-11-16",
             detail:
               "Check titles, descriptions, the sitemap, redirects from old WordPress addresses, and switching the site from hidden to visible on Google. Report back before changing anything.",
           },
           {
+            title: "SEO fixes from the audit",
+            done: "2026-11-16",
+            detail:
+              "Redirects for the old site's 642 sermon pages and its book, minister and series lists (to the same sermon, or the archive until the media import), and the two old team pages; quote marks removed from sermon titles; bulletin and newsletter viewer pages kept out of Google; real page links in the sermon archive; two page descriptions fixed.",
+          },
+          {
             title: "Launch plan and checklist",
             detail:
-              "Walk through the domain move, then a step-by-step list of the parts only the owner can do. The domain is used in the website’s settings, Vercel domains, Supabase sign-in links, Resend, the cron-job.org address, and the flipbook’s website list and webhook address. Holding slide links copied before the move will stop working.",
+              "Walk through the domain move, then a step-by-step list of the parts only the owner can do. smithtonchurch.com (without www) must be the main domain, with www redirecting to it, and pages must stop saying noindex. The domain is used in the website’s settings, Vercel domains, Supabase sign-in links, Resend, the cron-job.org address, and the flipbook’s website list and webhook address. Holding slide links copied before the move will stop working.",
           },
         ],
       },
@@ -45,7 +52,8 @@ export const TO_DO: ToDoGroup[] = [
         items: [
           {
             title: "Service times in one place",
-            detail: "“10:30am and 5:30pm” is written in about six places; one setting would update them all.",
+            done: "2026-11-16",
+            detail: "“10:30am and 5:30pm” was written in about six places. Now set once, as service_times in content/site.yml. (The holding slides have the times drawn into the pictures.)",
           },
           {
             title: "Remove test visits from Analytics",
@@ -57,10 +65,12 @@ export const TO_DO: ToDoGroup[] = [
           },
           {
             title: "Keep the Claude skills between sessions",
+            done: "2026-11-16",
             detail: "Add their install commands to the cloud environment’s setup script (the owner approves the script first).",
           },
           {
             title: "Claude Skills page: note about the suggestion box",
+            done: "2026-11-16",
             detail: "The Claude app’s suggestion box may only show the Anthropic copy of Humanizer.",
           },
         ],
@@ -69,11 +79,8 @@ export const TO_DO: ToDoGroup[] = [
         heading: "Optional, only if wanted",
         items: [
           {
-            title: "Centre the logo on smaller screens too",
-            detail: "Between the screen edge and the Menu button.",
-          },
-          {
             title: "Missions, Cheptebo: missing word",
+            done: "2026-11-16",
             detail: "The description ends “a new residential”. Left alone, as the Missions page isn’t to be changed.",
           },
         ],
@@ -91,13 +98,24 @@ export const TO_DO: ToDoGroup[] = [
               "Set up R2, add its keys in Vercel, then run the import script locally. Until then, sermons before 8 November 2026 have no audio.",
           },
           {
+            title: "Set up Google Search Console and Bing Webmaster Tools",
+            detail:
+              "Before launch: add smithtonchurch.com as a Domain property to see which old pages get visitors. After launch: submit the sitemap and watch for pages not found. Bing can import from Search Console.",
+          },
+          {
+            title: "Check the Google Business Profile",
+            detail:
+              "Name, address (Murray Road, Smithton, Inverness IV2 7YU), phone (01463 793191) and service times match the website; recent photos; the website link points to smithtonchurch.com after launch.",
+          },
+          {
+            title: "Duplicate sermon: “Rediscover Christmas #2 - Timing”",
+            detail:
+              "It's on the website twice (sermons 10096 and 10097, 21 December 2025). Tell Claude which to delete, or delete one in Admin → Sermons. “God's Words - Grow God's Kingdom” is used for two different Sundays; part numbers would tell them apart.",
+          },
+          {
             title: "Flipbook app: fix its schema check",
             detail:
               "The flipbook dashboard’s check fails with SQLITE_AUTH, because D1 doesn’t allow pragma_table_info. It would have warned about the missing page_url column.",
-          },
-          {
-            title: "Auditorium capacity",
-            detail: "The Conferencing Venue page says “around 300”. Give Claude the exact number if you find it.",
           },
         ],
       },

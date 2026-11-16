@@ -10,6 +10,7 @@ function load<T>(name: string): T {
 
 export type Site = {
   title: string;
+  service_times: { morning: string; evening: string };
   description: string;
   tagline: string;
   url: string;
@@ -62,10 +63,24 @@ export type VenueRoom = { name: string; image: string; details?: string; capacit
 
 export type Bulletin = { date: string; file: string };
 
-export const site = load<Site>("site");
+const rawSite = load<Site>("site");
+
+// The Sunday service times, set once in content/site.yml (service_times).
+export const serviceTimes = rawSite.service_times;
+// "10:30am and 5:30pm"
+export const serviceTimesText = `${serviceTimes.morning} and ${serviceTimes.evening}`;
+// Puts the service times into text that says {morning} or {evening}.
+export function withServiceTimes(text: string): string {
+  return text.replace(/\{morning\}/g, serviceTimes.morning).replace(/\{evening\}/g, serviceTimes.evening);
+}
+
+export const site: Site = { ...rawSite, description: withServiceTimes(rawSite.description) };
 export const navigation = load<NavItem[]>("navigation");
 export const team = load<Team>("team");
-export const whatsOn = load<WhatsOnDay[]>("whats-on");
+export const whatsOn = load<WhatsOnDay[]>("whats-on").map((day) => ({
+  ...day,
+  items: day.items.map((item) => (item.details ? { ...item, details: withServiceTimes(item.details) } : item)),
+}));
 export const missions = load<MissionPartner[]>("missions");
 export const venueRooms = load<VenueRoom[]>("venue-rooms");
 export const bulletin = load<Bulletin>("bulletin");

@@ -2,7 +2,7 @@ import "server-only";
 import { videoForSermons } from "./livestream-match";
 import { loadLivestreams } from "./livestreams";
 import { audioUrl } from "./r2";
-import { sermonBooks, sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
+import { cleanSermonTitle, sermonBooks, sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
 import { copyInOnce, db, selectAll, tableReady, upsertRows } from "./db";
 import { isStorageNotFound } from "./private-store";
 import { ensureStorageBucket, storage, supabaseIsConfigured, withTimeout } from "./supabase";
@@ -61,9 +61,11 @@ async function useDatabase(): Promise<boolean> {
 // Every sermon, newest first.
 export async function loadSermons(): Promise<Sermon[]> {
   if (!supabaseIsConfigured()) return [];
-  if (!(await useDatabase())) return (await loadSermonFile()).sort(newestFirst);
+  // Titles are tidied as they're read (quote marks around the whole title removed), and saved tidied next time.
+  const tidy = (s: Sermon): Sermon => ({ ...s, title: cleanSermonTitle(s.title ?? "") });
+  if (!(await useDatabase())) return (await loadSermonFile()).map(tidy).sort(newestFirst);
   const rows = await selectAll<{ data: Sermon }>((from, to) => db().from("sermons").select("data").order("id").range(from, to));
-  return rows.map((r) => r.data).sort(newestFirst);
+  return rows.map((r) => tidy(r.data)).sort(newestFirst);
 }
 
 // Saves one sermon that already has its number (new or changed).

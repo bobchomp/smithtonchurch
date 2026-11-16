@@ -1,9 +1,15 @@
 # Church details used across the whole website.
 
 title: Smithton Church
+# Sunday service times, used everywhere on the website. In text below and in whats-on.yml,
+# {morning} and {evening} are replaced by these.
+service_times:
+  morning: 10:30am
+  evening: 5:30pm
+
 description: >-
   Smithton Church is a Free Church of Scotland congregation in Smithton, Inverness.
-  Sunday services are at 10:30am and 5:30pm, in person and streamed live.
+  Sunday services are at {morning} and {evening}, in person and streamed live.
 tagline: knowing Jesus - making Jesus known
 url: https://smithtonchurch.com
 

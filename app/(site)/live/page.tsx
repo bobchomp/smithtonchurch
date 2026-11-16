@@ -4,12 +4,12 @@ import Link from "next/link";
 import BulletinBox from "@/components/BulletinBox";
 import LiveNotice from "@/components/LiveNotice";
 import PageBanner from "@/components/PageBanner";
-import { site } from "@/lib/content";
+import { serviceTimesText, site } from "@/lib/content";
 import { getPublicDocuments } from "@/lib/documents";
 
 export const metadata: Metadata = pageMetadata("/live/", {
   title: "Watch Live",
-  description: "Watch Smithton Church's Sunday services live online, at 10:30am and 5:30pm.",
+  description: `Watch Smithton Church's Sunday services live online, at ${serviceTimesText}.`,
 });
 
 // Refreshed when a bulletin is uploaded in the admin panel, and hourly as a fallback.
@@ -26,7 +26,7 @@ export default async function WatchLive() {
       <section className="section">
         <div className="container narrow live-page">
           <p className="section-intro">
-            Sunday services are streamed live at 10:30am and 5:30pm. Can’t join us in person? Watch along here.
+            Sunday services are streamed live at {serviceTimesText}. Can’t join us in person? Watch along here.
           </p>
           <LiveNotice />
           <div className="livestream">

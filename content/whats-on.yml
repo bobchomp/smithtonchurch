@@ -6,7 +6,7 @@
   items:
     - name: Services
       graphic: service-times
-      details: Morning service at 10:30am and evening service at 5:30pm.
+      details: Morning service at {morning} and evening service at {evening}.
     - name: Creche
       image: creche.jpg
     - name: Sunday Club

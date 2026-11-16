@@ -26,8 +26,10 @@ function matches(s: PublicSermon, f: Filters): boolean {
   if (f.year && !s.date.startsWith(f.year)) return false;
   if (f.service && s.service !== f.service) return false;
   if (f.q) {
-    const text = [s.title, s.preacher, ...s.books].join(" ").toLowerCase();
-    if (!f.q.toLowerCase().split(/\s+/).every((word) => text.includes(word))) return false;
+    // Apostrophes are ignored, so "easters" finds "Easter's".
+    const plain = (t: string) => t.toLowerCase().replace(/['’‘]/g, "");
+    const text = plain([s.title, s.preacher, ...s.books].join(" "));
+    if (!plain(f.q).split(/\s+/).filter(Boolean).every((word) => text.includes(word))) return false;
   }
   return true;
 }
@@ -57,6 +59,21 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
   }, [filters, page]);
 
   const results = useMemo(() => sermons.filter((s) => matches(s, filters)), [sermons, filters]);
+
+  // The address of another page of results, keeping the current filters.
+  const pageHref = (n: number) => {
+    const params = new URLSearchParams();
+    for (const key of FILTERS) if (filters[key]) params.set(key, filters[key]);
+    if (n > 1) params.set("page", String(n));
+    const query = params.toString();
+    return `/sermons/${query ? `?${query}` : ""}`;
+  };
+  const goTo = (event: React.MouseEvent, n: number) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return; // new tab etc.
+    event.preventDefault();
+    setPage(n);
+    window.scrollTo({ top: 0 });
+  };
 
   // For the website statistics: what people search for, once they've stopped typing for a moment.
   const lastSearch = useRef("");
@@ -179,15 +196,24 @@ export default function SermonBrowser({ sermons }: { sermons: PublicSermon[] }) 
 
       {pages > 1 && (
         <nav className="sermon-pages" aria-label="Pages of sermons">
-          <button type="button" className="button button-outline" disabled={page <= 1} onClick={() => { setPage(page - 1); window.scrollTo({ top: 0 }); }}>
-            Newer
-          </button>
+          {/* Real links (so search engines can follow them through the whole archive), handled here without reloading. */}
+          {page > 1 ? (
+            <a className="button button-outline" href={pageHref(page - 1)} rel="prev" onClick={(e) => goTo(e, page - 1)}>
+              Newer
+            </a>
+          ) : (
+            <span className="button button-outline is-disabled" aria-disabled="true">Newer</span>
+          )}
           <span>
             Page {page} of {pages}
           </span>
-          <button type="button" className="button button-outline" disabled={page >= pages} onClick={() => { setPage(page + 1); window.scrollTo({ top: 0 }); }}>
-            Older
-          </button>
+          {page < pages ? (
+            <a className="button button-outline" href={pageHref(page + 1)} rel="next" onClick={(e) => goTo(e, page + 1)}>
+              Older
+            </a>
+          ) : (
+            <span className="button button-outline is-disabled" aria-disabled="true">Older</span>
+          )}
         </nav>
       )}
     </div>

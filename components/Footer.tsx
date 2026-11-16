@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import SocialLinks from "./SocialLinks";
-import { site } from "@/lib/content";
+import { serviceTimes, site } from "@/lib/content";
 
 export default function Footer() {
   return (
@@ -31,7 +31,7 @@ export default function Footer() {
             ))}
             <a href={site.maps_link}>Get directions</a>
           </p>
-          <p>Sundays at 10:30am &amp; 5:30pm</p>
+          <p>Sundays at {serviceTimes.morning} &amp; {serviceTimes.evening}</p>
         </div>
         <div>
           <h2>Get in touch</h2>
