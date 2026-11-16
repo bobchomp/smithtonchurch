@@ -1,9 +1,17 @@
 // Notices shown above the player on the Watch Live page (shared by the server and the browser).
 
+// The notice box's colour: light blue (the default) or yellow for a warning.
+export type NoticeStyle = "info" | "warning";
+export const NOTICE_STYLES: { key: NoticeStyle; label: string }[] = [
+  { key: "info", label: "Light blue (information)" },
+  { key: "warning", label: "Yellow (warning)" },
+];
+
 export type LiveNotice = {
   id: string;
   heading: string;
   text: string;
+  style?: NoticeStyle; // unset = "info"
   image?: { path: string; alt: string }; // in the public "website" bucket
   link?: { label: string; url: string };
   startsAt?: string; // ISO time; unset = straight away
@@ -15,6 +23,7 @@ export type LiveNotice = {
 
 // What the live page gets: only the notice that's showing now.
 export type PublicLiveNotice = {
+  style: NoticeStyle;
   heading: string;
   text: string;
   imageUrl?: string;

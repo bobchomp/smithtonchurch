@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { isoToUkTime, type LiveNotice } from "@/lib/live-notice-types";
+import { isoToUkTime, type LiveNotice, NOTICE_STYLES } from "@/lib/live-notice-types";
 import { saveNotice, startNoticeImageUpload, type NoticeInput } from "./actions";
 
 // Sends the image straight from the browser to Supabase.
@@ -49,6 +49,7 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
         }
       }
       const result = await saveNotice(notice?.id ?? null, {
+        style: text("style"),
         heading: text("heading"),
         text: text("text"),
         image,
@@ -70,6 +71,15 @@ export default function NoticeForm({ notice, imageUrl }: { notice?: LiveNotice; 
 
   return (
     <form className="admin-form" onSubmit={handleSubmit}>
+      <fieldset className="admin-notice-styles">
+        <legend>Box colour</legend>
+        {NOTICE_STYLES.map((s) => (
+          <label key={s.key} className={`admin-notice-style admin-notice-style-${s.key}`}>
+            <input type="radio" name="style" value={s.key} defaultChecked={(notice?.style ?? "info") === s.key} />
+            {s.label}
+          </label>
+        ))}
+      </fieldset>
       <label>
         <span>
           Heading <span className="admin-optional">(optional)</span>

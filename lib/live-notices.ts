@@ -86,6 +86,7 @@ export async function getCurrentPublicNotice(): Promise<PublicLiveNotice | null>
     const notice = currentNotice(await loadNotices());
     if (!notice) return null;
     return {
+      style: notice.style === "warning" ? "warning" : "info",
       heading: notice.heading,
       text: notice.text,
       ...(notice.image ? { imageUrl: noticeImageUrl(notice.image.path), imageAlt: notice.image.alt } : {}),

@@ -19,6 +19,7 @@ import { describeStorageError } from "@/lib/supabase";
 const MAX_IMAGE_MEGABYTES = 10;
 
 export type NoticeInput = {
+  style: string; // "info" or "warning"
   heading: string;
   text: string;
   image: { path: string; alt: string } | null; // null = no image
@@ -60,6 +61,7 @@ function clean(input: NoticeInput): { notice?: Omit<LiveNotice, "id" | "createdA
   if (startsAt && endsAt && Date.parse(endsAt) <= Date.parse(startsAt)) return { error: "The end needs to be after the start." };
   return {
     notice: {
+      ...(input.style === "warning" ? { style: "warning" as const } : {}),
       heading,
       text,
       ...(input.image ? { image: { path: input.image.path, alt: input.image.alt.trim().slice(0, 300) } } : {}),
@@ -93,7 +95,7 @@ export async function saveNotice(id: string | null, input: NoticeInput): Promise
       area: "Live notices",
       action: id === null ? "Added a live notice" : "Edited a live notice",
       target: notice.heading || notice.text.slice(0, 80) || "(image only)",
-      details: { starts: notice.startsAt ?? "straight away", ends: notice.endsAt ?? "until removed" },
+      details: { colour: notice.style === "warning" ? "yellow" : "light blue", starts: notice.startsAt ?? "straight away", ends: notice.endsAt ?? "until removed" },
     });
     revalidatePath("/admin/live-notices");
     return {};

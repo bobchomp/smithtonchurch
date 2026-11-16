@@ -1262,3 +1262,19 @@ fieldset.admin-tool-checklist { border: 0; margin: 0; padding: 0; }
 
 .analytics-visit-remove { margin-left: auto; }
 .admin-main .lost { background: transparent; }
+
+/* Live Services: the notice above the player (components/LiveNotice.tsx). Light blue by default; yellow for a warning. */
+.live-notice { margin: 0 0 1.5rem; padding: 1.25rem 1.5rem; border-radius: var(--radius); border: 1px solid #c9d6e6; background: var(--blue-light); color: var(--text); }
+.live-notice-warning { background: #fff8e6; border-color: #f0cf7a; }
+.live-notice img { display: block; width: 100%; height: auto; border-radius: 6px; margin-bottom: 1rem; }
+.live-notice-body > :last-child { margin-bottom: 0; }
+.live-notice-title { display: flex; align-items: flex-start; gap: 0.6rem; }
+h2.live-notice-title { margin: 0 0 0.6rem; }
+.live-notice-title-text { margin: 0 0 1rem; }
+.live-notice-icon { flex: none; width: 1.15em; height: 1.15em; margin-top: 0.12em; color: var(--blue); }
+.live-notice-warning .live-notice-icon { color: #9a6700; }
+.live-notice p { margin: 0 0 1rem; }
+.admin-notice-styles { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; border: 0; padding: 0; margin: 0; }
+.admin-notice-styles legend { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.4rem; padding: 0; }
+.admin-notice-style { display: flex !important; align-items: center; gap: 0.5rem; font-weight: 400 !important; padding: 0.45rem 0.8rem; border-radius: 6px; border: 1px solid #c9d6e6; background: var(--blue-light); cursor: pointer; }
+.admin-notice-style-warning { background: #fff8e6; border-color: #f0cf7a; }

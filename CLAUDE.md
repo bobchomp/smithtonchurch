@@ -67,6 +67,7 @@
   player on /live/. Stored in the `live_notices` table (before: private bucket `live-notices/index.json`), images in
   `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
+  Notices show in a box: light blue by default, or yellow when `style: "warning"` ("Box colour" in the editor), with an "i" icon before the title.
 - Home page (`app/(site)/page.tsx`, styles under "Home" in globals.css): photo hero, welcome with the church photo, This week,
   Find us (contact details + Google map), Free Church of Scotland section, contact form; plus the Church JSON-LD.
 - Home page "This week at Smithton" (`components/ThisWeek.tsx`): the latest sermon (thumbnail, no player, links to its
