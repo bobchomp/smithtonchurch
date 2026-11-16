@@ -92,7 +92,9 @@
 - YouTube livestreams: `lib/youtube.ts` (Data API, YOUTUBE_API_KEY) fetches finished livestreams; `lib/livestreams.ts`
   saves them to `website/livestreams/index.json` (daily via cron-job.org calling `/api/cron/sync-livestreams/` with
   `Authorization: Bearer <CRON_SECRET>`, or "Check YouTube now"). No Vercel cron is used. `lib/livestream-match.ts` matches them to sermons by UK date and service (before 2pm = am);
-  a sermon's `video` field overrides ("none" or a YouTube ID). Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
+  a sermon's `video` field overrides ("none" or a YouTube ID). A service streamed in parts (same slot and title, each 10+ min) shows every
+  part ("Part 1", "Part 2"…): `slotStreams`/`videoPartsForSermons` (automatic), or `videoParts` (extra YouTube IDs, "More parts of this
+  service" in the admin form); new split streams become one sermon. `MERGED_SERMONS` (lib/old-sermon-urls.ts) forwards removed duplicates. Streams titled "Church Night", "funeral" or "thanksgiving service" are never matched or listed;
   a stream's description is the preacher's name, sometimes after the title on the line above (`preacherFrom` in lib/youtube.ts), used when creating sermons from streams and to fill a blank preacher in the admin forms;
   the Bible book comes from the title via `bookFromTitle` (lib/bible.ts). Pages read the saved list, never YouTube directly.
   Each sync also creates a sermon automatically (`sermonFromStream`) for every unmatched stream (see `unmatchedStreams`: not

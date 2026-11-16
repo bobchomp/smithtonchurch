@@ -110,7 +110,7 @@ export const TO_DO: ToDoGroup[] = [
           {
             title: "Duplicate sermon: “Rediscover Christmas #2 - Timing”",
             detail:
-              "It's on the website twice (sermons 10096 and 10097, 21 December 2025). Tell Claude which to delete, or delete one in Admin → Sermons. “God's Words - Grow God's Kingdom” is used for two different Sundays; part numbers would tell them apart.",
+              "The livestream was split in two. Sermons can now show both parts: in Admin → Sermons, open 10096 and set Video to “Automatic” (it finds both parts), save, then delete 10097 (its address forwards to 10096). Separately, “God's Words - Grow God's Kingdom” is used for two different Sundays; part numbers would tell them apart.",
           },
           {
             title: "Flipbook app: fix its schema check",

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { BIBLE_BOOKS, sortBooks } from "@/lib/bible";
-import { streamSlot, youtubeId, type Livestream } from "@/lib/livestream-match";
+import { slotStreams, streamSlot, youtubeId, type Livestream } from "@/lib/livestream-match";
 import { formatDuration, formatSermonDate, sermonBooks, type Sermon, type Service } from "@/lib/sermon-types";
 import { saveSermon, startAudioUpload, type SermonInput } from "./actions";
 
@@ -61,11 +61,13 @@ function VideoField({
   date,
   service,
   initial,
+  initialParts,
 }: {
   streams: Livestream[];
   date: string;
   service: Service;
   initial: string;
+  initialParts: string[];
 }) {
   const known = new Set(streams.map((s) => s.id));
   const [choice, setChoice] = useState(initial === "" || initial === "none" || known.has(initial) ? initial : "other");
@@ -74,19 +76,19 @@ function VideoField({
   const nearby = Number.isNaN(day)
     ? []
     : streams.filter((s) => Math.abs(Date.parse(s.startedAt) - day) < 10 * DAY || s.id === initial);
-  const automatic = streams
-    .filter((s) => {
-      const slot = streamSlot(s);
-      return slot.date === date && slot.service === service;
-    })
-    .sort((a, b) => (b.duration ?? 0) - (a.duration ?? 0))[0];
+  const automaticParts = service ? slotStreams(streams, date, service) : [];
+  const automatic = automaticParts[0];
+  const [parts, setParts] = useState(initialParts.map((id) => `https://youtu.be/${id}`).join("\n"));
+  const badPart = parts.split("\n").map((l) => l.trim()).filter(Boolean).find((l) => !youtubeId(l));
 
   return (
     <label>
       Video
       <select value={choice} onChange={(e) => setChoice(e.target.value)}>
         <option value="">
-          {automatic ? `Automatic: ${streamLabel(automatic)}` : "Automatic (no livestream found for this date and service yet)"}
+          {automatic
+            ? `Automatic: ${streamLabel(automatic)}${automaticParts.length > 1 ? ` (and ${automaticParts.length - 1} more part${automaticParts.length > 2 ? "s" : ""})` : ""}`
+            : "Automatic (no livestream found for this date and service yet)"}
         </option>
         <option value="none">No video</option>
         {nearby.length > 0 && (
@@ -103,6 +105,18 @@ function VideoField({
       )}
       <input type="hidden" name="video" value={choice === "other" ? link : choice} />
       {choice === "other" && link && !youtubeId(link) && <span className="admin-error">That doesn’t look like a YouTube link.</span>}
+      {choice !== "none" && (
+        <span className="admin-video-parts">
+          <span>
+            More parts of this service <span className="admin-optional">(optional: if the livestream was split, a YouTube link for each further part, one per line)</span>
+          </span>
+          <textarea name="videoParts" rows={2} value={parts} onChange={(e) => setParts(e.target.value)} placeholder="https://youtu.be/…" />
+          {badPart && <span className="admin-error">“{badPart}” doesn’t look like a YouTube link.</span>}
+          {choice === "" && automaticParts.length > 1 && (
+            <span className="admin-muted">Found automatically: {automaticParts.length} parts with the same title, shown one after another.</span>
+          )}
+        </span>
+      )}
     </label>
   );
 }
@@ -182,6 +196,7 @@ export default function SermonForm({
       preacher: text("preacher"),
       books: data.getAll("books").map(String),
       video: text("video"),
+      videoParts: text("videoParts"),
       detailsChecked: review ? true : undefined,
     };
     const file = data.get("audio") as File | null;
@@ -256,6 +271,7 @@ export default function SermonForm({
         date={date}
         service={service}
         initial={sermon?.video ?? youtubeId(sermon?.videoUrl) ?? prefill?.video ?? ""}
+        initialParts={sermon?.videoParts ?? []}
       />
       <label>
         <span>

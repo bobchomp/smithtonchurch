@@ -566,6 +566,7 @@ input[type="date"]::-webkit-date-and-time-value, input[type="datetime-local"]::-
 @media (max-width: 480px) { .bulletin-box { gap: 1rem; padding: 1rem; } .bulletin-box img { width: 64px; } }
 @media (max-width: 360px) { .bulletin-box img { display: none; } }
 .sermon-audio-heading { font-size: 1.1rem; margin-bottom: 0.6rem; }
+.sermon-video-part + .sermon-video-part { margin-top: 1.5rem; }
 .sermon-item-noaudio { font-style: italic; }
 .sermon-pages { display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem; }
 .sermon-pages .button:disabled, .sermon-pages .button.is-disabled { opacity: 0.4; cursor: default; pointer-events: none; }
@@ -831,6 +832,7 @@ a.admin-tool:hover { border-color: var(--blue); box-shadow: 0 6px 18px rgba(30, 
 .admin-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; }
 .admin-form label, .admin-form input, .admin-form select, .admin-find select { min-width: 0; max-width: 100%; }
 .admin-form label { display: grid; gap: 0.35rem; font-weight: 600; font-size: 0.95rem; }
+.admin-video-parts { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
 .admin-form input {
   font: inherit; font-weight: 400; padding: 0.6rem 0.75rem; border: 1px solid #c4ccd6; border-radius: 6px; background: #fff;
 }

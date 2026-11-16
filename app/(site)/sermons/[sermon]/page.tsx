@@ -7,7 +7,7 @@ import SermonAudio from "@/components/SermonAudio";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import { bulletinForDate } from "@/lib/documents";
 import { formatDuration, formatSermonDate, serviceLabel, sermonIdFromParam } from "@/lib/sermon-types";
-import { oldSermonTarget } from "@/lib/old-sermon-urls";
+import { MERGED_SERMONS, oldSermonTarget } from "@/lib/old-sermon-urls";
 import { getPublicSermons } from "@/lib/sermons";
 
 // Built when first visited, then cached; refreshed when the sermon is changed in the admin panel.
@@ -36,7 +36,9 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
   const { sermon, sermons } = await findSermon(param);
   if (!sermon) {
     // An address from the old website (e.g. /sermons/a-love-that-costs/): send it to the same sermon here.
-    const target = sermonIdFromParam(param) === undefined ? oldSermonTarget(param, sermons) : undefined;
+    const id = sermonIdFromParam(param);
+    const merged = id !== undefined && MERGED_SERMONS[id] ? sermons.find((s) => s.id === MERGED_SERMONS[id]) : undefined;
+    const target = merged ? merged.path : id === undefined ? oldSermonTarget(param, sermons) : undefined;
     if (target) permanentRedirect(target);
     notFound();
   }
@@ -88,7 +90,18 @@ export default async function SermonPage({ params }: { params: Promise<{ sermon:
             ) : null}
           </dl>
 
-          {sermon.youtubeId && <YouTubePlayer id={sermon.youtubeId} title={sermon.title} trackAs={sermon.title} />}
+          {sermon.youtubeId && !sermon.videoParts?.length && (
+            <YouTubePlayer id={sermon.youtubeId} title={sermon.title} trackAs={sermon.title} />
+          )}
+          {/* A service streamed in more than one part: each part in turn. */}
+          {sermon.youtubeId &&
+            !!sermon.videoParts?.length &&
+            [sermon.youtubeId, ...sermon.videoParts].map((id, i) => (
+              <div key={id} className="sermon-video-part">
+                <h2 className="sermon-audio-heading">Part {i + 1}</h2>
+                <YouTubePlayer id={id} title={`${sermon.title} (part ${i + 1})`} trackAs={`${sermon.title} (part ${i + 1})`} />
+              </div>
+            ))}
 
           {sermon.audioUrl ? (
             <div className="sermon-player">

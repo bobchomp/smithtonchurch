@@ -1,6 +1,6 @@
 import "server-only";
 import { bookFromTitle, sortBooks } from "./bible";
-import { streamSlot, unmatchedStreams, videoForSermons, type Livestream } from "./livestream-match";
+import { streamSlot, unmatchedStreams, videoPartsForSermons, type Livestream } from "./livestream-match";
 import type { Sermon } from "./sermon-types";
 import { cleanSermonTitle, sermonPath } from "./sermon-types";
 import { logActivity, SYSTEM } from "./activity";
@@ -63,14 +63,25 @@ export async function syncLivestreams(): Promise<{ count: number; changedPaths: 
   });
   if (error) throw error;
 
-  const oldVideos = videoForSermons(sermons, before.streams);
-  const newVideos = videoForSermons(sermons, streams);
+  const oldVideos = videoPartsForSermons(sermons, before.streams);
+  const newVideos = videoPartsForSermons(sermons, streams);
   const changedPaths = sermons
-    .filter((s) => oldVideos.get(s.id)?.id !== newVideos.get(s.id)?.id)
+    .filter((s) => (oldVideos.get(s.id) ?? []).join() !== (newVideos.get(s.id) ?? []).join())
     .map((s) => sermonPath(s).replace(/\/$/, ""));
 
   const fresh = unmatchedStreams(sermons, streams).filter((s) => streamSlot(s).date >= AUTO_SERMONS_FROM);
-  const created = fresh.length ? await addSermons(fresh.map((s) => sermonFromStream(s))) : [];
+  // A service streamed in more than one part (same date, service and title) becomes one sermon with each part.
+  const groups = new Map<string, Livestream[]>();
+  for (const s of [...fresh].sort((a, b) => a.startedAt.localeCompare(b.startedAt))) {
+    const { date, service } = streamSlot(s);
+    const key = `${date} ${service} ${cleanSermonTitle(s.title).toLowerCase()}`;
+    groups.set(key, [...(groups.get(key) ?? []), s]);
+  }
+  const newSermons = [...groups.values()].map(([first, ...rest]) => ({
+    ...sermonFromStream(first),
+    ...(rest.length ? { videoParts: rest.map((s) => s.id), duration: undefined } : {}),
+  }));
+  const created = newSermons.length ? await addSermons(newSermons) : [];
   for (const s of created) {
     await logActivity({ area: "Sermons", action: "Created a sermon automatically from a new livestream", target: `${s.title} (${s.date})`, details: { preacher: s.preacher, video: s.video } }, SYSTEM);
   }

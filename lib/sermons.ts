@@ -1,5 +1,5 @@
 import "server-only";
-import { videoForSermons } from "./livestream-match";
+import { videoPartsForSermons } from "./livestream-match";
 import { loadLivestreams } from "./livestreams";
 import { audioUrl } from "./r2";
 import { cleanSermonTitle, sermonBooks, sermonPath, type PublicSermon, type Sermon } from "./sermon-types";
@@ -110,11 +110,12 @@ export function newestFirst(a: Sermon, b: Sermon): number {
   return b.date.localeCompare(a.date) || (b.service === "pm" ? 1 : 0) - (a.service === "pm" ? 1 : 0) || b.id - a.id;
 }
 
-function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
+function toPublic(sermon: Sermon, videos: string[] | undefined): PublicSermon {
   const {
     audioKey,
     createdAt: _createdAt,
     video: _video,
+    videoParts: _videoParts,
     videoUrl: _videoUrl,
     passage: _passage,
     book: _book,
@@ -127,7 +128,8 @@ function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
     ...rest,
     books: sermonBooks(sermon),
     audioUrl: audioUrl(audioKey),
-    youtubeId,
+    youtubeId: videos?.[0],
+    ...(videos && videos.length > 1 ? { videoParts: videos.slice(1) } : {}),
     path: sermonPath(sermon),
   };
 }
@@ -136,8 +138,8 @@ function toPublic(sermon: Sermon, youtubeId: string | undefined): PublicSermon {
 export async function getPublicSermons(): Promise<PublicSermon[]> {
   try {
     const [sermons, { streams }] = await Promise.all([loadSermons(), loadLivestreams()]);
-    const videos = videoForSermons(sermons, streams);
-    return sermons.map((s) => toPublic(s, videos.get(s.id)?.id));
+    const videos = videoPartsForSermons(sermons, streams);
+    return sermons.map((s) => toPublic(s, videos.get(s.id)));
   } catch (error) {
     console.error("Could not load sermons", error);
     return [];

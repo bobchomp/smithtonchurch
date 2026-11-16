@@ -22,6 +22,8 @@ export type Sermon = {
   // The YouTube video: unset = match the livestream from the same date and service automatically,
   // "none" = no video, otherwise a YouTube video ID chosen in the admin panel.
   video?: string;
+  // Further parts of the same service on YouTube, in order after the first (when a livestream was split).
+  videoParts?: string[];
   videoUrl?: string; // older field: a video link entered by hand
   createdAt: string;
 };
@@ -29,11 +31,12 @@ export type Sermon = {
 // The bits of a sermon the public pages need, with the audio address and video worked out.
 export type PublicSermon = Omit<
   Sermon,
-  "audioKey" | "createdAt" | "video" | "videoUrl" | "passage" | "book" | "books" | "detailsChecked"
+  "audioKey" | "createdAt" | "video" | "videoParts" | "videoUrl" | "passage" | "book" | "books" | "detailsChecked"
 > & {
   books: string[];
   audioUrl?: string;
-  youtubeId?: string;
+  youtubeId?: string; // the first (or only) video
+  videoParts?: string[]; // any further parts of the service, in order
   path: string;
 };
 

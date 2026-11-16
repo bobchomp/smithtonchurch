@@ -21,8 +21,17 @@ export type SermonInput = {
   detailsChecked?: boolean; // saved from "Fill in details"
   // "" = match the livestream automatically, "none" = no video, or a YouTube link or video ID.
   video: string;
+  videoParts?: string; // further parts of the service: YouTube links, one per line
   audio?: { key: string; size: number; duration?: number };
 };
+
+const partIds = (text: string | undefined) => (text ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+// The further video parts as YouTube IDs (none if the sermon has no video).
+function videoPartsFrom(input: SermonInput): string[] | undefined {
+  if (input.video === "none") return undefined;
+  const ids = [...new Set(partIds(input.videoParts).map((p) => youtubeId(p)!))].slice(0, 10);
+  return ids.length ? ids : undefined;
+}
 
 // Refresh the archive and the sermon's page (under its old address too, if the title changed).
 function refresh(...sermons: (Pick<Sermon, "id" | "title"> | undefined)[]) {
@@ -69,6 +78,7 @@ function wellFormed(input: unknown): input is SermonInput {
     str(i.service, 2) &&
     str(i.preacher, 150) &&
     str(i.video, 300) &&
+    (i.videoParts === undefined || str(i.videoParts, 2000)) &&
     Array.isArray(i.books) &&
     i.books.every((b) => typeof b === "string") &&
     (i.detailsChecked === undefined || typeof i.detailsChecked === "boolean") &&
@@ -87,6 +97,9 @@ function validate(input: SermonInput): string | undefined {
   if (!isSermonDate(input.date)) return "Please choose a valid date.";
   if (!["am", "pm", ""].includes(input.service)) return "Please choose a service.";
   if (input.video && input.video !== "none" && !youtubeId(input.video)) return "That doesn’t look like a YouTube link.";
+  const parts = partIds(input.videoParts);
+  if (parts.length > 10) return "That’s too many video parts.";
+  if (parts.some((p) => !youtubeId(p))) return "One of the further video parts doesn’t look like a YouTube link.";
   if (!Array.isArray(input.books) || input.books.length > 20 || !input.books.every(isBibleBook))
     return "Please choose the books of the Bible from the list.";
   if (input.audio && !/^sermons\/\d{4}\/[\w.-]+\.mp3$/.test(input.audio.key)) return "Invalid audio file.";
@@ -104,6 +117,7 @@ function clean(input: SermonInput): Omit<Sermon, "id" | "createdAt"> {
     book: undefined,
     passage: undefined,
     video: input.video === "none" ? "none" : youtubeId(input.video),
+    videoParts: videoPartsFrom(input),
     videoUrl: undefined,
     ...(input.detailsChecked ? { detailsChecked: true } : {}),
   };
@@ -119,6 +133,7 @@ function changes(before: Sermon, after: Sermon): Record<string, { from: unknown;
     ["preacher", (s) => s.preacher],
     ["books", (s) => sermonBooks(s).join(", ")],
     ["video", (s) => s.video ?? "automatic"],
+    ["video parts", (s) => (s.videoParts ?? []).join(", ") || "none"],
     ["audio", (s) => s.audioKey ?? "none"],
   ];
   for (const [name, get] of fields) if (String(get(before)) !== String(get(after))) out[name] = { from: get(before), to: get(after) };

@@ -9,6 +9,11 @@ import type { PublicSermon } from "./sermon-types";
 // results keep working. content/old-sermon-pages.json lists each old sermon page as
 // slug: [date, service ("am"/"pm"), title, preacher], taken from the old site in November 2026.
 
+// Sermons removed because they were joined to another (e.g. the halves of a split livestream): old number → new.
+export const MERGED_SERMONS: Record<number, number> = {
+  10097: 10096, // Rediscover Christmas #2 - Timing, 21 December 2025 (the stream was split in two)
+};
+
 type OldPage = [date: string, service: string, title: string, preacher: string];
 const OLD = oldPages as unknown as Record<string, OldPage>;
 
