@@ -141,6 +141,16 @@ export const HOLDING_VIDEOS: HoldingVideo[] = [
         verses: versesV2,
         seconds: 10,
       },
+      {
+        version: 3,
+        date: "2026-11-20T12:00",
+        file: "/holding-videos/service-starting-shortly-verses-v3.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-v3.jpg",
+        changes:
+          "A thin white line along the very bottom grows from left to right during each verse, showing how long is left before the next one. Otherwise the same as version 2.",
+        verses: versesV2,
+        seconds: 10,
+      },
     ],
   },
 ];
