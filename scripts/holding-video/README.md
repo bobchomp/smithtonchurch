@@ -21,4 +21,13 @@ ffmpeg -i service-starting-shortly-verses-v2.mp4 -f lavfi -t 900 -i "color=c=whi
   service-starting-shortly-verses-v3.mp4
 ```
 
+The version with piano music (`service-starting-shortly-verses-music-v1.mp4`) is version 3's picture (copied, not re-encoded)
+with 4:28–19:06 of the recording `Robert_01.mp3` (whole pieces, between two pauses), raised 7.8 dB, padded with silence to 15 minutes:
+
+```bash
+ffmpeg -i service-starting-shortly-verses-v3.mp4 -ss 268.17 -to 1146.5 -i Robert_01.mp3 \
+  -filter_complex "[1:a]volume=7.8dB,afade=t=in:d=0.4,afade=t=out:st=877.3:d=1,apad=whole_dur=900[a]" \
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 160k -ar 44100 -t 900 -movflags +faststart service-starting-shortly-verses-music-v1.mp4
+```
+
 NIV verses in church media need "NIV" after each quotation (Hodder & Stoughton's terms for non-saleable use).

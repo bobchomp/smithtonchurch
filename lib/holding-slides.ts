@@ -153,6 +153,23 @@ export const HOLDING_VIDEOS: HoldingVideo[] = [
       },
     ],
   },
+  {
+    key: "service-starting-shortly-verses-music",
+    title: "The service will start shortly, with Bible verses and piano music",
+    use: "Playing for the 15 minutes before the service, when background music is wanted",
+    revisions: [
+      {
+        version: 1,
+        date: "2026-11-20T16:30",
+        file: "/holding-videos/service-starting-shortly-verses-music-v1.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-music-v1.jpg",
+        changes:
+          "The verses video (version 3, with the progress line) with piano music: 14½ minutes of whole pieces from the recording “Robert_01” (from 4:28 to 19:06), brought up to a normal background volume. The music ends about 20 seconds before the video loops, so it never stops mid-piece.",
+        verses: versesV2,
+        seconds: 10,
+      },
+    ],
+  },
 ];
 
 export const slideFileUrl = (slide: string, file: string, kind: "png" | "jpg") => `/admin/holding-slides/file/${slide}/${file}.${kind}`;
