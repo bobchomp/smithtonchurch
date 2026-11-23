@@ -1,5 +1,6 @@
 import versesV1 from "@/content/holding-video-verses-v1.json";
 import versesV2 from "@/content/holding-video-verses-v2.json";
+import versesV4 from "@/content/holding-video-verses-v4.json";
 
 // The holding slides made for the live stream (shown in the player before and after services),
 // with every revision. Shown in Admin → Holding Slides. The images are in holding-slides/ (not
@@ -164,6 +165,16 @@ export const HOLDING_VIDEOS: HoldingVideo[] = [
         verses: versesV2,
         seconds: 10,
       },
+      {
+        version: 4,
+        date: "2026-11-23T14:00",
+        file: "/holding-videos/service-starting-shortly-verses-v4.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-v4.jpg",
+        changes:
+          "Each verse now shows for 16 seconds (with one-second fades), so there are 57 verses: all 45 from version 1 and 12 of the shorter ones, in the same mixed order. 15 minutes 12 seconds long. The progress line now takes 16 seconds.",
+        verses: versesV4,
+        seconds: 16,
+      },
     ],
   },
   {
@@ -180,6 +191,16 @@ export const HOLDING_VIDEOS: HoldingVideo[] = [
           "The verses video (version 3, with the progress line) with piano music: 14½ minutes of whole pieces from the recording “Robert_01” (from 4:28 to 19:06), brought up to a normal background volume. The music ends about 20 seconds before the video loops, so it never stops mid-piece.",
         verses: versesV2,
         seconds: 10,
+      },
+      {
+        version: 2,
+        date: "2026-11-23T14:00",
+        file: "/holding-videos/service-starting-shortly-verses-music-v2.mp4",
+        poster: "/holding-videos/service-starting-shortly-verses-music-v2.jpg",
+        changes:
+          "Now made from version 4 of the verses video: each verse shows for 16 seconds (57 verses, 15 minutes 12 seconds). The same piano music, which ends about 34 seconds before the video loops.",
+        verses: versesV4,
+        seconds: 16,
       },
     ],
   },

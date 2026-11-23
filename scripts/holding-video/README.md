@@ -7,7 +7,7 @@ How `public/holding-videos/service-starting-shortly-verses-v<N>.mp4` (Admin → 
    `content/holding-video-verses-v<N>.json` (`{Lord}` marks LORD in small capitals).
 2. With the site running on port 3930, `node render-verses.cjs <out> content/holding-video-verses-v<N>.json` draws the
    background (photo, logo, title) and one transparent image per verse.
-3. `segment.sh <n>` (run in `<out>`'s parent, with the images in `frames/`) makes each segment (version 2: 10 seconds, 0.75s fades; version 1: 20 seconds, 1s fades), the verse
+3. `segment.sh <n> [seconds] [fade]` (run in `<out>`'s parent, with the images in `frames/`) makes each segment (version 2: 10 seconds, 0.75s fades; version 1: 20 seconds, 1s fades), the verse
    fading in and out. The segments are joined with `ffmpeg -f concat -c copy`, then re-encoded:
    `-c:v libx264 -preset slow -tune stillimage -crf 23 -g 1800 -keyint_min 1800 -sc_threshold 0 -movflags +faststart`.
 
@@ -29,5 +29,9 @@ ffmpeg -i service-starting-shortly-verses-v3.mp4 -ss 268.17 -to 1146.5 -i Robert
   -filter_complex "[1:a]volume=7.8dB,afade=t=in:d=0.4,afade=t=out:st=877.3:d=1,apad=whole_dur=900[a]" \
   -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 160k -ar 44100 -t 900 -movflags +faststart service-starting-shortly-verses-music-v1.mp4
 ```
+
+Version 4 (and the piano version 2) shows each verse for 16 seconds with 1-second fades: 57 verses
+(`content/holding-video-verses-v4.json`: version 2's order, keeping all 45 version 1 verses and the first 12 shorter ones),
+15:12 long. Segments: `segment.sh <n> 16 1`; the progress line uses `mod(t\,16)/16` and `-t 912`; the piano audio is padded to 912s.
 
 NIV verses in church media need "NIV" after each quotation (Hodder & Stoughton's terms for non-saleable use).
