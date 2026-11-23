@@ -100,6 +100,19 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
       },
     ],
   },
+  {
+    key: "welcome-play",
+    title: "Welcome to Smithton Church (click play)",
+    use: "Shown in the player before anything is playing (“Click the play button to start”)",
+    revisions: [
+      {
+        version: 1,
+        date: "2026-11-23T12:00",
+        changes: "First version: “Welcome to Smithton Church”, with “Click the play button to start” underneath, in the same style as the other slides.",
+        files: [{ file: "v1" }],
+      },
+    ],
+  },
 ];
 
 // Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's
