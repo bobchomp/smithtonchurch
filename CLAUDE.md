@@ -123,7 +123,9 @@
   No cookie banner (owner's choice, relying on the PECR statistics exemption): the footer's "Privacy & Cookies Policy" link goes to /privacy/ (`app/(site)/privacy/`), which explains it (`components/PrivacyNotice.tsx`, with `AnalyticsOptOut`).
   Phase 2: `track()` in lib/track.ts sends extra events from public components ('media' from `SermonAudio`/`YouTubePlayer trackAs`,
   progress milestones 0/25/50/75/95 in props.pct; 'search' from SermonBrowser, debounced; 404s are pageviews with props.nf).
-  Admin → Analytics has tabs (`?view=`: overview, pages, clicks, sermons, searches, missing; views.tsx, parts.tsx) and CSV
+  Admin → Analytics has tabs in headed groups (`VIEW_GROUPS` in parts.tsx, `?view=`: overview, visitors, pages, heatmaps, missing, clicks,
+  searches, goals, sermons, documents, settings; views.tsx). Overview is the summary (numbers, chart, top pages, sources, devices); every breakdown
+  is on Visitors; the tracking switch and the full CSV download are on Settings & data and CSV
   downloads (`analytics/export/route.ts`, `?report=…`, "events" streams every row). New reports need their SQL function in
   supabase/setup.sql; the owner re-runs it (the page shows the setup panel when a function is missing).
   Phase 3: every click carries props {sel, fx, fy} (element path + point within it; non-link clicks are kind "none", heatmaps only).

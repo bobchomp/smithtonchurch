@@ -70,21 +70,20 @@ const pageColumns: Column<PageRow>[] = [
 
 // ---------- Overview ----------
 
+export type OverviewData = {
+  now: Overview; before: Overview; chart: SeriesPoint[]; top: PageRow[]; sources: BreakdownRow[]; devices: BreakdownRow[];
+};
+
 export function OverviewView({ range, current, data, enabled, isOwner, lastAt, problem }: {
   range: RangeKey;
   current: Range;
-  data: {
-    now: Overview; before: Overview; chart: SeriesPoint[]; top: PageRow[];
-    sources: BreakdownRow[]; campaigns: BreakdownRow[]; countries: BreakdownRow[]; cities: BreakdownRow[];
-    devices: BreakdownRow[]; browsers: BreakdownRow[]; systems: BreakdownRow[]; screens: BreakdownRow[];
-    storage: { bytes: number; events: number; since: string | null };
-  };
+  data: OverviewData;
   enabled: boolean;
   isOwner: boolean;
   lastAt: string | null;
   problem?: { at: string; message: string };
 }) {
-  const { now, before, chart, top, storage } = data;
+  const { now, before, chart, top } = data;
   const byBucket = new Map(chart.map((p) => [bucketKey(p.bucket, current.unit), p]));
   const points = buckets(current).map((b) => ({ label: b.label, pageviews: byBucket.get(b.key)?.pageviews ?? 0, visitors: byBucket.get(b.key)?.visitors ?? 0 }));
   const comparedWith = range === "today" ? "yesterday" : "the previous " + RANGES.find((r) => r.key === range)!.label.toLowerCase();
@@ -95,9 +94,20 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
         <div className="admin-notice admin-notice-spaced">
           <p>
             <strong>Tracking is switched off</strong>, so nothing new is being recorded
-            {isOwner ? ". Switch it on below once the privacy & cookies policy is published." : ". An owner can switch it on."}
+            {isOwner ? (
+              <>
+                . Switch it on in <Link href={analyticsHref("settings", range)}>Settings &amp; data</Link> once the privacy &amp; cookies policy is published.
+              </>
+            ) : (
+              ". An owner can switch it on."
+            )}
           </p>
         </div>
+      )}
+      {problem && (
+        <p className="admin-error analytics-section">
+          Recording stopped working at {ukDateTime(problem.at)}: {problem.message}
+        </p>
       )}
 
       <div className="analytics-stats">
@@ -111,7 +121,10 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
         />
         <Stat label="Average visit" value={duration(now.avg_visit_seconds)} delta={change(now.avg_visit_seconds, before.avg_visit_seconds)} />
       </div>
-      <p className="analytics-compare">Changes are compared with {comparedWith}. A “bounce” is a visit that only looked at one page.</p>
+      <p className="analytics-compare">
+        Changes are compared with {comparedWith}. A “bounce” is a visit that only looked at one page. Last visit recorded:{" "}
+        <strong>{lastAt ? ukDateTime(lastAt) : "none yet"}</strong>.
+      </p>
 
       <section className="admin-panel">
         <Chart points={points} />
@@ -124,15 +137,57 @@ export function OverviewView({ range, current, data, enabled, isOwner, lastAt, p
 
       <div className="analytics-grid">
         <Breakdown title="Where visitors came from" rows={data.sources} range={range} csv="sources" col="Visits" unit="pageviews" />
+        <Breakdown title="Devices" rows={data.devices.map((r) => ({ ...r, label: capital(r.label) }))} range={range} csv="devices" />
+      </div>
+      <MoreLink href={analyticsHref("visitors", range)}>Campaigns, countries, towns, screen sizes, browsers and systems →</MoreLink>
+    </>
+  );
+}
+
+// ---------- Visitors ----------
+
+export function VisitorsView({ range, data }: {
+  range: RangeKey;
+  data: {
+    sources: BreakdownRow[]; campaigns: BreakdownRow[]; countries: BreakdownRow[]; cities: BreakdownRow[];
+    devices: BreakdownRow[]; browsers: BreakdownRow[]; systems: BreakdownRow[]; screens: BreakdownRow[];
+  };
+}) {
+  return (
+    <>
+      <h2 className="analytics-section-title">How they found the website</h2>
+      <div className="analytics-grid">
+        <Breakdown title="Where visitors came from" rows={data.sources} range={range} csv="sources" col="Visits" unit="pageviews" />
         <Breakdown title="Campaigns" rows={data.campaigns} range={range} csv="campaigns" col="Visits" unit="pageviews" empty="No campaign links used yet (links with ?utm_campaign=…)." />
+      </div>
+      <h2 className="analytics-section-title">Where they are</h2>
+      <div className="analytics-grid">
         <Breakdown title="Countries" rows={data.countries} range={range} csv="countries" />
         <Breakdown title="Towns and cities" rows={data.cities} range={range} csv="cities" />
+      </div>
+      <h2 className="analytics-section-title">What they use</h2>
+      <div className="analytics-grid">
         <Breakdown title="Devices" rows={data.devices.map((r) => ({ ...r, label: capital(r.label) }))} range={range} csv="devices" />
         <Breakdown title="Screen sizes" rows={data.screens} range={range} csv="screens" />
         <Breakdown title="Browsers" rows={data.browsers} range={range} csv="browsers" />
         <Breakdown title="Operating systems" rows={data.systems} range={range} csv="os" />
       </div>
+    </>
+  );
+}
 
+// ---------- Settings & data ----------
+
+export function SettingsView({ range, enabled, isOwner, lastAt, problem, storage }: {
+  range: RangeKey;
+  enabled: boolean;
+  isOwner: boolean;
+  lastAt: string | null;
+  problem?: { at: string; message: string };
+  storage: { bytes: number; events: number; since: string | null };
+}) {
+  return (
+    <>
       <div className="admin-columns analytics-section">
         <section className="admin-panel">
           <h2>Tracking</h2>

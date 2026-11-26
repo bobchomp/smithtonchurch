@@ -4,18 +4,16 @@ import type { RangeKey } from "./ranges";
 
 // Shared pieces for the Admin → Analytics pages.
 
-export const VIEWS = [
-  { key: "overview", label: "Overview" },
-  { key: "pages", label: "Pages & journeys" },
-  { key: "heatmaps", label: "Heatmaps" },
-  { key: "goals", label: "Goals & funnels" },
-  { key: "clicks", label: "Clicks & downloads" },
-  { key: "sermons", label: "Sermons" },
-  { key: "documents", label: "Bulletins & newsletters" },
-  { key: "searches", label: "Searches" },
-  { key: "missing", label: "Missing pages" },
+// The reports, in groups (shown as headed groups of tabs).
+export const VIEW_GROUPS = [
+  { label: "Summary", views: [{ key: "overview", label: "Overview" }, { key: "visitors", label: "Visitors" }] },
+  { label: "Pages", views: [{ key: "pages", label: "Pages & journeys" }, { key: "heatmaps", label: "Heatmaps" }, { key: "missing", label: "Missing pages" }] },
+  { label: "What people did", views: [{ key: "clicks", label: "Clicks & downloads" }, { key: "searches", label: "Searches" }, { key: "goals", label: "Goals & funnels" }] },
+  { label: "Content", views: [{ key: "sermons", label: "Sermons" }, { key: "documents", label: "Bulletins & newsletters" }] },
+  { label: "Admin", views: [{ key: "settings", label: "Settings & data" }] },
 ] as const;
-export type ViewKey = (typeof VIEWS)[number]["key"];
+export type ViewKey = (typeof VIEW_GROUPS)[number]["views"][number]["key"];
+export const VIEWS: readonly { key: ViewKey; label: string }[] = VIEW_GROUPS.flatMap((g): readonly { key: ViewKey; label: string }[] => g.views);
 
 export const nf = new Intl.NumberFormat("en-GB");
 

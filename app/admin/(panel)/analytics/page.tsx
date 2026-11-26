@@ -37,11 +37,11 @@ import { headers } from "next/headers";
 import { ADMIN_HOST, SITE_HOST } from "@/lib/domains";
 import { describeStorageError, supabaseIsConfigured } from "@/lib/supabase";
 import DatabaseSetup from "../_setup/DatabaseSetup";
-import { analyticsHref, VIEWS, type ViewKey } from "./parts";
+import { analyticsHref, VIEW_GROUPS, VIEWS, type ViewKey } from "./parts";
 import { RANGES, rangeFor, type RangeKey } from "./ranges";
 import { flipbookIsConfigured, syncFlipbookEvents } from "@/lib/flipbook";
 import { getSetting } from "@/lib/db";
-import { ClicksView, DocumentsView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView } from "./views";
+import { ClicksView, DocumentsView, GoalsView, HeatmapsView, MissingView, OverviewView, PagesView, SearchesView, SermonsView, SettingsView, VisitorsView } from "./views";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -85,36 +85,40 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
   let onNow: { path: string; visitors: number }[] = [];
   try {
     onNow = await live();
-    if (view === "overview") {
-      const [now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, storage, settings] =
-        await Promise.all([
-          overview(current),
-          overview(previous),
-          series(current),
-          pages(current, 10),
-          breakdown(current, "source"),
-          breakdown(current, "campaign"),
-          breakdown(current, "country"),
-          breakdown(current, "city"),
-          breakdown(current, "device"),
-          breakdown(current, "browser"),
-          breakdown(current, "os"),
-          breakdown(current, "screen"),
-          storageUsed(),
-          analyticsSettings(true),
-        ]);
+    const status = async () => {
       const [lastAt, problem] = await Promise.all([lastRecorded().catch(() => null), recordingProblem()]);
+      return { lastAt, problem: problem && (!lastAt || problem.at > lastAt) ? problem : undefined };
+    };
+    if (view === "overview") {
+      const [now, before, chart, top, sources, devices, settings, { lastAt, problem }] = await Promise.all([
+        overview(current),
+        overview(previous),
+        series(current),
+        pages(current, 10),
+        breakdown(current, "source"),
+        breakdown(current, "device"),
+        analyticsSettings(true),
+        status(),
+      ]);
       body = (
         <OverviewView
           range={key}
           current={current}
-          data={{ now, before, chart, top, sources, campaigns, countries, cities, devices, browsers, systems, screens, storage }}
+          data={{ now, before, chart, top, sources, devices }}
           enabled={settings.enabled}
           lastAt={lastAt}
-          problem={problem && (!lastAt || problem.at > lastAt) ? problem : undefined}
+          problem={problem}
           isOwner={me.role === "owner"}
         />
       );
+    } else if (view === "visitors") {
+      const [sources, campaigns, countries, cities, devices, browsers, systems, screens] = await Promise.all(
+        (["source", "campaign", "country", "city", "device", "browser", "os", "screen"] as const).map((by) => breakdown(current, by)),
+      );
+      body = <VisitorsView range={key} data={{ sources, campaigns, countries, cities, devices, browsers, systems, screens }} />;
+    } else if (view === "settings") {
+      const [storage, settings, { lastAt, problem }] = await Promise.all([storageUsed(), analyticsSettings(true), status()]);
+      body = <SettingsView range={key} enabled={settings.enabled} isOwner={me.role === "owner"} lastAt={lastAt} problem={problem} storage={storage} />;
     } else if (view === "pages") {
       const offset = Math.max(0, Math.min(10_000, Number(params.older) || 0));
       const [all, routes, recent, links] = await Promise.all([pages(current, 100), journeys(current, 4, 20), visits(current, 30, offset), flow(current, 4, 6)]);
@@ -195,10 +199,17 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
     <>
       {heading}
       <nav className="analytics-views" aria-label="Reports">
-        {VIEWS.map((v) => (
-          <Link key={v.key} href={analyticsHref(v.key, key)} aria-current={v.key === view ? "page" : undefined}>
-            {v.label}
-          </Link>
+        {VIEW_GROUPS.map((g) => (
+          <div key={g.label} className="analytics-view-group">
+            <span className="analytics-view-group-label">{g.label}</span>
+            <div>
+              {g.views.map((v) => (
+                <Link key={v.key} href={analyticsHref(v.key, key)} aria-current={v.key === view ? "page" : undefined}>
+                  {v.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
       <div className="analytics-bar-top">
