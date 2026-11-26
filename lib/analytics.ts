@@ -5,9 +5,8 @@ import { supabaseAdmin, supabaseIsConfigured, withTimeout } from "./supabase";
 
 // Website analytics: events are saved in the Supabase database (table analytics_events, set up by
 // supabase/setup.sql) and summarised by its functions for Admin → Analytics. Whether tracking is
-// on is a setting saved in the private bucket (settings/analytics.json).
+// on is the "analytics" setting (lib/db.ts).
 
-const SETTINGS_PATH = "settings/analytics.json";
 export type AnalyticsSettings = { enabled: boolean };
 
 let cached: { at: number; value: AnalyticsSettings } | undefined;
@@ -15,13 +14,13 @@ let cached: { at: number; value: AnalyticsSettings } | undefined;
 export async function analyticsSettings(fresh = false): Promise<AnalyticsSettings> {
   if (!supabaseIsConfigured()) return { enabled: false };
   if (!fresh && cached && Date.now() - cached.at < 60_000) return cached.value;
-  const value = { enabled: false, ...((await getSetting<AnalyticsSettings>("analytics", SETTINGS_PATH).catch(() => undefined)) ?? {}) };
+  const value = { enabled: false, ...((await getSetting<AnalyticsSettings>("analytics").catch(() => undefined)) ?? {}) };
   cached = { at: Date.now(), value };
   return value;
 }
 
 export async function saveAnalyticsSettings(settings: AnalyticsSettings): Promise<void> {
-  await setSetting("analytics", settings, SETTINGS_PATH);
+  await setSetting("analytics", settings);
   cached = { at: Date.now(), value: settings };
 }
 
@@ -289,16 +288,15 @@ export async function* allEvents(r: Range): AsyncGenerator<Record<string, unknow
 
 // ---------- Phase 3: goals, funnels, heatmaps and the flow diagram ----------
 
-const GOALS_PATH = "settings/analytics-goals.json";
 
 export async function loadGoals(): Promise<GoalsConfig> {
   // Throws if they can't be read, so a failed read is never saved over them.
-  const saved = await getSetting<Partial<GoalsConfig>>("analytics.goals", GOALS_PATH);
+  const saved = await getSetting<Partial<GoalsConfig>>("analytics.goals");
   return { goals: saved?.goals ?? [], funnels: saved?.funnels ?? [] };
 }
 
 export async function saveGoals(config: GoalsConfig): Promise<void> {
-  await setSetting("analytics.goals", config, GOALS_PATH);
+  await setSetting("analytics.goals", config);
 }
 
 export type FunnelResult = { step: number; visits: number; visitors: number }[];
@@ -394,13 +392,12 @@ export async function lastRecorded(): Promise<string | null> {
 }
 
 // The last time recording a visit failed, saved by /api/collect so it shows in the admin panel.
-const STATUS_PATH = "settings/analytics-status.json";
 export type RecordingProblem = { at: string; message: string };
 
 export async function saveRecordingProblem(message: string): Promise<void> {
-  await setSetting("analytics.status", { at: new Date().toISOString(), message: message.slice(0, 500) } satisfies RecordingProblem, STATUS_PATH);
+  await setSetting("analytics.status", { at: new Date().toISOString(), message: message.slice(0, 500) } satisfies RecordingProblem);
 }
 
 export async function recordingProblem(): Promise<RecordingProblem | undefined> {
-  return getSetting<RecordingProblem>("analytics.status", STATUS_PATH).catch(() => undefined);
+  return getSetting<RecordingProblem>("analytics.status").catch(() => undefined);
 }

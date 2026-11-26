@@ -35,11 +35,10 @@
   (only one per date; the newer upload replaces the older via `removeReplacedDocuments`).
 - Database (`lib/db.ts`, tables created by `supabase/setup.sql`, which the owner runs in Supabase's SQL editor; safe to re-run):
   `sermons`, `live_notices`, `contact_messages` (one row each, full record in `data` jsonb) and `site_settings` (key/value:
-  `contact.recipients`, `analytics`, `analytics.goals`, `analytics.status`). Until a table exists, that part falls back to its old
-  file in Supabase Storage; the first time a table is used, `copyInOnce` copies the old file(s) in (marker `copied-from-files.<table>`)
-  and leaves them as a backup. Reads that come before a save must throw on errors (never treat a failed read as empty);
-  `tableReady` must not use head requests (they report a missing table as success); `selectAll` pages past PostgREST's 1,000-row cap.
-  The dashboard shows the setup panel (`app/admin/(panel)/_setup/DatabaseSetup.tsx`) to owners while tables are missing.
+  `contact.recipients`, `analytics`, `analytics.goals`, `analytics.status`, `flipbook.cursor`). The old file-based storage (before the
+  database) has been removed: everything reads and writes the tables. Reads that come before a save must throw on errors (never treat a
+  failed read as empty); `tableReady` must not use head requests (they report a missing table as success); `selectAll` pages past
+  PostgREST's 1,000-row cap. The dashboard shows the setup panel (`app/admin/(panel)/_setup/DatabaseSetup.tsx`) to owners while tables are missing.
   Owners can download everything as JSON from `/admin/backup/`.
   setup.sql is split into `-- @part <table|function> <name>` sections (each self-contained: table + indexes/RLS/grants, or a
   function + its revoke/grant), ending at `-- @end` (then `notify pgrst`). Keep that shape when adding things. The setup panel
@@ -53,8 +52,7 @@
   If the database isn't reachable or set up, attempts are allowed (fail open). Invite/reset links use `https://ADMIN_HOST` in
   production. Sermon addresses must look like `<id>-<lower-case-words>` (`sermonIdFromParam`), others 404. Security headers
   (nosniff, Referrer-Policy, Permissions-Policy, frame-ancestors) are in next.config.ts.
-- Sermons: one row each in the `sermons` table (`lib/sermons.ts`: `loadSermons`, `storeSermon`, `addSermons`, `removeSermon`;
-  before the database, the file `website/sermons/index.json`);
+- Sermons: one row each in the `sermons` table (`lib/sermons.ts`: `loadSermons`, `storeSermon`, `addSermons`, `removeSermon`);
   audio is in Cloudflare R2 (`lib/r2.ts`, S3 API, browser uploads via presigned PUT). Imported sermons keep
   the old media site's `sermon_id` as their id (< 10000); admin-added ones start at 10001. The import merges into an
   existing admin-added sermon with the same date and service (setting its `legacyId`) instead of duplicating it.
@@ -64,7 +62,7 @@
 - The livestream player (site.yml `livestream_embed`) is on its own page, /live/ (with this week's bulletin via
   `components/BulletinBox.tsx`); the menu has "Live Services" (the footer no longer has a button to it, by the owner's choice) (the full desktop menu shows from 1366px; below that the Menu button. Items can be `mobileOnly` in navigation.yml).
 - Live Notices (Admin → Live Notices, `lib/live-notices.ts`, `lib/live-notice-types.ts`): scheduled text/image notices above the
-  player on /live/. Stored in the `live_notices` table (before: private bucket `live-notices/index.json`), images in
+  player on /live/. Stored in the `live_notices` table, images in
   `website/live-notices/`. Only one shows: of those on (and not switched off, `off`), the latest start (or added time). The page fetches
   `/api/live-notice/` on load and every minute (30s CDN cache). Admin times are UK time (`ukTimeToIso`).
   Notices show in a box: light blue by default, or yellow when `style: "warning"` ("Box colour" in the editor), with an "i" icon before the title; `titleSize` "large" (default), "medium" or "small" ("Title size"). One component draws it, `components/LiveNoticeBox.tsx`, used by the live
@@ -106,7 +104,7 @@
   excluded, not under 10 minutes) dated on or after `AUTO_SERMONS_FROM` (2026-11-08); older streams are left for the media-site
   import (owner's choice). Auto-created sermons are unchecked, so they appear in Sermon Details.
 - Contact form: `components/ContactForm*.tsx` → server action `app/contact-actions.ts` saves each message as a row in
-  `contact_messages` (`lib/messages.ts`; before: files in `private/messages/`), (first + last name, stored as `name`), then emails it via Resend
+  `contact_messages` (`lib/messages.ts`) (first + last name, stored as `name`), then emails it via Resend
   (`lib/email.ts`, RESEND_API_KEY, from info@rossmackenzie.co.uk with display name "<Name> (Website)") to the recipients in the `contact.recipients` setting
   (managed in Admin → Messages). Spam: honeypot field + minimum 3s to submit.
 - Storage and future data live in Supabase (`lib/supabase.ts`, secret key, server only). Files go in the

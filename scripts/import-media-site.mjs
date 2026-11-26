@@ -16,7 +16,6 @@ import { HeadObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s
 import { createClient } from "@supabase/supabase-js";
 
 const SOURCE = (process.env.MEDIA_SITE_URL || "http://smithtonchurchmedia.com").replace(/\/+$/, "");
-const INDEX_PATH = "sermons/index.json";
 const BUCKET = "website";
 
 const args = new Set(process.argv.slice(2).filter((a) => !a.includes("=")));
@@ -135,12 +134,13 @@ function supabase() {
   return { client, files: client.storage.from(BUCKET) };
 }
 
-// Whether the database's "sermons" table exists (supabase/setup.sql has been run). If it does, the
-// sermons are saved there; if not, in the old sermons/index.json file.
-async function usesDatabase(store) {
+// The sermons are saved in the database's "sermons" table, which must exist (supabase/setup.sql).
+async function requireDatabase(store) {
   const { error } = await store.client.from("sermons").select("id").limit(1); // not a "head" request: those hide a missing table
-  if (!error) return true;
-  if (error.code === "42P01" || error.code === "PGRST205" || /could not find the table|does not exist/i.test(error.message)) return false;
+  if (!error) return;
+  if (error.code === "42P01" || error.code === "PGRST205" || /could not find the table|does not exist/i.test(error.message)) {
+    throw new Error("The database isn’t set up yet: run supabase/setup.sql in Supabase’s SQL editor first.");
+  }
   throw new Error(`Couldn’t check the database: ${error.message}`);
 }
 
@@ -161,69 +161,31 @@ function r2() {
   };
 }
 
-// If the website hasn't yet copied the old sermons/index.json into the database (it does the first
-// time it uses the table), do it now, so sermons added on the new site are merged rather than duplicated.
-async function copyOldFileIn(store) {
-  const marker = "copied-from-files.sermons";
-  const { data, error } = await store.client.from("site_settings").select("key").eq("key", marker).maybeSingle();
-  if (error) throw new Error(`Couldn’t check the database: ${error.message}`);
-  if (data) return;
-  const database = store.database;
-  store.database = false;
-  const old = await loadIndex(store);
-  store.database = database;
-  await saveIndex(store, old);
-  const done = await store.client
-    .from("site_settings")
-    .upsert({ key: marker, value: { at: new Date().toISOString(), count: old.length }, updated_at: new Date().toISOString() }, { onConflict: "key" });
-  if (done.error) throw new Error(`Couldn’t save to the database: ${done.error.message}`);
-  if (old.length) console.log(`Copied ${old.length} sermons from sermons/index.json into the database first.`);
-}
-
 async function loadIndex(store) {
-  if (store.database) {
-    const sermons = [];
-    for (let from = 0; ; from += 1000) {
-      const { data, error } = await store.client.from("sermons").select("data").order("id").range(from, from + 999);
-      if (error) throw new Error(`Couldn’t read the sermons: ${error.message}`);
-      sermons.push(...data.map((r) => r.data));
-      if (data.length < 1000) return sermons;
-    }
+  const sermons = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await store.client.from("sermons").select("data").order("id").range(from, from + 999);
+    if (error) throw new Error(`Couldn’t read the sermons: ${error.message}`);
+    sermons.push(...data.map((r) => r.data));
+    if (data.length < 1000) return sermons;
   }
-  const { data, error } = await store.files.download(INDEX_PATH, { cacheNonce: String(Date.now()) });
-  if (error) {
-    // Only a missing file means "no sermons yet"; anything else stops, so the list is never overwritten.
-    if (/not.?found/i.test(error.message) || error.status === 404) return [];
-    throw new Error(`Couldn’t read the sermon list: ${error.message}`);
-  }
-  return JSON.parse(await data.text());
 }
 
-// Saves the sermons that have changed (all of them, for the old file).
+// Saves the sermons that have changed.
 async function saveIndex(store, sermons) {
-  if (store.database) {
-    const rows = sermons.map((s) => ({
-      id: s.id,
-      date: s.date,
-      service: s.service ?? "",
-      title: s.title ?? "",
-      preacher: s.preacher ?? "",
-      data: s,
-      updated_at: new Date().toISOString(),
-    }));
-    for (let i = 0; i < rows.length; i += 500) {
-      const { error } = await store.client.from("sermons").upsert(rows.slice(i, i + 500), { onConflict: "id" });
-      if (error) throw new Error(`Couldn’t save the sermons: ${error.message}`);
-    }
-    return;
+  const rows = sermons.map((s) => ({
+    id: s.id,
+    date: s.date,
+    service: s.service ?? "",
+    title: s.title ?? "",
+    preacher: s.preacher ?? "",
+    data: s,
+    updated_at: new Date().toISOString(),
+  }));
+  for (let i = 0; i < rows.length; i += 500) {
+    const { error } = await store.client.from("sermons").upsert(rows.slice(i, i + 500), { onConflict: "id" });
+    if (error) throw new Error(`Couldn’t save the sermons: ${error.message}`);
   }
-  const sorted = [...sermons].sort((a, b) => b.date.localeCompare(a.date) || b.id - a.id);
-  const { error } = await store.files.upload(INDEX_PATH, JSON.stringify(sorted), {
-    upsert: true,
-    contentType: "application/json",
-    cacheControl: "0",
-  });
-  if (error) throw new Error(`Couldn’t save the sermon list: ${error.message}`);
 }
 
 function slug(text) {
@@ -293,9 +255,7 @@ async function main() {
   }
 
   const store = supabase();
-  store.database = await usesDatabase(store);
-  if (store.database) await copyOldFileIn(store);
-  console.log(store.database ? "Saving sermons in the database." : "Saving sermons in sermons/index.json (the database isn’t set up yet).");
+  await requireDatabase(store);
   const audio = NO_AUDIO ? undefined : r2();
   const index = await loadIndex(store);
   const byId = new Map(index.map((s) => [s.id, s]));

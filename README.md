@@ -250,7 +250,7 @@ report is opened. The PDFs are in Supabase Storage, which already lets the viewe
 ### Importing the old sermon archive
 
 `scripts/import-media-site.mjs` copies every sermon from the old site (smithtonchurchmedia.com):
-the details (date, service, title, preacher and Bible book) into the sermons in the database (or the older sermon list file, if the database isn't set up yet), and each MP3 into R2. Each imported sermon keeps its number from
+the details (date, service, title, preacher and Bible book) into the sermons in the database, and each MP3 into R2. Each imported sermon keeps its number from
 the old site, so `/?sermon_id=1632` there becomes `/sermons/1632-…` here. Run it on your own
 computer, as the old site can't be reached from Vercel or Claude's environment:
 

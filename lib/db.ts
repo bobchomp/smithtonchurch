@@ -1,11 +1,8 @@
 import "server-only";
-import { readPrivateJsonStrict, writePrivateJson, ensurePrivateBucket } from "./private-store";
 import { supabaseAdmin, withTimeout } from "./supabase";
 
 // The website's content tables in the Supabase database (created by supabase/setup.sql): sermons,
-// live_notices, contact_messages and site_settings. Until the owner has run the setup script, each
-// part of the site carries on using the files it used before; the first time a table is used, the
-// existing files are copied into it (the files are left alone as a backup).
+// live_notices, contact_messages and site_settings.
 
 // rate_limits (lib/rate-limit.ts) and activity_log (lib/activity.ts) are listed so the dashboard asks for the
 // setup script until they exist.
@@ -70,56 +67,18 @@ export async function upsertRows(table: ContentTable, rows: Record<string, unkno
 
 // ---------- Settings ----------
 
-// A setting. legacyPath: the file in the private bucket it was kept in before; it's copied into the
-// database the first time it's read there. Throws if it can't be read (never guesses "empty").
-export async function getSetting<T>(key: string, legacyPath?: string): Promise<T | undefined> {
-  if (!(await tableReady("site_settings"))) return legacyPath ? readPrivateJsonStrict<T>(legacyPath) : undefined;
+// A setting (undefined if it hasn't been saved). Throws if it can't be read (never guesses "empty").
+export async function getSetting<T>(key: string): Promise<T | undefined> {
+  if (!(await tableReady("site_settings"))) return undefined;
   const { data, error } = await withTimeout(db().from("site_settings").select("value").eq("key", key).maybeSingle());
   if (error) throw error;
-  if (data) return data.value as T;
-  if (!legacyPath) return undefined;
-  const old = await readPrivateJsonStrict<T>(legacyPath);
-  if (old !== undefined) await setSetting(key, old);
-  return old;
+  return data ? (data.value as T) : undefined;
 }
 
-export async function setSetting(key: string, value: unknown, legacyPath?: string): Promise<void> {
-  if (!(await tableReady("site_settings"))) {
-    if (!legacyPath) throw new Error("The database hasn’t been set up yet.");
-    await ensurePrivateBucket();
-    await writePrivateJson(legacyPath, value);
-    return;
-  }
+export async function setSetting(key: string, value: unknown): Promise<void> {
+  if (!(await tableReady("site_settings"))) throw new Error("The database hasn’t been set up yet.");
   const { error } = await withTimeout(
     db().from("site_settings").upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: "key" }),
   );
   if (error) throw error;
-}
-
-// ---------- Copying the old files in ----------
-
-// Runs `copy` once per table (marked as done in site_settings), so the files are copied in the first
-// time the table is used. Safe if two requests do it at once: rows are inserted by their ID.
-const copied = new Set<string>();
-export async function copyInOnce(table: ContentTable, copy: () => Promise<number>): Promise<void> {
-  if (copied.has(table)) return;
-  const marker = `copied-from-files.${table}`;
-  if (!(await tableReady("site_settings"))) return; // the copy waits until settings can record it
-  const done = await getSetting<{ at: string }>(marker);
-  if (!done) {
-    const count = await copy();
-    // Several servers can do this at the same moment (the copy itself is safe to repeat);
-    // only the one that records the marker first logs it.
-    const { error } = await withTimeout(db().from("site_settings").insert({ key: marker, value: { at: new Date().toISOString(), count } }));
-    if (error) {
-      if (error.code === "23505") { copied.add(table); return; }
-      throw error;
-    }
-    copied.add(table);
-    if (!count) return;
-    const { logActivity, SYSTEM } = await import("./activity");
-    const names: Record<string, string> = { sermons: "sermons", live_notices: "live notices", contact_messages: "messages" };
-    await logActivity({ area: "Database", action: `Copied ${count} ${names[table] ?? table} from the old files into the database` }, SYSTEM);
-  }
-  copied.add(table);
 }
