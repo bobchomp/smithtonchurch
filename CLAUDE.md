@@ -143,9 +143,12 @@
   add new revisions there and at the end of the slide's `revisions`.
   "Copy link" (`CopyLink.tsx`) copies a public, unlisted address for each PNG, `/holding-slides/<PUBLIC_SLIDES_KEY>/<slide>/<file>.png`
   (`app/holding-slides/[key]/[...path]/route.ts`, owner's choice: anyone with the link), and for videos their public file.
-  Videos (`HOLDING_VIDEOS`) live in `public/holding-videos/` (too big for the route; proxy.ts skips that folder), e.g. the
+  Videos (`HOLDING_VIDEOS`, mp4 + jpg poster) live in Supabase Storage, `website/holding-videos/<file>` (`lib/holding-videos.ts`
+  resolves each to its storage address, falling back to `public/holding-videos/` for files not moved yet; owners get a
+  "Move videos to file storage" panel, `MoveVideos.tsx`, while any are missing). Supabase's free plan limits files to 50 MB, so keep
+  each video under that (upload new ones in the Supabase dashboard, or put them in public/holding-videos/ and use the panel). E.g. the
   15-minute "service will start shortly" verses video: NIV (Anglicised) verses in `content/holding-video-verses-v<N>.json`, made with
-  `scripts/holding-video/` (see its README). Keep video files well under GitHub's 100 MB limit.
+  `scripts/holding-video/` (see its README).
 - Admin → Branding (tool "branding", `app/admin/(panel)/branding/`): logos, colours (keep in step with :root in globals.css),
   fonts, tagline, buttons, photos and the Free Church logos we use, with downloads.
 - Admin → To-do list (owners only, `app/admin/(panel)/to-do/`, items in `items.ts`): the owner's to-do list for the website. When

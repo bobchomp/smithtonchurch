@@ -1,8 +1,10 @@
 /* eslint-disable @next/next/no-img-element -- the images are served to signed-in admins only, so not through next/image */
 import type { Metadata } from "next";
 import { requireTool } from "@/lib/admin-auth";
+import { holdingVideoFiles, holdingVideoUrl, storedHoldingVideoFiles } from "@/lib/holding-videos";
 import { HOLDING_SLIDES, HOLDING_VIDEOS, publicSlidePath, slideFileUrl, type HoldingSlide, type SlideRevision } from "@/lib/holding-slides";
 import CopyLink from "./CopyLink";
+import MoveVideos from "./MoveVideos";
 
 export const metadata: Metadata = { title: "Holding Slides" };
 
@@ -51,7 +53,12 @@ function VerseList({ verses, seconds }: { verses: { ref: string; text: string }[
 }
 
 export default async function HoldingSlides() {
-  await requireTool("holding-slides");
+  const admin = await requireTool("holding-slides");
+  const stored = await storedHoldingVideoFiles();
+  const src = (path: string) => holdingVideoUrl(path, stored);
+  // Browsers ignore "download" on links to another site, so file storage is asked to send it as a download.
+  const download = (path: string) => (src(path) === path ? path : `${src(path)}?download=`);
+  const toMove = holdingVideoFiles().filter((name) => !stored.has(name));
   return (
     <>
       <h1>Holding Slides</h1>
@@ -60,6 +67,7 @@ export default async function HoldingSlides() {
         1920×1080; download the PNG to use it in the streaming software, or copy its link (anyone with the link can open
         it), or click a picture to see it full size.
       </p>
+      {admin.role === "owner" && toMove.length > 0 && <MoveVideos files={toMove} />}
       <div className="slides-list">
         {HOLDING_VIDEOS.map((video) => {
           const current = video.revisions[video.revisions.length - 1];
@@ -71,12 +79,12 @@ export default async function HoldingSlides() {
                 <span className="admin-badge admin-status-showing">Video · version {current.version} (current)</span>
               </div>
               <p className="admin-muted slides-use">{video.use}</p>
-              <video className="slides-video" controls preload="none" poster={current.poster} width={1920} height={1080}>
-                <source src={current.file} type="video/mp4" />
+              <video className="slides-video" controls preload="none" poster={src(current.poster)} width={1920} height={1080}>
+                <source src={src(current.file)} type="video/mp4" />
               </video>
               <p className="slides-video-actions">
-                <a className="button" href={current.file} download>Download MP4</a>{" "}
-                <CopyLink path={current.file} className="button button-outline" />
+                <a className="button" href={download(current.file)} download>Download MP4</a>{" "}
+                <CopyLink path={src(current.file)} className="button button-outline" />
               </p>
               <p className="slides-changes">
                 <strong>{when(current.date)}:</strong> {current.changes}
@@ -95,12 +103,12 @@ export default async function HoldingSlides() {
                       <li key={r.version}>
                         <div className="slides-images slides-images-small">
                           <figure>
-                            <a href={r.file} target="_blank" rel="noopener">
-                              <img src={r.poster} alt={`${video.title}, version ${r.version}`} width={1280} height={720} loading="lazy" />
+                            <a href={src(r.file)} target="_blank" rel="noopener">
+                              <img src={src(r.poster)} alt={`${video.title}, version ${r.version}`} width={1280} height={720} loading="lazy" />
                             </a>
                             <figcaption>
-                              <a className="slides-download" href={r.file} download>Download MP4</a>
-                              <CopyLink path={r.file} className="slides-download slides-copy" />
+                              <a className="slides-download" href={download(r.file)} download>Download MP4</a>
+                              <CopyLink path={src(r.file)} className="slides-download slides-copy" />
                             </figcaption>
                           </figure>
                         </div>

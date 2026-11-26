@@ -9,7 +9,7 @@ import DatabaseSetup from "../_setup/DatabaseSetup";
 
 export const metadata: Metadata = { title: "Activity Log" };
 
-const AREAS = ["Sign-in", "Account", "Users", "Sermons", "Livestreams", "Bulletins", "Newsletters", "Live notices", "Messages", "Analytics", "Backup", "Database"];
+const AREAS = ["Sign-in", "Account", "Users", "Sermons", "Livestreams", "Bulletins", "Newsletters", "Live notices", "Messages", "Analytics", "Backup", "Database", "Holding slides"];
 const PERIODS = [
   { key: "", label: "All time", days: 0 },
   { key: "today", label: "Today", days: 1 },

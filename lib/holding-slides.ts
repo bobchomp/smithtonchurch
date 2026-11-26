@@ -116,8 +116,8 @@ export const HOLDING_SLIDES: HoldingSlide[] = [
   },
 ];
 
-// Videos for the stream: kept in public/holding-videos/ (too big to send through the admin panel's
-// own file route), with a poster picture. See scripts/holding-video/README.md for how they're made.
+// Videos for the stream: kept in file storage (lib/holding-videos.ts; until moved, in public/holding-videos/)
+// with a poster picture. See scripts/holding-video/README.md for how they're made.
 export type VideoRevision = {
   version: number;
   date: string; // UK time, "YYYY-MM-DDTHH:MM"

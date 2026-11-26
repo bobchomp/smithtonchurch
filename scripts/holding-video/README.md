@@ -1,6 +1,6 @@
 # The "service will start shortly" verses video
 
-How `public/holding-videos/service-starting-shortly-verses-v<N>.mp4` (Admin → Holding Slides) was made:
+How `service-starting-shortly-verses-v<N>.mp4` (Admin → Holding Slides; kept in Supabase Storage under `website/holding-videos/`, each under 50 MB) was made:
 
 1. `fetch-verses.py` downloads each verse (NIV, Anglicised) from Bible Gateway, and `tidy-verses.py` strips
    headings and verse numbers and tidies quotation marks for showing on their own. The result is
@@ -27,7 +27,7 @@ with 4:28–19:06 of the recording `Robert_01.mp3` (whole pieces, between two pa
 ```bash
 ffmpeg -i service-starting-shortly-verses-v3.mp4 -ss 268.17 -to 1146.5 -i Robert_01.mp3 \
   -filter_complex "[1:a]volume=7.8dB,afade=t=in:d=0.4,afade=t=out:st=877.3:d=1,apad=whole_dur=900[a]" \
-  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 160k -ar 44100 -t 900 -movflags +faststart service-starting-shortly-verses-music-v1.mp4
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 128k -ar 44100 -t 900 -movflags +faststart service-starting-shortly-verses-music-v1.mp4
 ```
 
 Version 4 (and the piano version 2) shows each verse for 16 seconds with 1-second fades: 57 verses

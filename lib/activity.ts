@@ -20,7 +20,8 @@ export type ActivityArea =
   | "Messages"
   | "Analytics"
   | "Backup"
-  | "Database";
+  | "Database"
+  | "Holding slides";
 
 export type ActivityEntry = {
   area: ActivityArea;

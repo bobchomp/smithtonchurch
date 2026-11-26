@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 
-// Copies a slide's or video's public address (shown in full when copying isn't possible).
+// Copies a slide's or video's public address (a path on the website, or a full address in file storage) (shown in full when copying isn't possible).
 export default function CopyLink({ path, className }: { path: string; className?: string }) {
   const [state, setState] = useState<"" | "copied" | "failed">("");
-  const url = () => `${window.location.protocol}//${window.location.host.replace(/^admin\./, "www.")}${path}`;
+  const url = () => /^https?:/.test(path) ? path : `${window.location.protocol}//${window.location.host.replace(/^admin\./, "www.")}${path}`;
   return (
     <>
       <button
